@@ -1,62 +1,73 @@
 import mongoose from "mongoose";
 
-const patientSchema = new mongoose.Schema({
-  patientId: {
-    type: String,
-  },
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  gender: {
-    type: String,
-    required: true,
-    enum: ["male", "female"],
-  },
-  dateOfBirth: {
-    type: Date,
-  },
+const patientSchema = new mongoose.Schema(
+  {
+    patientId: {
+      type: String,
+    },
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    gender: {
+      type: String,
+      required: true,
+      enum: ["male", "female"],
+    },
+    dateOfBirth: {
+      type: Date,
+    },
+    age: {
+      type: Number,
+    },
+    profilePicture: {
+      type: String,
+      default: "",
+    },
+    cloudinaryId: {
+      type: String,
+    },
 
-  profilePicture: {
-    type: String,
-    default: "",
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
+    guardianPhoneNumber: {
+      type: String,
+    },
+    address: {
+      country: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
+      district: {
+        type: String,
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 8,
+    },
+    userType: {
+      type: String,
+      default: "patient",
+    },
   },
-  cloudinaryId: {
-    type: String,
-  },
-
-  phoneNumber: {
-    type: String,
-    required: true,
-  },
-  guardianPhoneNumber: {
-    type: String,
-  },
-  country: {
-    type: String,
-    required: true,
-  },
-  district: {
-    type: String,
-  },
-  city: {
-    type: String,
-  },
-
-  password: {
-    type: String,
-    required: true,
-    minlength: 8,
-  },
-});
+  { timesstamps: true }
+);
 
 patientSchema.pre("save", function (next) {
   if (!this.patientId) {

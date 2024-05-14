@@ -11,7 +11,7 @@ export const signupPatient = async (req, res) => {
       phoneNumber,
       guardianPhoneNumber,
       gender,
-      country,
+      address,
       password,
       confirmPassword,
     } = req.body;
@@ -20,6 +20,12 @@ export const signupPatient = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
+    if (phoneNumber === guardianPhoneNumber) {
+      return res.status(400).json({
+        message:
+          "Guardian phone number cannot be the same as patient phone number",
+      });
+    }
     const patientByEmail = await Patient.findOne({ email });
     const patientByPhone = await Patient.findOne({ phoneNumber });
 
@@ -42,13 +48,13 @@ export const signupPatient = async (req, res) => {
       phoneNumber,
       guardianPhoneNumber,
       gender,
-      country,
+      address,
       password: hashedPassword,
     });
 
     if (newPatient) {
       // generate jwt token
-      generateToken(newPatient._id, res);
+      generateToken(newPatient._id, newPatient.userType, res);
       await newPatient.save();
 
       res
@@ -66,9 +72,37 @@ export const signupPatient = async (req, res) => {
 };
 
 export const loginPatient = async (req, res) => {
-  console.log("Login patient");
+  try {
+    const { email, password } = req.body;
+
+    const patient = await Patient.findOne({ email });
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      patient?.password || ""
+    );
+
+    if (!patient || !isPasswordValid) {
+      return res.status(400).json({ message: "Invalid patient credentials" });
+    }
+
+    // generate jwt token
+    generateToken(patient._id, patient.userType, res);
+
+    res
+      .status(200)
+      .json({ message: "Patient logged in successfully", patient });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
-export const logoutPatient = async (req, res) => {
-  console.log("Logout patient");
+export const logoutPatient = (req, res) => {
+  try {
+    res.clearCookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Patient logged out successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
