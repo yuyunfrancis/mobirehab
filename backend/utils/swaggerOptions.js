@@ -11,7 +11,7 @@ const swaggerOptions = {
         url: "https://spdx.org/licenses/MIT.html",
       },
       contact: {
-        name: "Mobirehab",
+        name: "MOBIREHAB - Yuyun Francis",
         url: "https://mobirehab.rw/",
         email: "info@mobirehab.rw",
       },
