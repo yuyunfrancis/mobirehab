@@ -73,9 +73,11 @@ export const signupPatient = async (req, res) => {
 
 export const loginPatient = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, phoneNumber, password } = req.body;
 
-    const patient = await Patient.findOne({ email });
+    const patient = await Patient.findOne({
+      $or: [{ email }, { phoneNumber }],
+    });
     const isPasswordValid = await bcrypt.compare(
       password,
       patient?.password || ""
