@@ -26,8 +26,8 @@ app.use(cookieParser());
 app.get("/", (req, res) => res.send("Welcome to MOBIREHAB API"));
 
 //PATIENT ROUTES
-app.use("/api/v1/auth", patientRoutes);
-app.use("/api/v1/therapist/auth", therapistRoutes);
+app.use("/api/v1/patient", patientRoutes);
+app.use("/api/v1/therapist", therapistRoutes);
 
 //Documentation
 app.use(

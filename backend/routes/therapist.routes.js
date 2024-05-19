@@ -1,6 +1,10 @@
 import express from "express";
 import validateToken from "../middleware/validateToken.js";
-import { signupTherapist } from "../controllers/therapist.controller.js";
+import {
+  loginTherapist,
+  signupTherapist,
+  verifyAccount,
+} from "../controllers/therapist.controller.js";
 import fs from "fs";
 import multer from "multer";
 
@@ -32,5 +36,13 @@ router.post(
   ]),
   signupTherapist
 );
+
+router.get("/verify-email", verifyAccount);
+router.post("/login", loginTherapist);
+
+router.use(validateToken);
+router.get("/profile", (req, res) => {
+  res.json(req.user);
+});
 
 export default router;

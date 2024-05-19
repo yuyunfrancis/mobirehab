@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const therapistSchema = new mongoose.Schema(
   {
@@ -87,6 +88,19 @@ const therapistSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    otp: {
+      type: String,
+      // select: false,
+    },
+    otpExpires: {
+      type: Date,
+      // select: false,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+      // select: false,
+    },
     password: {
       type: String,
       required: true,
@@ -113,6 +127,18 @@ function generateTherapistId() {
 
   return id;
 }
+
+// Methods to check password
+therapistSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+therapistSchema.methods.createOTP = function () {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.otp = otp;
+  this.otpExpires = Date.now() + 10 * 60 * 1000;
+  return otp;
+};
 
 const Therapist = mongoose.model("Therapist", therapistSchema);
 
