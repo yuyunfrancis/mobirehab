@@ -2,6 +2,17 @@ import bcrypt from "bcryptjs";
 import Patient from "../models/patient.model.js";
 import generateToken from "../utils/generateToken.js";
 
+const createSendToken = (user, statusCode, res) => {
+  const token = generateToken(user._id, user.userType, res);
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 export const signupPatient = async (req, res) => {
   try {
     const {
@@ -53,13 +64,9 @@ export const signupPatient = async (req, res) => {
     });
 
     if (newPatient) {
-      // generate jwt token
-      generateToken(newPatient._id, newPatient.userType, res);
       await newPatient.save();
-
-      res
-        .status(201)
-        .json({ message: "Patient created successfully", newPatient });
+      const user = await Patient.findById(newPatient._id).select("-password");
+      createSendToken(user, 201, res);
     } else {
       res
         .status(400)
@@ -87,12 +94,8 @@ export const loginPatient = async (req, res) => {
       return res.status(400).json({ message: "Invalid patient credentials" });
     }
 
-    // generate jwt token
-    generateToken(patient._id, patient.userType, res);
-
-    res
-      .status(200)
-      .json({ message: "Patient logged in successfully", patient });
+    const user = await Patient.findById(patient._id).select("-password");
+    createSendToken(user, 200, res);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });

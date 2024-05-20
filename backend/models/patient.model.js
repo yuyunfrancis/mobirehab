@@ -20,7 +20,7 @@ const patientSchema = new mongoose.Schema(
     gender: {
       type: String,
       required: true,
-      enum: ["male", "female"],
+      enum: ["Male", "Memale"],
     },
     dateOfBirth: {
       type: Date,
@@ -42,6 +42,7 @@ const patientSchema = new mongoose.Schema(
     },
     guardianPhoneNumber: {
       type: String,
+      required: true,
     },
     address: {
       country: {
