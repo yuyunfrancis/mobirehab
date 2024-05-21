@@ -27,23 +27,21 @@ const therapistSchema = new mongoose.Schema(
       required: true,
       enum: ["male", "female"],
     },
-    // address: {
-    //   country: {
-    //     type: String,
-    //     required: true,
-    //   },
-    //   city: {
-    //     type: String,
-    //     required: true,
-    //   },
-    //   district: {
-    //     type: String,
-    //   },
-    // },
-
     address: {
-      type: String,
-      required: true,
+      country: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
+      district: {
+        type: String,
+      },
+      street: {
+        type: String,
+      },
     },
 
     profession: {

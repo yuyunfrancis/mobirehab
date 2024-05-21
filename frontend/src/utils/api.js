@@ -1,9 +1,10 @@
 import axios from "axios";
 
 const apiUrl = "http://localhost:5000/";
+const apiLiveUrl = "https://mobirehab.onrender.com/";
 
 const api = axios.create({
-  baseURL: `${apiUrl}api/v1/`,
+  baseURL: `${apiLiveUrl}api/v1/`,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
