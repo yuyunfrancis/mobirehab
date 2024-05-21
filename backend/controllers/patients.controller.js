@@ -91,7 +91,12 @@ export const loginPatient = async (req, res) => {
     );
 
     if (!patient || !isPasswordValid) {
-      return res.status(400).json({ message: "Invalid patient credentials" });
+      return res
+        .status(400)
+        .json({
+          message:
+            "Invalid login patient credentials. Please check your credentials",
+        });
     }
 
     const user = await Patient.findById(patient._id).select("-password");

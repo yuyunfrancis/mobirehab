@@ -10,11 +10,14 @@ export default function CustomDropdown({
   name,
   isRequired = false,
   options,
-  customClass,
+  customClass = "",
 }) {
   return (
-    <div className="my-5">
-      <label htmlFor={labelFor} className="sr-only">
+    <div className="">
+      <label
+        htmlFor={labelFor || id}
+        className="block text-sm font-medium text-gray-700 mb-2"
+      >
         {labelText}
       </label>
       <select
@@ -23,7 +26,7 @@ export default function CustomDropdown({
         id={id}
         name={name}
         required={isRequired}
-        className={fixedInputClass + customClass}
+        className={`${fixedInputClass} ${customClass}`}
       >
         {options.map((option, index) => (
           <option key={index} value={option}>

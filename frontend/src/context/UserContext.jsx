@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { isAuthenticated } from "../services/AuthServices";
 
 export const UserContext = createContext();
@@ -8,22 +8,20 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const user = await isAuthenticated();
-      setCurrentUser(user);
+    const checkAuth = () => {
+      const user = isAuthenticated();
+      if (user) {
+        setCurrentUser(user);
+      }
       setLoading(false);
     };
 
     checkAuth();
   }, []);
 
-  if (loading) {
-    return <h1>Loading...</h1>;
-  }
-
   return (
     <UserContext.Provider value={{ currentUser, setCurrentUser, loading }}>
-      {children}
+      {!loading && children}
     </UserContext.Provider>
   );
 };

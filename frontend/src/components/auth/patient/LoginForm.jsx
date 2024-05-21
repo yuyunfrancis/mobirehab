@@ -12,7 +12,7 @@ const fields = loginFields;
 let fieldsState = {};
 fields.forEach((field) => (fieldsState[field.id] = ""));
 
-export default function Login() {
+export default function LoginForm({ API_ENDPOINT }) {
   const [loginState, setLoginState] = useState(fieldsState);
   const { currentUser, setCurrentUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,7 @@ export default function Login() {
     setLoading(false);
   };
 
-  //Handle Login API Integration here
+  // Handle Login API Integration here
   const authenticateUser = async () => {
     let loginFields = {
       email: loginState["email-address"],
@@ -39,26 +39,28 @@ export default function Login() {
 
     console.log("Fields", loginFields.email, loginFields.password);
 
-    const END_POINT = "patient/login";
-
     try {
       const userData = await login(
         loginFields.email,
         loginFields.password,
-        END_POINT
+        API_ENDPOINT
       );
       if (userData) {
         setCurrentUser(userData);
-        console.log(userData);
         toast.success("Logged in successfully");
-        navigate("/patient/dashboard", { replace: true });
+
+        if (userData.data.user.userType === "patient") {
+          navigate("/patient/", { replace: true });
+        } else {
+          toast.error("Login failed");
+        }
       } else {
         toast.error("Login failed");
       }
     } catch (err) {
       if (!err.message || !err.message.includes("Login failed")) {
         if (err.response) {
-          toast.error(`Login failed: ${err.response.data.error}`);
+          toast.error(`Login failed: ${err.response.data.message}`);
         } else {
           toast.error("An error occurred. Please try again later.");
         }
@@ -71,6 +73,7 @@ export default function Login() {
       <div className="-space-y-px">
         {fields.map((field) => (
           <Input
+            customClass="mb-5"
             key={field.id}
             handleChange={handleChange}
             value={loginState[field.id]}
