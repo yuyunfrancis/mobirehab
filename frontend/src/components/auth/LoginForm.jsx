@@ -54,9 +54,9 @@ export default function LoginForm({ API_ENDPOINT }) {
         }
         if (userData.data.user.userType === "therapist") {
           navigate("/therapist/", { replace: true });
-        } else {
-          toast.error("Login failed");
         }
+      } else {
+        toast.error("Login failed");
       }
     } catch (err) {
       if (!err.message || !err.message.includes("Login failed")) {
