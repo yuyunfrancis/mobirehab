@@ -1,12 +1,12 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../../context/UserContext";
-import { login } from "../../../services/AuthServices";
-import { loginFields } from "../../../constants/formFields";
+import { UserContext } from "../../context/UserContext";
+import { login } from "../../services/AuthServices";
+import { loginFields } from "../../constants/formFields";
 import { toast } from "react-hot-toast";
-import Input from "../../common/forms/Input";
-import FormExtra from "../../common/forms/FormExtra";
-import FormAction from "../../common/forms/FormAction";
+import Input from "../common/forms/Input";
+import FormExtra from "../common/forms/FormExtra";
+import FormAction from "../common/forms/FormAction";
 
 const fields = loginFields;
 let fieldsState = {};
@@ -51,6 +51,9 @@ export default function LoginForm({ API_ENDPOINT }) {
 
         if (userData.data.user.userType === "patient") {
           navigate("/patient/", { replace: true });
+        }
+        if (userData.data.user.userType === "therapist") {
+          navigate("/therapist/", { replace: true });
         } else {
           toast.error("Login failed");
         }

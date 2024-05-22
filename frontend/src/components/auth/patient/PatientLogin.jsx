@@ -1,10 +1,8 @@
 import React from "react";
-import { Carousel } from "react-responsive-carousel";
-
+import LoginForm from "../LoginForm";
 import Header from "../../common/Header";
-import LoginForm from "./LoginForm";
 
-const PatientLogin = ({ END_POINT }) => {
+const TherapistLogin = ({ END_POINT }) => {
   return (
     <div className="w-screen h-screen flex overflow-hidden">
       <div className="flex flex-col md:flex-row w-full h-full">
@@ -29,6 +27,8 @@ const PatientLogin = ({ END_POINT }) => {
               paragraph="Don't have an account yet? "
               linkName="Signup"
               linkUrl="/patient/signup"
+              additionalLinkName="I am a Therapist"
+              additionalLinkUrl="/therapist/login"
             />
             <LoginForm API_ENDPOINT={END_POINT} />
           </div>
@@ -38,4 +38,4 @@ const PatientLogin = ({ END_POINT }) => {
   );
 };
 
-export default PatientLogin;
+export default TherapistLogin;

@@ -5,6 +5,8 @@ export default function Header({
   paragraph,
   linkName,
   linkUrl = "#",
+  additionalLinkName,
+  additionalLinkUrl = "#",
 }) {
   return (
     <div className="mb-10">
@@ -27,6 +29,16 @@ export default function Header({
           {linkName}
         </Link>
       </p>
+      {additionalLinkName && (
+        <p className="text-center text-sm text-gray-600 mt-5">
+          <Link
+            to={additionalLinkUrl}
+            className="font-medium text-blueColor hover:text-blueHover"
+          >
+            {additionalLinkName}
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

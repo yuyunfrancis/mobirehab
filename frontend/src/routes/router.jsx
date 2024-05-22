@@ -10,6 +10,7 @@ import RedirectToDashboard from "./RedirectToDashboard";
 import NotAuthorized from "../pages/NotAuthorized";
 import NotFound from "../pages/NotFound";
 import PatientSignup from "../components/auth/patient/PatientSignup";
+import TherapistDashboard from "../components/TherapistDashboard/TherapistDashboard";
 
 const AppRoutes = () => {
   return (
@@ -25,7 +26,7 @@ const AppRoutes = () => {
       />
       <Route
         path="/therapist/login"
-        element={<TherapistLogin API_ENDPOINT="therapist/login" />}
+        element={<TherapistLogin END_POINT="therapist/login" />}
       />
       <Route
         path="/patient/*"
@@ -34,14 +35,14 @@ const AppRoutes = () => {
         <Route path="*" element={<PatientDashboard />} />
       </Route>
 
-      {/* <Route
+      <Route
         path="/therapist/*"
         element={<PrivateRoutes allowedRoles={["therapist"]} />}
       >
         <Route path="*" element={<TherapistDashboard />} />
       </Route>
 
-      <Route
+      {/* <Route
         path="/admin/*"
         element={<PrivateRoutes allowedRoles={["admin"]} />}
       >

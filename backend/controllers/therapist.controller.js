@@ -183,8 +183,6 @@ export const loginTherapist = async (req, res) => {
     }
 
     createSendToken(therapist, 200, res);
-
-    res.json({ status: "success", message: "Login successful" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });

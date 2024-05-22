@@ -16,10 +16,10 @@ const RedirectToDashboard = () => {
             navigate("/patient/", { replace: true });
             break;
           case "therapist":
-            navigate("/therapist/dashboard", { replace: true });
+            navigate("/therapist/", { replace: true });
             break;
           case "admin":
-            navigate("/admin/dashboard", { replace: true });
+            navigate("/admin/", { replace: true });
             break;
           default:
             navigate("/patient/login", { replace: true });
