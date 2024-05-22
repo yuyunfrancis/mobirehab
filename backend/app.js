@@ -1,5 +1,6 @@
 import { config } from "dotenv";
 config();
+import path from "path";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -12,6 +13,8 @@ import therapistRoutes from "./routes/therapist.routes.js";
 
 const app = express();
 
+const __dirname = path.resolve();
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -23,7 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.get("/", (req, res) => res.send("Welcome to MOBIREHAB API"));
+// app.get("/", (req, res) => res.send("Welcome to MOBIREHAB API"));
 
 //PATIENT ROUTES
 app.use("/api/v1/patient", patientRoutes);
@@ -35,5 +38,12 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerJsdoc(swaggerOptions), { explorer: true })
 );
+
+// Serve static assets if in production
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+});
 
 export default app;
