@@ -11,6 +11,7 @@ import NotAuthorized from "../pages/NotAuthorized";
 import NotFound from "../pages/NotFound";
 import PatientSignup from "../components/auth/patient/PatientSignup";
 import TherapistDashboard from "../components/TherapistDashboard/TherapistDashboard";
+import TherapistSignup from "../components/auth/therapist/signup/TherapistSignup";
 
 const AppRoutes = () => {
   return (
@@ -28,6 +29,7 @@ const AppRoutes = () => {
         path="/therapist/login"
         element={<TherapistLogin END_POINT="therapist/login" />}
       />
+      <Route path="/therapist/signup" element={<TherapistSignup />} />
       <Route
         path="/patient/*"
         element={<PrivateRoutes allowedRoles={["patient"]} />}
