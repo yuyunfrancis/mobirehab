@@ -144,7 +144,7 @@ export const verifyAccount = async (req, res) => {
     therapist.otpExpires = null;
 
     await therapist.save();
-    return res.redirect("therapist/success");
+    return res.redirect("/success");
   } catch (e) {
     console.log(e);
     if (!res.headersSent) {
