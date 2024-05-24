@@ -22,10 +22,13 @@ const therapistSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    alternativePhoneNumber: {
+      type: String,
+    },
     gender: {
       type: String,
       required: true,
-      enum: ["male", "female"],
+      enum: ["Male", "Female"],
     },
     address: {
       country: {
@@ -51,6 +54,16 @@ const therapistSchema = new mongoose.Schema(
     bio: {
       type: String,
       required: true,
+    },
+
+    numOfYearsOfExperience: {
+      type: String,
+      required: true,
+    },
+
+    currentWorkplace: {
+      type: String,
+      default: "",
     },
 
     licenseNumber: {

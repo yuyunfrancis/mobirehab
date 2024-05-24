@@ -27,7 +27,9 @@ export const signupTherapist = async (req, res) => {
       profession,
       bio,
       licenseNumber,
+      numOfYearsOfExperience,
       password,
+      confirmPassword,
     } = req.body;
 
     // Check if email or phone number is already in use
@@ -40,6 +42,10 @@ export const signupTherapist = async (req, res) => {
 
     if (therapistByPhone) {
       return res.status(400).json({ message: "Phone number already in use" });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
     }
 
     // Hash the password
@@ -84,6 +90,7 @@ export const signupTherapist = async (req, res) => {
       profession,
       bio,
       licenseNumber,
+      numOfYearsOfExperience,
       password: hashedPassword,
       profilePicture: uploadResults[0].secure_url,
       cv: uploadResults[1].secure_url,
@@ -102,6 +109,7 @@ export const signupTherapist = async (req, res) => {
     await sendEmail({
       receipientEmail: email,
       subject: "Email Verification Mobirehab",
+      req: req,
       template_data: {
         name: firstName,
         otp: otp,
@@ -136,11 +144,7 @@ export const verifyAccount = async (req, res) => {
     therapist.otpExpires = null;
 
     await therapist.save();
-
-    createSendToken(therapist, 200, res);
-
-    // Indicate success without redirecting from the server
-    res.json({ status: "success", message: "Email verified successfully" });
+    return res.redirect("/therapist");
   } catch (e) {
     console.log(e);
     if (!res.headersSent) {

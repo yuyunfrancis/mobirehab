@@ -1,24 +1,63 @@
 import React, { useState } from "react";
 import PersonalInfo from "./PersonalInfo";
 import ProfessionalInfo from "./ProfessionalInfo";
-import RequiredFiles from "./RequiredFiles.";
 import ProgressBar from "../../../utilities/ProgressBar";
+import { signup } from "../../../../services/AuthServices";
+import RequiredFiles from "./RequiredFiles.";
+import api from "../../../../utils/api";
 
-const SignupFormTherapist = () => {
+const SignupFormTherapist = ({ API_ENDPOINT }) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    alternativePhoneNumber: "",
+    gender: "Male",
+    address: {
+      country: "",
+      city: "",
+      district: "",
+      street: "",
+    },
     profession: "",
-    file: null,
+    bio: "",
+    numOfYearsOfExperience: "",
+    licenseNumber: "",
+    currentWorkplace: "",
+    licenseDocument: null,
+    cv: null,
+    profilePicture: null,
+    password: "",
+    confirmPassword: "",
   });
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: type === "file" ? files[0] : value,
-    }));
+    if (
+      name === "country" ||
+      name === "city" ||
+      name === "district" ||
+      name === "street"
+    ) {
+      setFormData((prevData) => ({
+        ...prevData,
+        address: {
+          ...prevData.address,
+          [name]: value,
+        },
+      }));
+    } else {
+      // For other input fields
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: type === "file" ? files[0] : value,
+      }));
+    }
   };
+
   const steps = [
     {
       title: "Personal Info",
@@ -38,38 +77,97 @@ const SignupFormTherapist = () => {
     },
   ];
 
-  const nextStep = () => {
+  const nextStep = (e) => {
+    e.preventDefault();
     if (currentStep === steps.length) {
-      handleFinalSubmission();
+      handleFinalSubmission(e);
     } else {
       setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+      console.log("Form Data at Step", currentStep, ":", formData);
     }
   };
 
-  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
+  const prevStep = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+    console.log("Form Data at Step", currentStep, ":", formData);
+  };
 
-  const handleFinalSubmission = () => {
+  const registerTherapist = async () => {
+    try {
+      setLoading(true);
+      // const response = await signup(formData, API_ENDPOINT);
+      const response = await api.post(API_ENDPOINT, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("Registration successful:", response);
+      alert(
+        "Account created successfully. Please check your email for verification."
+      );
+      setCurrentStep(steps.length + 1);
+    } catch (error) {
+      console.error("Registration failed:", error);
+      alert(`Registration failed: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFinalSubmission = async (e) => {
+    e.preventDefault();
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "email",
+      "phoneNumber",
+      "gender",
+      "address",
+      "profession",
+      "bio",
+      "numOfYearsOfExperience",
+      "licenseNumber",
+      "currentWorkplace",
+      "licenseDocument",
+      "cv",
+      "profilePicture",
+      "password",
+      "confirmPassword",
+    ];
+    const isAllFieldsFilled = requiredFields.every((field) => {
+      if (typeof formData[field] === "object" && formData[field] !== null) {
+        return Object.values(formData[field]).every(
+          (value) => value?.toString().trim() !== ""
+        );
+      } else {
+        return formData[field]?.toString().trim() !== "";
+      }
+    });
+
+    if (!isAllFieldsFilled) {
+      alert("Please fill in all required fields before submitting.");
+      return;
+    }
+
     if (
       window.confirm(
         "Have you reviewed your information and want to proceed with registration?"
       )
     ) {
-      console.log(formData);
-      alert(
-        "Account created successfully. Please check your email for verification."
-      );
-      setCurrentStep(steps.length + 1);
+      console.log("Final form data", formData);
+      await registerTherapist();
     }
   };
 
   return (
-    <div className="w-full">
+    <form onSubmit={handleFinalSubmission} className="w-full">
       {currentStep <= steps.length ? (
         <>
           <ProgressBar steps={steps} currentStep={currentStep} />
           {steps[currentStep - 1].content}
           <div className="flex justify-between mt-4">
             <button
+              type="button"
               onClick={prevStep}
               disabled={currentStep === 1}
               className={`px-4 py-2 rounded ${
@@ -78,7 +176,9 @@ const SignupFormTherapist = () => {
             >
               Previous
             </button>
+
             <button
+              type={currentStep === steps.length ? "submit" : "button"}
               onClick={nextStep}
               className={`px-4 py-2 rounded ${
                 currentStep === steps.length
@@ -100,7 +200,7 @@ const SignupFormTherapist = () => {
           </p>
         </div>
       )}
-    </div>
+    </form>
   );
 };
 

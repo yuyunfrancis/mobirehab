@@ -2,7 +2,7 @@ import React from "react";
 import Header from "../../../common/Header";
 import SignupFormTherapist from "./SignupFormTherapist";
 
-const TherapistSignup = () => {
+const TherapistSignup = ({ END_POINT }) => {
   return (
     <div className="w-screen h-screen flex overflow-hidden">
       <div className="flex w-full h-full">
@@ -21,14 +21,14 @@ const TherapistSignup = () => {
           </p>
         </div>
         <div className="w-full md:w-3/5 h-full bg-white flex flex-col items-center md:items-center justify-center overflow-auto">
-          <div className="flex-wrap lg:w-3/4 w-full px-8 mt-6 lg:mt-0 lg:px-0 py-6 lg:py-0 overflow-hidden">
+          <div className="flex-wrap lg:w-3/4 w-full px-8 mt-6 lg:mt-0 lg:px-0 py-6 lg:py-0 overflow-y-auto lg:overflow-hidden">
             <Header
               heading="Therapist Registration"
               paragraph="Already have an account? "
               linkName="Login"
               linkUrl="/therapist/login"
             />
-            <SignupFormTherapist />
+            <SignupFormTherapist API_ENDPOINT={END_POINT} />
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 import sgMail from "@sendgrid/mail";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendEmail = async ({ receipientEmail, subject, template_data }) => {
+const sendEmail = async ({ receipientEmail, subject, template_data, req }) => {
   const msg = {
     to: receipientEmail,
     from: process.env.SENDGRID_VERIFIED_SENDER || "falconinnovcm@gmail.com",
@@ -14,7 +14,7 @@ const sendEmail = async ({ receipientEmail, subject, template_data }) => {
         <p>Hello,</p>
         <p>Thank you for signing up for MoniHealth. Please click the button below to verify your email address.</p>
         <div style="text-align: center;">
-          <a href="http://localhost:5000/api/v1/therapist/auth/verify-email?otp=${template_data.otp}" style="background-color: #4CAF50; color: #fff; text-decoration: none; padding: 10px 20px; margin: 20px 0; display: inline-block; border-radius: 5px;">Verify Email</a>
+          <a href="http://${req.headers.host}/api/v1/therapist/verify-email?otp=${template_data.otp}" style="background-color: #4CAF50; color: #fff; text-decoration: none; padding: 10px 20px; margin: 20px 0; display: inline-block; border-radius: 5px;">Verify Email</a>
         </div>
         <p>If you did not sign up for MoniHealth, you can safely ignore this email.</p>
         <p>Best,</p>

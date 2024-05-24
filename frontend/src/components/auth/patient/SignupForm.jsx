@@ -17,7 +17,7 @@ const SignupForm = ({ API_ENDPOINT }) => {
     email: "",
     phoneNumber: "",
     guardianPhoneNumber: "",
-    gender: "",
+    gender: "Male",
     address: {
       country: "",
       city: "",
@@ -52,6 +52,23 @@ const SignupForm = ({ API_ENDPOINT }) => {
     }
   };
 
+  const registerPatient = async () => {
+    const data = {
+      firstName: inputs.firstName,
+      lastName: inputs.lastName,
+      email: inputs.email,
+      phoneNumber: inputs.phoneNumber,
+      guardianPhoneNumber: inputs.guardianPhoneNumber,
+      gender: inputs.gender,
+      address: inputs.address,
+      password: inputs.password,
+      confirmPassword: inputs.confirmPassword,
+    };
+
+    const response = await signup(data, API_ENDPOINT);
+    return response;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (inputs.password !== inputs.confirmPassword) {
@@ -72,23 +89,6 @@ const SignupForm = ({ API_ENDPOINT }) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const registerPatient = async () => {
-    const data = {
-      firstName: inputs.firstName,
-      lastName: inputs.lastName,
-      email: inputs.email,
-      phoneNumber: inputs.phoneNumber,
-      guardianPhoneNumber: inputs.guardianPhoneNumber,
-      gender: inputs.gender,
-      address: inputs.address,
-      password: inputs.password,
-      confirmPassword: inputs.confirmPassword,
-    };
-
-    const response = await signup(data, API_ENDPOINT);
-    return response;
   };
 
   return (

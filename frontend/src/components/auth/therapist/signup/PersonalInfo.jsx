@@ -5,14 +5,13 @@ import CustomPhoneInput from "../../../common/forms/PhoneInput";
 import CustomCountryDropdown from "../../../common/forms/CustomCountryDropdown";
 
 const PersonalInfo = ({ formData, handleChange }) => {
-  const inputs = formData;
   return (
     <>
       <div className="flex flex-wrap -mx-3 mb-0 lg:mb-4">
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <Input
             handleChange={handleChange}
-            value={inputs.firstName}
+            value={formData.firstName}
             labelText="First Name"
             labelFor="firstName"
             id="firstName"
@@ -25,7 +24,7 @@ const PersonalInfo = ({ formData, handleChange }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <Input
             handleChange={handleChange}
-            value={inputs.lastName}
+            value={formData.lastName}
             labelText="Last Name"
             labelFor="lastName"
             id="lastName"
@@ -41,7 +40,7 @@ const PersonalInfo = ({ formData, handleChange }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <Input
             handleChange={handleChange}
-            value={inputs.email}
+            value={formData.email}
             labelText="Email Address"
             labelFor="email"
             id="email"
@@ -54,7 +53,7 @@ const PersonalInfo = ({ formData, handleChange }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <CustomDropdown
             handleChange={handleChange}
-            value={inputs.gender}
+            value={formData.gender}
             labelText="Gender"
             labelFor="gender"
             id="gender"
@@ -72,7 +71,7 @@ const PersonalInfo = ({ formData, handleChange }) => {
             country={"rw"}
             labelText={"Phone Number"}
             labelFor="phoneNumber"
-            value={inputs.phoneNumber}
+            value={formData.phoneNumber}
             onChange={(phone) =>
               handleChange({
                 target: { name: "phoneNumber", value: phone },
@@ -84,22 +83,22 @@ const PersonalInfo = ({ formData, handleChange }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <CustomPhoneInput
             country={"rw"}
-            value={inputs.guardianPhoneNumber}
-            labelText={"Guardian's Phone Number"}
-            labelFor="guardianPhoneNumber"
+            value={formData.alternativePhoneNumber}
+            labelText={"Alternative Phone Number"}
+            labelFor="alternativePhoneNumber"
             onChange={(phone) =>
               handleChange({
-                target: { name: "guardianPhoneNumber", value: phone },
+                target: { name: "alternativePhoneNumber", value: phone },
               })
             }
-            placeholder="Guardian's Phone Number"
+            placeholder="Alternative Phone Number"
           />
         </div>
       </div>
       <div className="flex flex-wrap -mx-3 mb-0 lg:mb-4">
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <CustomCountryDropdown
-            // value={inputs.address.country}
+            value={formData.address.country}
             handleChange={(country) =>
               handleChange({
                 target: { name: "country", value: country },
@@ -113,7 +112,7 @@ const PersonalInfo = ({ formData, handleChange }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <Input
             handleChange={handleChange}
-            // value={inputs.address.city}
+            value={formData.address.city}
             labelText="City"
             labelFor="city"
             id="city"
@@ -128,7 +127,7 @@ const PersonalInfo = ({ formData, handleChange }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <Input
             handleChange={handleChange}
-            // value={inputs.address.district}
+            value={formData.address.district}
             labelText="District"
             labelFor="district"
             id="district"
@@ -140,7 +139,7 @@ const PersonalInfo = ({ formData, handleChange }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <Input
             handleChange={handleChange}
-            // value={inputs.address.street}
+            value={formData.address.street}
             labelText="Street"
             labelFor="street"
             id="street"
@@ -155,7 +154,7 @@ const PersonalInfo = ({ formData, handleChange }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <Input
             handleChange={handleChange}
-            value={inputs.password}
+            value={formData.password}
             labelText="Password"
             labelFor="password"
             id="password"
@@ -167,7 +166,7 @@ const PersonalInfo = ({ formData, handleChange }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <Input
             handleChange={handleChange}
-            value={inputs.confirmPassword}
+            value={formData.confirmPassword}
             labelText="Confirm Password"
             labelFor="confirmPassword"
             id="confirmPassword"

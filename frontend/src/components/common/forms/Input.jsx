@@ -12,6 +12,7 @@ export default function Input({
   isRequired = false,
   placeholder,
   customClass,
+  component = "input",
 }) {
   return (
     <div className={`${customClass}`}>
@@ -21,16 +22,29 @@ export default function Input({
       >
         {labelText}
       </label>
-      <input
-        onChange={handleChange}
-        value={value}
-        id={id}
-        name={name}
-        type={type}
-        required={isRequired}
-        className={`${fixedInputClass} ${customClass}`}
-        placeholder={placeholder}
-      />
+      {component === "textarea" ? (
+        <textarea
+          onChange={handleChange}
+          value={value}
+          id={id}
+          name={name}
+          required={isRequired}
+          className={`${fixedInputClass} ${customClass}`}
+          placeholder={placeholder}
+          rows="6"
+        />
+      ) : (
+        <input
+          onChange={handleChange}
+          value={value}
+          id={id}
+          name={name}
+          type={type}
+          required={isRequired}
+          className={`${fixedInputClass} ${customClass}`}
+          placeholder={placeholder}
+        />
+      )}
     </div>
   );
 }
