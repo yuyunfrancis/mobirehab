@@ -4,8 +4,14 @@ import NotFound from "../../pages/NotFound";
 import TherapistDashboardLayout from "./layout/TherapistDashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import ProfilePage from "./pages/ProfilePage";
+import SuccessPage from "../auth/therapist/signup/SuccessPage";
+import { UserContext } from "../../context/UserContext";
 
 const TherapistDashboard = () => {
+  const { currentUser, loading } = React.useContext(UserContext);
+
+  const success = currentUser?.data?.user?.active;
+
   return (
     <Routes>
       <Route path="/" element={<TherapistDashboardLayout />}>
@@ -15,6 +21,7 @@ const TherapistDashboard = () => {
         <Route path="settings" element={<ProfilePage />} />{" "}
         {/* Assuming ProfilePage as placeholder for Settings */}
       </Route>
+      <Route path="/success" element={<SuccessPage success={success} />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

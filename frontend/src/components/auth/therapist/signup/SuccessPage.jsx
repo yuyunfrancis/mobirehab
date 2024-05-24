@@ -1,11 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const SuccessPage = () => {
+const SuccessPage = ({ success }) => {
   const navigate = useNavigate();
 
   const handleBackToLogin = () => {
-    navigate("therapist/login", { replace: true });
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -27,8 +27,9 @@ const SuccessPage = () => {
           </svg>
           <h1 className="text-4xl font-bold">Thank You!</h1>
           <p className="text-center">
-            Thank you for your interest! Check your email for a link to the
-            guide.
+            {success
+              ? "Account has been successfully verified. Login now."
+              : "Please check your email to verify your account."}
           </p>
           <button
             onClick={handleBackToLogin}

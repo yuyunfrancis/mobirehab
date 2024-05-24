@@ -34,7 +34,7 @@ const AppRoutes = () => {
         path="/therapist/signup"
         element={<TherapistSignup END_POINT="therapist/signup" />}
       />
-      <Route path="/therapist/success" element={<SuccessPage />} />
+
       <Route
         path="/patient/*"
         element={<PrivateRoutes allowedRoles={["patient"]} />}
