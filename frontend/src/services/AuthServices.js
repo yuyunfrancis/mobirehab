@@ -28,28 +28,23 @@ export const login = async (email, password, API_ENDPOINT) => {
 
 export const signup = async (data, API_ENDPOINT) => {
   try {
-    const response = await api.post(API_ENDPOINT, data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await api.post(API_ENDPOINT, data);
     const token = response.data.token;
 
-    if (!token) {
+    if (token) {
+      localStorage.setItem("user", JSON.stringify(response.data));
+    } else {
       throw new Error("Invalid credentials");
     }
 
-    localStorage.setItem("user", JSON.stringify(response.data));
     return response.data;
-  } catch (error) {
-    console.error("Error during signup:", error); // Log the full error for debugging
-    if (error.response && error.response.status === 503) {
-      throw new Error("Service Unavailable. Please try again later.");
+  } catch (err) {
+    console.error("Error during signup:", err);
+    if (err.response && err.response.status === 503) {
+      return null;
+    } else {
+      throw err;
     }
-    if (error.response && error.response.data.message) {
-      throw new Error(error.response.data.message);
-    }
-    throw new Error("Registration failed. Please try again.");
   }
 };
 

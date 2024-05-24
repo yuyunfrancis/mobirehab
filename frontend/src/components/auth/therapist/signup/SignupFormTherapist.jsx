@@ -180,13 +180,20 @@ const SignupFormTherapist = ({ API_ENDPOINT }) => {
             <button
               type={currentStep === steps.length ? "submit" : "button"}
               onClick={nextStep}
+              disabled={loading} // Disable the button when loading
               className={`px-4 py-2 rounded ${
-                currentStep === steps.length
+                loading
+                  ? "bg-gray-500 text-gray-300 cursor-not-allowed" // Change color and cursor when loading
+                  : currentStep === steps.length
                   ? "bg-green-500 text-white"
                   : "bg-blue-500 text-white"
               }`}
             >
-              {currentStep === steps.length ? "Complete Registration" : "Next"}
+              {loading
+                ? "Registering..."
+                : currentStep === steps.length
+                ? "Complete Registration"
+                : "Next"}
             </button>
           </div>
         </>
