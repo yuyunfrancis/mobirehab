@@ -21,7 +21,7 @@ const TherapistLogin = ({ END_POINT }) => {
           </p>
         </div>
         <div className="w-full md:w-1/2 h-full bg-white flex items-center justify-center">
-          <div className="flex-wrap w-3/4">
+          <div className="flex-wrap w-3/4 max-h-full overflow-y-auto">
             <Header
               heading="Welcome Back. Login into your account and talk to a therapist now"
               paragraph="Don't have an account yet? "

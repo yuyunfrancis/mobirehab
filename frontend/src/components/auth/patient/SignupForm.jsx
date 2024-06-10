@@ -11,6 +11,13 @@ import toast from "react-hot-toast";
 const SignupForm = ({ API_ENDPOINT }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, "0");
+  const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+  const yyyy = today.getFullYear();
+  const todayFormatted = yyyy + "-" + mm + "-" + dd;
+
   const [inputs, setInputs] = useState({
     firstName: "",
     lastName: "",
@@ -18,8 +25,9 @@ const SignupForm = ({ API_ENDPOINT }) => {
     phoneNumber: "",
     guardianPhoneNumber: "",
     gender: "Male",
+    dateOfBirth: todayFormatted,
     address: {
-      country: "",
+      country: "Rwanda",
       city: "",
       district: "",
       street: "",
@@ -61,6 +69,7 @@ const SignupForm = ({ API_ENDPOINT }) => {
       guardianPhoneNumber: inputs.guardianPhoneNumber,
       gender: inputs.gender,
       address: inputs.address,
+      dateOfBirth: inputs.dateOfBirth,
       password: inputs.password,
       confirmPassword: inputs.confirmPassword,
     };
@@ -196,16 +205,18 @@ const SignupForm = ({ API_ENDPOINT }) => {
           />
         </div>
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
-          <Input
-            handleChange={handleChange}
+          <CustomCountryDropdown
+            country={inputs.address.country}
             value={inputs.address.city}
-            labelText="City"
-            labelFor="city"
-            id="city"
+            handleChange={(city) =>
+              handleChange({
+                target: { name: "city", value: city },
+              })
+            }
             name="city"
-            type="text"
-            isRequired={true}
-            placeholder="Kigali"
+            labelFor="city"
+            labelText="Region/City"
+            dropdownType="region"
           />
         </div>
       </div>
@@ -225,13 +236,15 @@ const SignupForm = ({ API_ENDPOINT }) => {
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
           <Input
             handleChange={handleChange}
-            value={inputs.address.street}
-            labelText="Street"
-            labelFor="street"
-            id="street"
-            name="street"
-            type="text"
-            placeholder="Street Address"
+            value={inputs.dateOfBirth}
+            labelText="Date of Birth"
+            labelFor="dateOfBirth"
+            id="dateOfBirth"
+            name="dateOfBirth"
+            type="date"
+            placeholder="Date of Birth"
+            component="datepicker"
+            max={todayFormatted}
           />
         </div>
       </div>

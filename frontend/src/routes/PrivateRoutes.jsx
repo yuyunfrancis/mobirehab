@@ -6,14 +6,14 @@ const PrivateRoutes = ({ allowedRoles }) => {
   const { currentUser, loading } = React.useContext(UserContext);
   const navigate = useNavigate();
 
-  console.log("====================================");
-  console.log("currentUser:", currentUser);
-  console.log("====================================");
+  // console.log("====================================");
+  // console.log("currentUser:", currentUser);
+  // console.log("====================================");
 
   React.useEffect(() => {
     if (!loading) {
       if (!currentUser) {
-        navigate("/patient/login");
+        navigate("/welcome");
       } else if (!allowedRoles.includes(currentUser.data.user.userType)) {
         navigate("/not-authorized");
       }

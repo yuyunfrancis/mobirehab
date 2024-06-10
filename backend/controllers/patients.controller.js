@@ -24,6 +24,7 @@ export const signupPatient = async (req, res) => {
       gender,
       address,
       password,
+      dateOfBirth,
       confirmPassword,
     } = req.body;
 
@@ -60,6 +61,7 @@ export const signupPatient = async (req, res) => {
       guardianPhoneNumber,
       gender,
       address,
+      dateOfBirth,
       password: hashedPassword,
     });
 

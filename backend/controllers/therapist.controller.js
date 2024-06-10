@@ -28,6 +28,7 @@ export const signupTherapist = async (req, res) => {
       bio,
       licenseNumber,
       numOfYearsOfExperience,
+      specialization,
       password,
       confirmPassword,
     } = req.body;
@@ -91,6 +92,7 @@ export const signupTherapist = async (req, res) => {
       bio,
       licenseNumber,
       numOfYearsOfExperience,
+      specialization,
       password: hashedPassword,
       profilePicture: uploadResults[0].secure_url,
       cv: uploadResults[1].secure_url,
@@ -144,7 +146,7 @@ export const verifyAccount = async (req, res) => {
     therapist.otpExpires = null;
 
     await therapist.save();
-    return res.redirect("/success");
+    return res.redirect("/therapist/success");
   } catch (e) {
     console.log(e);
     if (!res.headersSent) {

@@ -27,8 +27,6 @@ const TherapistLogin = ({ END_POINT }) => {
               paragraph="Don't have an account yet? "
               linkName="Signup"
               linkUrl="/patient/signup"
-              additionalLinkName="I am a Therapist"
-              additionalLinkUrl="/therapist/login"
             />
             <LoginForm API_ENDPOINT={END_POINT} />
           </div>

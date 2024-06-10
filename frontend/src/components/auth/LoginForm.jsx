@@ -26,7 +26,7 @@ export default function LoginForm({ API_ENDPOINT }) {
     e.preventDefault();
     setLoading(true);
     await authenticateUser();
-    console.log(loginState);
+    // console.log(loginState);
     setLoading(false);
   };
 
@@ -37,7 +37,7 @@ export default function LoginForm({ API_ENDPOINT }) {
       password: loginState["password"],
     };
 
-    console.log("Fields", loginFields.email, loginFields.password);
+    // console.log("Fields", loginFields.email, loginFields.password);
 
     try {
       const userData = await login(

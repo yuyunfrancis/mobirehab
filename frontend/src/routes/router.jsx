@@ -12,11 +12,13 @@ import NotFound from "../pages/NotFound";
 import PatientSignup from "../components/auth/patient/PatientSignup";
 import TherapistDashboard from "../components/TherapistDashboard/TherapistDashboard";
 import TherapistSignup from "../components/auth/therapist/signup/TherapistSignup";
+import WelcomePage from "../pages/WelcomePage";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<RedirectToDashboard />} />
+      <Route path="/welcome" element={<WelcomePage />} />
       <Route
         path="/patient/login"
         element={<PatientLogin END_POINT="patient/login" />}

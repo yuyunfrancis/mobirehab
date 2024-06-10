@@ -26,7 +26,7 @@ const SignupFormTherapist = ({ API_ENDPOINT }) => {
     bio: "",
     numOfYearsOfExperience: "",
     licenseNumber: "",
-    currentWorkplace: "",
+    specialization: "",
     licenseDocument: null,
     cv: null,
     profilePicture: null,

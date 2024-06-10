@@ -21,7 +21,7 @@ function App() {
           error: {
             duration: 8000,
           },
-          // className: "text-base max-w-md py-4 px-6 bg-gray-50 text-gray-700",
+          className: "text-base max-w-md py-4 px-6 bg-gray-50 text-gray-700",
         }}
       />
     </>

@@ -9,7 +9,7 @@ const RedirectToDashboard = () => {
   useEffect(() => {
     if (!loading) {
       if (!currentUser) {
-        navigate("/patient/login", { replace: true });
+        navigate("/welcome", { replace: true });
       } else {
         switch (currentUser.data.user.userType) {
           case "patient":

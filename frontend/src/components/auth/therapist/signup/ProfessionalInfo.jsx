@@ -1,5 +1,6 @@
 import React from "react";
 import Input from "../../../common/forms/Input";
+import CustomDropdown from "../../../common/forms/CustomDropdown";
 
 const ProfessionalInfo = ({ formData, handleChange }) => {
   return (
@@ -35,16 +36,24 @@ const ProfessionalInfo = ({ formData, handleChange }) => {
 
       <div className="flex flex-wrap -mx-3 mb-0 lg:mb-4">
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
-          <Input
+          <CustomDropdown
             handleChange={handleChange}
-            value={formData.currentWorkplace}
-            labelText="currentWorkplace"
-            labelFor="currentWorkplace"
-            id="currentWorkplace"
-            name="currentWorkplace"
-            type="text"
+            value={formData.specialization}
+            labelText="specialization"
+            labelFor="specialization"
+            id="specialization"
+            name="specialization"
             isRequired={true}
-            placeholder="Your current place of work"
+            options={[
+              "Physiotherapist",
+              "Occupational Therapist",
+              "Prosthetist and Orthotist",
+              "Nurse",
+              "Nutritionist",
+              "Counsellor",
+              "Medical Doctor",
+            ]}
+            placeholder="Gender"
           />
         </div>
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">

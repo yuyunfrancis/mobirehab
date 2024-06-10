@@ -1,15 +1,17 @@
 import React from "react";
-import { CountryDropdown } from "react-country-region-selector";
+import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 
 const fixedInputClass =
-  "rounded-md appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm bg-white";
+  "rounded-md appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-greenPrimary focus:border-greenPrimary focus:z-10 sm:text-sm bg-white";
 
-const CustomCountryDropdown = ({
+const CustomDropdown = ({
   value,
   handleChange,
   labelText,
   labelFor,
   customStyle,
+  dropdownType = "country",
+  country,
   ...props
 }) => {
   return (
@@ -20,14 +22,24 @@ const CustomCountryDropdown = ({
       >
         {labelText}
       </label>
-      <CountryDropdown
-        value={value}
-        onChange={handleChange}
-        className={fixedInputClass}
-        {...props}
-      />
+      {dropdownType === "country" ? (
+        <CountryDropdown
+          value={value}
+          onChange={handleChange}
+          className={fixedInputClass}
+          {...props}
+        />
+      ) : (
+        <RegionDropdown
+          country={country}
+          value={value}
+          onChange={handleChange}
+          className={fixedInputClass}
+          {...props}
+        />
+      )}
     </div>
   );
 };
 
-export default CustomCountryDropdown;
+export default CustomDropdown;

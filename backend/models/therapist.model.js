@@ -61,9 +61,18 @@ const therapistSchema = new mongoose.Schema(
       required: true,
     },
 
-    currentWorkplace: {
+    specialization: {
       type: String,
-      default: "",
+      required: true,
+      enum: [
+        "Physiotherapist",
+        "Occupational Therapist",
+        "Prosthetist and Orthotist",
+        "Nurse",
+        "Nutritionist",
+        "Counsellor",
+        "Medical Doctor",
+      ],
     },
 
     licenseNumber: {
