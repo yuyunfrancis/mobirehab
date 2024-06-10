@@ -26,7 +26,7 @@ const SignupFormTherapist = ({ API_ENDPOINT }) => {
     bio: "",
     numOfYearsOfExperience: "",
     licenseNumber: "",
-    specialization: "",
+    specialization: "Physiotherapist",
     licenseDocument: null,
     cv: null,
     profilePicture: null,
