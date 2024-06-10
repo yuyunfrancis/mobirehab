@@ -17,8 +17,8 @@ const SignupFormTherapist = ({ API_ENDPOINT }) => {
     alternativePhoneNumber: "",
     gender: "Male",
     address: {
-      country: "",
-      city: "",
+      country: "Rwanda",
+      city: "Kigali",
       district: "",
       street: "",
     },

@@ -110,16 +110,18 @@ const PersonalInfo = ({ formData, handleChange }) => {
           />
         </div>
         <div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
-          <Input
-            handleChange={handleChange}
+          <CustomCountryDropdown
+            country={formData.address.country}
             value={formData.address.city}
-            labelText="City"
-            labelFor="city"
-            id="city"
+            handleChange={(city) =>
+              handleChange({
+                target: { name: "city", value: city },
+              })
+            }
             name="city"
-            type="text"
-            isRequired={true}
-            placeholder="Kigali"
+            labelFor="city"
+            labelText="Region/City"
+            dropdownType="region"
           />
         </div>
       </div>
