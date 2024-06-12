@@ -116,6 +116,7 @@ export const signupTherapist = async (req, res) => {
         name: firstName,
         otp: otp,
       },
+      emailType: "signup ",
     });
 
     res.json({
