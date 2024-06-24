@@ -4,9 +4,15 @@ import {
   loginTherapist,
   signupTherapist,
   verifyAccount,
-} from "../controllers/therapist.controller.js";
+} from "../controllers/therapist/therapist.controller.js";
 import fs from "fs";
 import multer from "multer";
+import {
+  deleteAppointment,
+  getAppointmentDetails,
+  getAppointments,
+  updateAppointmentStatus,
+} from "../controllers/therapist/appointment.controller.js";
 
 const dir = "/tmp/my-uploads";
 
@@ -41,6 +47,12 @@ router.get("/verify-email", verifyAccount);
 router.post("/login", loginTherapist);
 
 router.use(validateToken);
+router.route("/appointments").get(getAppointments);
+router
+  .route("/appointments/:_id")
+  .get(getAppointmentDetails)
+  .patch(updateAppointmentStatus)
+  .delete(deleteAppointment);
 router.get("/profile", (req, res) => {
   res.json(req.user);
 });

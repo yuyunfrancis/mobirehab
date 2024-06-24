@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
-import generateToken from "../utils/generateToken.js";
-import Therapist from "../models/therapist.model.js";
-import { uploadFilesToCloudinary } from "../utils/cloudinary.js";
-import sendEmail from "../utils/sendGridEmail.js";
+import generateToken from "../../utils/generateToken.js";
+import Therapist from "../../models/therapist.model.js";
+import { uploadFilesToCloudinary } from "../../utils/cloudinary.js";
+import sendEmail from "../../utils/sendGridEmail.js";
 
 const createSendToken = (user, statusCode, res) => {
   const token = generateToken(user._id, user.userType, res);
@@ -105,7 +105,6 @@ export const signupTherapist = async (req, res) => {
     // Generate OTP
     const otp = await newTherapist.createOTP();
     await newTherapist.save({ validateBeforeSave: false });
-    console.log("OTP", otp);
 
     // Send OTP to therapist
     await sendEmail({

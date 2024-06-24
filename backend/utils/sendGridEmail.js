@@ -8,10 +8,11 @@ const sendEmail = async ({
   recipientEmail,
   subject,
   template_data,
-  req,
+  req = {}, // Provide a default value for `req`
   emailType,
 }) => {
   let htmlContent;
+  const host = req.headers ? req.headers.host : "example.com";
 
   switch (emailType) {
     case "signup":

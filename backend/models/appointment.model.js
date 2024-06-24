@@ -11,6 +11,12 @@ const appointmentSchema = new mongoose.Schema({
     ref: "Therapist",
     required: true,
   },
+
+  // payment: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Payment",
+  //   required: true,
+  // },
   date: {
     type: Date,
     required: true,
@@ -21,8 +27,16 @@ const appointmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Pending", "Accepted", "Declined", "Done", "Cancelled"],
-    default: "Pending",
+    enum: [
+      "Pending",
+      "Accepted",
+      "Declined",
+      "Done",
+      "Cancelled",
+      "Rescheduled",
+      "Waiting for Payment",
+    ],
+    default: "Waiting for Payment",
   },
   service: {
     type: String,
@@ -33,21 +47,22 @@ const appointmentSchema = new mongoose.Schema({
     required: true,
     // maxlength: 1000,
   },
-  payment: {
-    amount: {
-      type: Number,
-      required: true,
-      default: 5000, // 5,000 Rwf
-    },
-    method: {
-      type: String,
-      default: "MTN MoMo",
-    },
-    isPaid: {
-      type: Boolean,
-      default: false,
-    },
-  },
+  // payment: {
+  //   amount: {
+  //     type: Number,
+  //     required: true,
+  //     default: 5000, // 5,000 Rwf
+  //   },
+  //   method: {
+  //     type: String,
+  //     default: "RWF",
+  //   },
+  //   isPaid: {
+  //     type: Boolean,
+  //     default: false,
+  //   },
+  // },
+
   createdAt: {
     type: Date,
     default: Date.now,

@@ -10,6 +10,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerOptions from "./utils/swaggerOptions.js";
 import patientRoutes from "./routes/patient.routes.js";
 import therapistRoutes from "./routes/therapist.routes.js";
+import webhookRoutes from "./routes/webhook.routes.js";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(cookieParser());
 //PATIENT ROUTES
 app.use("/api/v1/patient", patientRoutes);
 app.use("/api/v1/therapist", therapistRoutes);
+app.use("/api/v1/", webhookRoutes);
 
 //Documentation
 app.use(

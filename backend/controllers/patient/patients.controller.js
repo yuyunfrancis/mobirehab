@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import Patient from "../models/patient.model.js";
-import generateToken from "../utils/generateToken.js";
+import Patient from "../../models/patient.model.js";
+import generateToken from "../../utils/generateToken.js";
 
 const createSendToken = (user, statusCode, res) => {
   const token = generateToken(user._id, user.userType, res);

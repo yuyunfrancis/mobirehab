@@ -1,0 +1,247 @@
+import { asyncHandler } from "../../middleware/asyncHandler.js";
+import Appointment from "../../models/appointment.model.js";
+import Patient from "../../models/patient.model.js";
+import Payment from "../../models/payment.model.js";
+import Therapist from "../../models/therapist.model.js";
+import AppointmentService from "../../services/appointment.service.js";
+import processPayment from "../../utils/payment.js";
+import sendEmail from "../../utils/sendGridEmail.js";
+
+// import paymentGateway from "../utils/paymentGateway.js";
+
+// Create a new appointment
+// export const createAppointment = async (req, res) => {
+//   try {
+//     const { therapist, date, time, service, purpose, payment, email } =
+//       req.body;
+//     const patientId = req.user._id;
+
+//     // Check if the therapist exists
+//     const existingTherapist = await Therapist.findById(therapist);
+//     if (!existingTherapist) {
+//       return res.status(404).json({ error: "Therapist not found" });
+//     }
+
+//     const existingPatient = await Patient.findById(patientId);
+//     if (!existingPatient) {
+//       return res.status(404).json({ error: "Patient not found" });
+//     }
+
+//     // Check if the payment details are provided
+//     if (!payment) {
+//       return res.status(400).json({ error: "Payment details are required" });
+//     }
+
+//     // // Validate the payment
+//     const paymentResponse = await processPayment({
+//       phoneNumber: existingPatient.phoneNumber,
+//       amount: payment.amount,
+//       therapistId: therapist,
+//       currency: payment.method,
+//       email: existingPatient.email,
+//     });
+//     // Update the payment.status based on the payment response
+//     if (paymentResponse.status === "success") {
+//       payment.isPaid = true;
+//     } else {
+//       payment.isPaid = false;
+//       return res.status(400).json({ error: "Payment failed" });
+//     }
+
+//     // Create a new appointment
+//     const newAppointment = new Appointment({
+//       patient: patientId,
+//       therapist,
+//       date,
+//       time,
+//       service,
+//       purpose,
+//       payment,
+//     });
+
+//     // Save the new appointment to the database
+//     const savedAppointment = await newAppointment.save();
+
+//     // Fetch patient and therapist details
+//     const patientDetails = await Patient.findById(patientId);
+//     const therapistDetails = await Therapist.findById(therapist);
+
+//     // For patient
+//     const patientEmailData = {
+//       recipientEmail: patientDetails.email,
+//       subject: "Appointment Confirmation",
+//       template_data: {
+//         name: `${patientDetails.firstName} ${patientDetails.lastName}`,
+//         therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+//         date: savedAppointment.date.toDateString(),
+//         time: savedAppointment.time,
+//         status: savedAppointment.status,
+//       },
+//       req,
+//       emailType: "appointment_patient",
+//     };
+
+//     // For therapist
+//     const therapistEmailData = {
+//       recipientEmail: therapistDetails.email,
+//       subject: "New Appointment Notification",
+//       template_data: {
+//         name: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+//         patientName: `${patientDetails.firstName} ${patientDetails.lastName}`,
+//         date: savedAppointment.date.toDateString(),
+//          time: savedAppointment.time,
+//         service: savedAppointment.service,
+//         purpose: savedAppointment.purpose,
+//         status: savedAppointment.status,
+//       },
+//       req,
+//       emailType: "appointment_therapist",
+//     };
+
+//     const patientEmailResponse = await sendEmail(patientEmailData);
+//     const therapistEmailResponse = await sendEmail(therapistEmailData);
+
+//     res.status(201).json({
+//       appointment: savedAppointment,
+//       patientEmailResponse,
+//       therapistEmailResponse,
+//     });
+//   } catch (err) {
+//     res.status(400).json({ error: err.message });
+//   }
+// };
+
+export const createAppointment = asyncHandler(async (req, res) => {
+  try {
+    const { therapist, date, time, service, purpose, paymentDetails } =
+      req.body;
+    const patientId = req.user._id;
+
+    // Check if the therapist exists
+    const existingTherapist = await Therapist.findById(therapist);
+    if (!existingTherapist) {
+      return res.status(404).json({ error: "Therapist not found" });
+    }
+
+    const existingPatient = await Patient.findById(patientId);
+    if (!existingPatient) {
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    // Check if the payment details are provided
+    if (!paymentDetails) {
+      return res.status(400).json({ error: "Payment details are required" });
+    }
+
+    // Create a new appointment
+    const newAppointment = new Appointment({
+      patient: patientId,
+      therapist,
+      date,
+      time,
+      service,
+      purpose,
+    });
+
+    // Save the new appointment to the database
+    const savedAppointment = await newAppointment.save();
+
+    // Create a new payment
+    const newPayment = new Payment({
+      amount: paymentDetails.amount,
+      currency: paymentDetails.currency,
+      status: "pending",
+      appointment: savedAppointment._id,
+    });
+
+    // Save the payment to the database
+    await newPayment.save();
+
+    const paymentResponse = await processPayment({
+      phoneNumber: existingPatient.phoneNumber,
+      fullName: `${existingPatient.firstName} ${existingPatient.lastName}`,
+      amount: paymentDetails.amount,
+      currency: paymentDetails.currency,
+      appointmentId: savedAppointment._id,
+      email: existingPatient.email,
+      req: req,
+    });
+
+    //     // Fetch patient and therapist details
+    const patientDetails = await Patient.findById(patientId);
+    const therapistDetails = await Therapist.findById(therapist);
+
+    // For patient
+    const patientEmailData = {
+      recipientEmail: patientDetails.email,
+      subject: "Appointment Confirmation",
+      template_data: {
+        name: `${patientDetails.firstName} ${patientDetails.lastName}`,
+        therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+        date: savedAppointment.date.toDateString(),
+        time: savedAppointment.time,
+        status: savedAppointment.status,
+      },
+      req,
+      emailType: "appointment_patient",
+    };
+
+    // For therapist
+    const therapistEmailData = {
+      recipientEmail: therapistDetails.email,
+      subject: "New Appointment Notification",
+      template_data: {
+        name: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+        patientName: `${patientDetails.firstName} ${patientDetails.lastName}`,
+        date: savedAppointment.date.toDateString(),
+        time: savedAppointment.time,
+        service: savedAppointment.service,
+        purpose: savedAppointment.purpose,
+        status: savedAppointment.status,
+      },
+      req,
+      emailType: "appointment_therapist",
+    };
+
+    const patientEmailResponse = await sendEmail(patientEmailData);
+    const therapistEmailResponse = await sendEmail(therapistEmailData);
+
+    res.status(201).json({
+      appointment: savedAppointment,
+      patientEmailResponse,
+      therapistEmailResponse,
+      paymentResponse,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// red
+
+// Get all appointments
+
+// Get all appointments for the current user
+export const getAppointments = asyncHandler(async (req, res) => {
+  const { page, limit } = req.query;
+  const patientId = req.user._id;
+
+  const {
+    appointments,
+    total,
+    page: currentPage,
+    limit: currentLimit,
+  } = await AppointmentService.findAppointmentsByPatient(patientId, {
+    page,
+    limit,
+  });
+
+  res.status(200).json({
+    success: true,
+    count: appointments.length,
+    total,
+    page: currentPage,
+    limit: currentLimit,
+    data: appointments,
+  });
+});
