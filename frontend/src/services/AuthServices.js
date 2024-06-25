@@ -67,3 +67,21 @@ export const isAuthenticated = () => {
     return null;
   }
 };
+
+// export const isAuthenticated = async () => {
+//   try {
+//     const user = JSON.parse(localStorage.getItem("user"));
+//     if (user && user.token && user.userType) {
+//       const endpoint =
+//         user.userType === "patient" ? "patients/profile" : "therapists/profile";
+//       const response = await api.get(endpoint, {
+//         headers: { Authorization: `Bearer ${user.token}` },
+//       });
+//       return response.data ? user : null;
+//     }
+//     return null;
+//   } catch (error) {
+//     console.error("Error validating token", error);
+//     return null;
+//   }
+// };

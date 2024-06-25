@@ -107,6 +107,14 @@ export const loginPatient = async (req, res) => {
   }
 };
 
+export const tokenValidation = (req, res) => {
+  if (req.user) {
+    return res.json({ status: "success", user: req.user });
+  } else {
+    return res.status(401).json({ status: "error", message: "Invalid token" });
+  }
+};
+
 export const logoutPatient = (req, res) => {
   try {
     res.clearCookie("jwt", "", { maxAge: 0 });

@@ -3,6 +3,7 @@ import {
   loginPatient,
   logoutPatient,
   signupPatient,
+  tokenValidation,
 } from "../controllers/patient/patients.controller.js";
 import validateToken from "../middleware/validateToken.js";
 import {
