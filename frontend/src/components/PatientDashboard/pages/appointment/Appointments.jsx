@@ -3,6 +3,7 @@ import useDataFetching from "../../../../hooks/useFech";
 import AppointmentItem from "./AppointmentItem";
 import { Link } from "react-router-dom";
 import { FiSearch, FiFilter, FiCalendar, FiPlus } from "react-icons/fi";
+import Loading from "../../../utilities/Loading";
 
 const Appointments = () => {
   const [loading, error, data] = useDataFetching("/patient/appointments");
@@ -64,11 +65,7 @@ const Appointments = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (error) {
@@ -96,7 +93,7 @@ const Appointments = () => {
           </p>
           <Link
             to="/book-appointment"
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded inline-flex items-center transition duration-150 ease-in-out"
+            className="bg-greenPrimary hover:bg-hoverColor text-white font-bold py-3 px-6 rounded inline-flex items-center transition duration-150 ease-in-out"
           >
             <FiPlus className="mr-2" />
             Book Appointment

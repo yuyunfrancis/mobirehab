@@ -6,10 +6,6 @@ const PrivateRoutes = ({ allowedRoles }) => {
   const { currentUser, loading } = React.useContext(UserContext);
   const navigate = useNavigate();
 
-  // console.log("====================================");
-  // console.log("currentUser:", currentUser);
-  // console.log("====================================");
-
   React.useEffect(() => {
     if (!loading) {
       if (!currentUser) {

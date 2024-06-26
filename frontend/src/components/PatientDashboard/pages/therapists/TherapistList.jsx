@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import TherapistCard from "./TherapistCard";
 import useDataFetching from "../../../../hooks/useFech";
-import Loading from "../../../common/Loading";
+import Loading from "../../../utilities/Loading";
 
 const TherapistList = () => {
   const [searchTerm, setSearchTerm] = useState("");
