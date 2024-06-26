@@ -1,5 +1,7 @@
 import express from "express";
 import {
+  getAllTherapists,
+  getTherapistDetails,
   loginPatient,
   logoutPatient,
   signupPatient,
@@ -22,6 +24,8 @@ router.route("/appointments").get(getAppointments).post(createAppointment);
 router.get("/payment-success-page", (req, res) => {
   res.send("Payment successful and appointment updated!");
 });
+router.route("/therapists").get(getAllTherapists);
+router.get("/therapist/:id", getTherapistDetails);
 router.get("/profile", (req, res) => {
   res.json(req.user);
 });

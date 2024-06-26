@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import Patient from "../../models/patient.model.js";
 import generateToken from "../../utils/generateToken.js";
+import Therapist from "../../models/therapist.model.js";
 
 const createSendToken = (user, statusCode, res) => {
   const token = generateToken(user._id, user.userType, res);
@@ -121,6 +122,33 @@ export const logoutPatient = (req, res) => {
     res.status(200).json({ message: "Patient logged out successfully" });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Get all therapists
+export const getAllTherapists = async (req, res) => {
+  try {
+    const therapists = await Therapist.find().select("-password");
+    res.json({ status: "success", count: therapists.length, data: therapists });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Get therapist details by ID
+export const getTherapistDetails = async (req, res) => {
+  try {
+    const therapistId = req.params.id;
+    const therapist = await Therapist.findById(therapistId).select("-password");
+    if (!therapist) {
+      return res.status(404).json({ message: "Therapist not found" });
+    }
+
+    res.json({ success: "success", data: therapist });
+  } catch (error) {
+    console.error("Error fetching therapist details:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -15,17 +15,16 @@ const Dashboard = () => {
       await logout(END_POINT);
       setLoading(false);
       toast.success("Logged out successfully");
-      navigate("/patient/login", { replace: true }); // Use absolute path
+      navigate("/patient/login", { replace: true });
     } catch (err) {
       console.error(err);
-      setLoading(false); // Ensure loading state is reset on error
+      setLoading(false);
       toast.error("Logout failed. Please try again.");
     }
   };
 
   return (
     <div>
-      Dashboard
       <div className="flex flex-grow flex-col justify-center">
         <h1>Dashboard</h1>
         <p>Welcome to your dashboard</p>
