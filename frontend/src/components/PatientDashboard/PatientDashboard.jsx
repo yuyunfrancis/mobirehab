@@ -15,7 +15,7 @@ const PatientDashboard = () => {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="appointments" element={<Appointments />} />
         <Route path="therapist-list" element={<TherapistList />} />
-        <Route path="settings" element={<ProfilePage />} />{" "}
+        <Route path="settings" element={<ProfilePage />} />
         {/* Assuming ProfilePage as placeholder for Settings */}
       </Route>
       <Route path="*" element={<NotFound />} />

@@ -5,9 +5,7 @@ import { Link } from "react-router-dom";
 import { FiSearch, FiFilter, FiCalendar, FiPlus } from "react-icons/fi";
 
 const Appointments = () => {
-  const [loading, error, data, fetchData] = useDataFetching(
-    "/patient/appointments"
-  );
+  const [loading, error, data] = useDataFetching("/patient/appointments");
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
