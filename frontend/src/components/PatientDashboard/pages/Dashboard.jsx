@@ -17,7 +17,6 @@ const Dashboard = () => {
       toast.success("Logged out successfully");
       navigate("/patient/login", { replace: true });
     } catch (err) {
-      console.error(err);
       setLoading(false);
       toast.error("Logout failed. Please try again.");
     }
