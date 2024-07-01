@@ -92,7 +92,7 @@ const Appointments = () => {
             Book your first appointment to get started
           </p>
           <Link
-            to="/book-appointment"
+            to="/patient/therapist-lis"
             className="bg-greenPrimary hover:bg-hoverColor text-white font-bold py-3 px-6 rounded inline-flex items-center transition duration-150 ease-in-out"
           >
             <FiPlus className="mr-2" />
@@ -110,7 +110,7 @@ const Appointments = () => {
           Appointments
         </h1>
         <Link
-          to="/book-appointment"
+          to="/patient/therapist-lis"
           className="bg-greenPrimary hover:bg-hoverColor text-white font-bold py-2 px-4 rounded inline-flex items-center transition duration-150 ease-in-out"
         >
           <FiPlus className="mr-2" />

@@ -24,7 +24,7 @@ const TherapistCard = ({
       <div className="p-6 text-center">
         <div className="mb-4 flex justify-center">
           <img
-            className={`${imageSizes[imageSize]} rounded-full border-4 border-indigo-100 object-cover`}
+            className={`${imageSizes[imageSize]} rounded-full border-4 border-green-100 object-cover`}
             src={therapist.profilePicture}
             alt={therapist.fullName}
           />
@@ -39,7 +39,7 @@ const TherapistCard = ({
           {therapist.specialties.map((specialty, index) => (
             <span
               key={index}
-              className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full"
+              className="px-3 py-1 bg-green-50 text-greenPrimary text-xs rounded-full"
             >
               {specialty}
             </span>
@@ -51,13 +51,11 @@ const TherapistCard = ({
             <Button
               label={viewProfileLabel}
               variant="outlined"
-              color="indigo"
               onClick={onViewProfile}
             />
             <Button
               label={bookAppointmentLabel}
               variant="filled"
-              color="indigo"
               onClick={onBookAppointment}
             />
           </div>

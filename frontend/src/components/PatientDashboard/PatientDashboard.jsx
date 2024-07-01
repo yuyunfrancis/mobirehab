@@ -6,6 +6,8 @@ import ProfilePage from "./pages/ProfilePage";
 import NotFound from "../../pages/NotFound";
 import { Appointments } from "./pages/appointment";
 import TherapistList from "./pages/therapists/TherapistList";
+import BookAppointment from "./pages/appointment/BookAppointment";
+import AppointmentSuccess from "./pages/appointment/AppointmentSuccess";
 
 const PatientDashboard = () => {
   return (
@@ -15,8 +17,9 @@ const PatientDashboard = () => {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="appointments" element={<Appointments />} />
         <Route path="therapist-list" element={<TherapistList />} />
+        <Route path="book-appointment" element={<BookAppointment />} />
+        <Route path="payment-success-page" element={<AppointmentSuccess />} />
         <Route path="settings" element={<ProfilePage />} />
-        {/* Assuming ProfilePage as placeholder for Settings */}
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

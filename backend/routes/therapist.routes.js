@@ -13,6 +13,15 @@ import {
   getAppointments,
   updateAppointmentStatus,
 } from "../controllers/therapist/appointment.controller.js";
+import {
+  createAvailabilityController,
+  getAllAvailabilitiesController,
+  getAvailabilityController,
+  getMyAvailabilities,
+  setAvailabilityActive,
+  updateAvailabilityTimeSlot,
+  updateMyAvailability,
+} from "../controllers/therapist/availability.controller.js";
 
 const dir = "/tmp/my-uploads";
 
@@ -53,6 +62,18 @@ router
   .get(getAppointmentDetails)
   .patch(updateAppointmentStatus)
   .delete(deleteAppointment);
+router
+  .route("/availability")
+  .get(getAvailabilityController)
+  .post(createAvailabilityController);
+
+router
+  .route("/availability/:id")
+  .get(getAllAvailabilitiesController)
+  .put(updateAvailabilityTimeSlot);
+router.get("/my-availability", getMyAvailabilities);
+router.patch("/my-availability/:id", updateMyAvailability);
+router.put("/my-availability/:availabilityId/activate", setAvailabilityActive);
 router.get("/profile", (req, res) => {
   res.json(req.user);
 });

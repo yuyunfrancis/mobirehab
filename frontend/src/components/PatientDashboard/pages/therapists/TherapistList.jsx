@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import TherapistCard from "./TherapistCard";
 import useDataFetching from "../../../../hooks/useFech";
 import Loading from "../../../utilities/Loading";
@@ -11,6 +12,7 @@ const TherapistList = () => {
   const [loading, error, data, fetchData] = useDataFetching(
     "/patient/therapists"
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -59,6 +61,22 @@ const TherapistList = () => {
     return <div className="text-center text-red-500">Error: {error}</div>;
   }
 
+  const handleBookAppointment = (therapist) => {
+    navigate("/patient/book-appointment", {
+      state: {
+        therapist: {
+          id: therapist.id,
+          fullName: therapist.fullName,
+          specialties: therapist.specialties,
+          profilePicture: therapist.profilePicture,
+          city: therapist.city,
+          country: therapist.country,
+          bio: therapist.bio,
+        },
+      },
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-start mb-8">Our Therapists</h1>
@@ -103,9 +121,7 @@ const TherapistList = () => {
                   onViewProfile={() =>
                     console.log(`View profile of ${therapist.fullName}`)
                   }
-                  onBookAppointment={() =>
-                    console.log(`Book appointment with ${therapist.fullName}`)
-                  }
+                  onBookAppointment={() => handleBookAppointment(therapist)}
                 />
               </motion.div>
             ))}

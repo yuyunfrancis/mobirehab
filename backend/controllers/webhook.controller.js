@@ -122,7 +122,7 @@ export const handleFlutterwaveRedirect = async (req, res) => {
             await appointment.save();
 
             // Redirect to a success page
-            return res.redirect("/patients/payment-success-page"); // Adjust this path as needed
+            return res.redirect("/patient/payment-success-page"); // Adjust this path as needed
           } else {
             return res.status(404).json({ error: "Appointment not found" });
           }

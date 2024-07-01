@@ -4,7 +4,7 @@ const Button = ({
   label,
   onClick,
   variant = "filled",
-  color = "blue",
+  color = "greenPrimary",
   disabled = false,
   loading = false,
   icon,
@@ -16,8 +16,8 @@ const Button = ({
   const hoverClasses = "hover:shadow-lg transform hover:-translate-y-1";
 
   const variants = {
-    filled: `bg-${color}-600 text-white hover:bg-${color}-700 ${hoverClasses}`,
-    outlined: `border-2 border-${color}-600 text-${color}-600 hover:bg-${color}-50 ${hoverClasses}`,
+    filled: `bg-${color} text-white hover:bg-${color} ${hoverClasses}`,
+    outlined: `border-2 border-${color} text-${color}-600 hover:bg-${color} ${hoverClasses}`,
   };
 
   return (
