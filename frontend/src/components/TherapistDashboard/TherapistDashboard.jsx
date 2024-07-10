@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import ProfilePage from "./pages/ProfilePage";
 import SuccessPage from "../auth/therapist/signup/SuccessPage";
 import { UserContext } from "../../context/UserContext";
+import Availabilities from "./pages/availability/Availabilities";
+import CreateAvailability from "./pages/availability/CreateAvailability";
 
 const TherapistDashboard = () => {
   const { currentUser, loading } = React.useContext(UserContext);
@@ -17,9 +19,11 @@ const TherapistDashboard = () => {
       <Route path="/" element={<TherapistDashboardLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="profile" element={<ProfilePage />} />
-        {/* <Route path="appointments" element={<AppointmentsPage />} /> */}
-        <Route path="settings" element={<ProfilePage />} />{" "}
-        {/* Assuming ProfilePage as placeholder for Settings */}
+        <Route path="availability">
+          <Route index element={<Availabilities />} />
+          <Route path="create" element={<CreateAvailability />} />
+        </Route>
+        <Route path="settings" element={<ProfilePage />} />
       </Route>
       <Route path="/success" element={<SuccessPage success={success} />} />
       <Route path="*" element={<NotFound />} />

@@ -179,12 +179,17 @@ export const updateAvailabilityTimeSlot = async (req, res) => {
 
 export const setAvailabilityActive = asyncHandler(async (req, res) => {
   try {
+    console.log("Request Body:", req.body);
+
     if (req.user.userType !== "therapist") {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
     const therapistId = req.user._id;
     const { availabilityId } = req.params;
+
+    console.log("Therapist ID:", therapistId);
+    console.log("Availability ID:", availabilityId);
 
     const activeAvailability = await AvailabilityService.setAvailabilityActive(
       therapistId,
@@ -196,6 +201,7 @@ export const setAvailabilityActive = asyncHandler(async (req, res) => {
       availability: activeAvailability,
     });
   } catch (error) {
+    console.error("Error in setAvailabilityActive:", error);
     res.status(500).json({
       message: "Failed to set availability as active",
       error: error.message,
