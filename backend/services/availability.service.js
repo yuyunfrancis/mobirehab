@@ -2,9 +2,7 @@ import moment from "moment";
 import Availability from "../models/availability.model.js";
 
 class AvailabilityService {
-  static async createAvailability(therapistId, date, times, availabilityName) {
-    const searchDate = moment(date).startOf("day").toDate();
-
+  static async createAvailability(therapistId, dates, availabilityName) {
     const existingAvailabilityName = await Availability.findOne({
       availabilityName: availabilityName,
     });
@@ -13,46 +11,16 @@ class AvailabilityService {
       throw new Error("The availability name must be unique.");
     }
 
-    let availability = await Availability.findOne({
+    const availability = new Availability({
       therapist: therapistId,
-      "availabilities.date": {
-        $gte: searchDate,
-        $lt: moment(searchDate).endOf("day").toDate(),
-      },
+      availabilities: dates.map((date) => ({
+        date: moment(date.date).startOf("day").toDate(),
+        times: date.times.map((time) => ({ time, isActive: true })),
+      })),
+      availabilityName: availabilityName,
     });
 
-    if (availability) {
-      const index = availability.availabilities.findIndex(
-        (a) =>
-          moment(a.date).format("YYYY-MM-DD") ===
-          moment(searchDate).format("YYYY-MM-DD")
-      );
-      if (index !== -1) {
-        availability.availabilities[index].times = times.map((time) => ({
-          time,
-          isActive: true,
-        }));
-      } else {
-        availability.availabilities.push({
-          date: searchDate,
-          times: times.map((time) => ({ time, isActive: true })),
-        });
-      }
-      availability.availabilityName = availabilityName;
-      await availability.save();
-    } else {
-      availability = new Availability({
-        therapist: therapistId,
-        availabilities: [
-          {
-            date: searchDate,
-            times: times.map((time) => ({ time, isActive: true })),
-          },
-        ],
-        availabilityName: availabilityName,
-      });
-      await availability.save();
-    }
+    await availability.save();
     return availability;
   }
 
@@ -114,6 +82,7 @@ class AvailabilityService {
       return availabilities.map((availability) => ({
         id: availability._id,
         name: availability.availabilityName,
+        isActive: availability.isActive,
         dates: availability.availabilities.map((a) => ({
           date: a.date,
           times: a.times,
@@ -172,7 +141,7 @@ class AvailabilityService {
   }
 
   // Therapist can update their availability by adding new time slots, or removing existing ones or changing the availability name, or changing the date
-  static async updateMyAvailability(req, id, date, times, availabilityName) {
+  static async updateMyAvailability(req, id, dates, availabilityName) {
     try {
       const therapistId = req.user._id;
 
@@ -185,67 +154,18 @@ class AvailabilityService {
         throw new Error("Availability not found or not authorized");
       }
 
-      // Update availabilityName if provided
       if (availabilityName) {
         availability.availabilityName = availabilityName;
       }
 
-      // Update or add times if provided
-      if (times) {
-        const searchDate = date ? moment(date).startOf("day").toDate() : null;
-
-        if (searchDate) {
-          // If date is provided, update or add times for that specific date
-          const dayIndex = availability.availabilities.findIndex(
-            (a) =>
-              moment(a.date).format("YYYY-MM-DD") ===
-              moment(searchDate).format("YYYY-MM-DD")
-          );
-
-          if (dayIndex !== -1) {
-            // Update existing day
-            availability.availabilities[dayIndex].times = [
-              ...availability.availabilities[dayIndex].times,
-              ...times.map((time) => ({
-                time: time.time,
-                isActive: time.isActive,
-              })),
-            ];
-          } else {
-            // Add new day
-            availability.availabilities.push({
-              date: searchDate,
-              times: times.map((time) => ({
-                time: time.time,
-                isActive: time.isActive,
-              })),
-            });
-          }
-        } else {
-          // If no date provided, add times to the most recent date
-          const mostRecentDate = availability.availabilities.sort(
-            (a, b) => b.date - a.date
-          )[0];
-
-          if (mostRecentDate) {
-            mostRecentDate.times = [
-              ...mostRecentDate.times,
-              ...times.map((time) => ({
-                time: time.time,
-                isActive: time.isActive,
-              })),
-            ];
-          } else {
-            // If no availabilities exist, create a new one with today's date
-            availability.availabilities.push({
-              date: new Date(),
-              times: times.map((time) => ({
-                time: time.time,
-                isActive: time.isActive,
-              })),
-            });
-          }
-        }
+      if (dates) {
+        availability.availabilities = dates.map((date) => ({
+          date: moment(date.date).startOf("day").toDate(),
+          times: date.times.map((time) => ({
+            time: time.time,
+            isActive: time.isActive,
+          })),
+        }));
       }
 
       await availability.save();
@@ -283,6 +203,20 @@ class AvailabilityService {
       therapist: therapistId,
       isActive: true,
     });
+  }
+
+  // Delete availability by ID
+  static async deleteAvailability(therapistId, availabilityId) {
+    const availability = await Availability.findOneAndDelete({
+      _id: availabilityId,
+      therapist: therapistId,
+    });
+
+    if (!availability) {
+      throw new Error("Availability not found or not authorized");
+    }
+
+    return availability;
   }
 }
 

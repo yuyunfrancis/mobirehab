@@ -10,7 +10,7 @@ import { useAvailability } from "../../../../hooks/useAvailability";
 import toast from "react-hot-toast";
 
 const AvailabilityCard = ({ availability, onUpdate }) => {
-  const { _id, availabilityName, date, times, isActive } = availability;
+  const { id, name, dates, isActive } = availability;
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const {
@@ -50,7 +50,7 @@ const AvailabilityCard = ({ availability, onUpdate }) => {
         </div>
       )}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-800">{availabilityName}</h2>
+        <h2 className="text-xl font-bold text-gray-800">{name}</h2>
         <div className="relative" ref={dropdownRef}>
           <button
             className="text-gray-600 hover:text-gray-900 focus:outline-none p-2 rounded-full hover:bg-gray-100"
@@ -61,7 +61,7 @@ const AvailabilityCard = ({ availability, onUpdate }) => {
           <ActionDropdown
             show={showDropdown}
             onClose={() => setShowDropdown(false)}
-            availabilityId={_id}
+            availabilityId={id}
             isActive={isActive}
             onActivate={activateAvailability}
             onDeactivate={deactivateAvailability}
@@ -70,23 +70,32 @@ const AvailabilityCard = ({ availability, onUpdate }) => {
         </div>
       </div>
       <div className="space-y-3">
-        <p className="text-gray-600">
-          <span className="font-semibold">Date:</span>{" "}
-          {moment(date).format("MMMM Do, YYYY")}
-        </p>
-        <div>
-          <span className="font-semibold text-gray-700">Times:</span>
-          <ul className="mt-2 space-y-1">
-            {times.map((time, index) => (
-              <li
-                key={index}
-                className="text-gray-600 bg-gray-100 rounded px-3 py-1 inline-block mr-2 mb-2"
-              >
-                {time.time}
-              </li>
-            ))}
-          </ul>
-        </div>
+        {dates.map((dateAvailability, index) => (
+          <div
+            key={index}
+            className="border-t pt-3 first:border-t-0 first:pt-0"
+          >
+            <p className="text-gray-600">
+              <span className="font-semibold">Date:</span>{" "}
+              {moment(dateAvailability.date).format("MMMM Do, YYYY")}
+            </p>
+            <div>
+              <span className="font-semibold text-gray-700">Times:</span>
+              <ul className="mt-2 space-y-1">
+                {dateAvailability.times.map((time, timeIndex) => (
+                  <li
+                    key={timeIndex}
+                    className={`text-gray-600 bg-gray-100 rounded px-3 py-1 inline-block mr-2 mb-2 ${
+                      time.isActive ? "" : "line-through"
+                    }`}
+                  >
+                    {time.time}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
       </div>
       <div className="mt-4 pt-4 border-t border-gray-200">
         <span
@@ -110,42 +119,80 @@ const ActionDropdown = ({
   onDeactivate,
   onDelete,
 }) => {
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
   if (!show) return null;
 
   const handleAction = async (action) => {
     try {
       await action(availabilityId);
+      toast.success("Action completed successfully");
     } catch (error) {
       toast.error(error.message || "An error occurred");
     } finally {
       onClose();
+      setShowDeleteConfirmation(false);
     }
   };
 
   return (
-    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-10">
-      <button
-        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
-        onClick={() => handleAction(isActive ? onDeactivate : onActivate)}
-      >
-        <BiPowerOff className="mr-2" />
-        {isActive ? "Deactivate" : "Activate"}
-      </button>
-      <button
-        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
-        onClick={onClose}
-      >
-        <AiOutlineEdit className="mr-2" />
-        Edit
-      </button>
-      <button
-        className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-100 w-full"
-        onClick={() => handleAction(onDelete)}
-      >
-        <AiOutlineDelete className="mr-2" />
-        Delete
-      </button>
-    </div>
+    <>
+      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-10">
+        <button
+          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
+          onClick={() => handleAction(isActive ? onDeactivate : onActivate)}
+        >
+          <BiPowerOff className="mr-2" />
+          {isActive ? "Deactivate" : "Activate"}
+        </button>
+        <button
+          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
+          onClick={onClose}
+        >
+          <AiOutlineEdit className="mr-2" />
+          Edit
+        </button>
+        <button
+          className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-100 w-full"
+          onClick={() => setShowDeleteConfirmation(true)}
+        >
+          <AiOutlineDelete className="mr-2" />
+          Delete
+        </button>
+      </div>
+
+      {showDeleteConfirmation && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                Delete Availability
+              </h3>
+              <div className="mt-2 px-7 py-3">
+                <p className="text-sm text-gray-500">
+                  Are you sure you want to delete this availability? This action
+                  cannot be undone.
+                </p>
+              </div>
+              <div className="items-center px-4 py-3">
+                <button
+                  onClick={() => handleAction(onDelete)}
+                  className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirmation(false)}
+                  className="mt-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

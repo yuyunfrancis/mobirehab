@@ -41,7 +41,7 @@ const Availabilities = ({ history }) => {
 
   const handleEdit = (availability) => {
     history.push({
-      pathname: `/edit-availability/${availability._id}`,
+      pathname: `/edit-availability/${availability.id}`,
       state: { availability },
     });
   };
@@ -87,21 +87,13 @@ const Availabilities = ({ history }) => {
         </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {availabilities.flatMap((availability) =>
-            availability.dates.map((date) => (
-              <AvailabilityCard
-                key={`${availability.id}-${date.date}`}
-                availability={{
-                  _id: availability.id,
-                  availabilityName: availability.name,
-                  date: date.date,
-                  times: date.times,
-                  isActive: availability.isActive,
-                }}
-                onUpdate={handleUpdate}
-              />
-            ))
-          )}
+          {availabilities.map((availability) => (
+            <AvailabilityCard
+              key={availability.id}
+              availability={availability}
+              onUpdate={handleUpdate}
+            />
+          ))}
         </div>
       )}
     </div>

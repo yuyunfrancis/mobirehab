@@ -15,6 +15,7 @@ import {
 } from "../controllers/therapist/appointment.controller.js";
 import {
   createAvailabilityController,
+  deleteAvailability,
   getAllAvailabilitiesController,
   getAvailabilityController,
   getMyAvailabilities,
@@ -72,7 +73,10 @@ router
   .get(getAllAvailabilitiesController)
   .put(updateAvailabilityTimeSlot);
 router.get("/my-availability", getMyAvailabilities);
-router.patch("/my-availability/:id", updateMyAvailability);
+router
+  .route("/my-availability/:id")
+  .patch(updateMyAvailability)
+  .delete(deleteAvailability);
 router.put("/my-availability/:availabilityId/activate", setAvailabilityActive);
 router.get("/profile", (req, res) => {
   res.json(req.user);

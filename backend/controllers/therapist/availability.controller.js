@@ -10,16 +10,15 @@ export const createAvailabilityController = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
-    const { date, times, availabilityName } = req.body;
+    const { dates, availabilityName } = req.body;
 
-    if (!date || !times || !availabilityName) {
+    if (!dates || !availabilityName) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     const availability = await AvailabilityService.createAvailability(
       therapistId,
-      date,
-      times,
+      dates,
       availabilityName
     );
 
@@ -114,21 +113,19 @@ export const updateMyAvailability = asyncHandler(async (req, res) => {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
-    const { availabilityName, date, times } = req.body;
+    const { availabilityName, dates } = req.body;
 
-    // Check if at least one field is provided for update
-    if (!availabilityName && !date && !times) {
+    if (!availabilityName && !dates) {
       return res.status(400).json({
         message:
-          "At least one field (availabilityName, date, or times) is required for update",
+          "At least one field (availabilityName or dates) is required for update",
       });
     }
 
     const updatedAvailability = await AvailabilityService.updateMyAvailability(
       req,
       id,
-      date,
-      times,
+      dates,
       availabilityName
     );
 
@@ -206,5 +203,34 @@ export const setAvailabilityActive = asyncHandler(async (req, res) => {
       message: "Failed to set availability as active",
       error: error.message,
     });
+  }
+});
+
+// Delete availability
+export const deleteAvailability = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (req.user.userType !== "therapist") {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    const therapistId = req.user._id;
+
+    const deletedAvailability = await AvailabilityService.deleteAvailability(
+      therapistId,
+      id
+    );
+
+    res.status(200).json({
+      message: "Availability deleted successfully",
+      availability: deletedAvailability,
+    });
+  } catch (error) {
+    console.error("Error in deleteAvailability controller:", error);
+    if (error.message === "Availability not found or not authorized") {
+      res.status(404).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Failed to delete availability" });
+    }
   }
 });

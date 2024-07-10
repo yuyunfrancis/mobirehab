@@ -5,50 +5,62 @@ import toast from "react-hot-toast";
 import AvailabilityDayPicker from "../../../common/widgets/AvailabilityDayPicker";
 
 const CreateAvailability = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [timeSlots, setTimeSlots] = useState([]);
   const [availabilityName, setAvailabilityName] = useState("");
+  const [dates, setDates] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleDateClick = (date) => {
-    setSelectedDate(date);
+    if (dates.length >= 7) {
+      toast.error("You can only select up to 7 dates");
+      return;
+    }
+    if (!dates.find((d) => moment(d.date).isSame(date, "day"))) {
+      setDates([...dates, { date, times: [] }]);
+    }
   };
 
-  const addTimeSlot = () => {
-    setTimeSlots([...timeSlots, ""]);
+  const addTimeSlot = (dateIndex) => {
+    const updatedDates = [...dates];
+    updatedDates[dateIndex].times.push("");
+    setDates(updatedDates);
   };
 
-  const handleTimeChange = (index, value) => {
-    const updatedTimeSlots = [...timeSlots];
-    updatedTimeSlots[index] = value;
-    setTimeSlots(updatedTimeSlots);
+  const handleTimeChange = (dateIndex, timeIndex, value) => {
+    const updatedDates = [...dates];
+    updatedDates[dateIndex].times[timeIndex] = value;
+    setDates(updatedDates);
   };
 
-  const removeTimeSlot = (index) => {
-    const updatedTimeSlots = timeSlots.filter((_, i) => i !== index);
-    setTimeSlots(updatedTimeSlots);
+  const removeTimeSlot = (dateIndex, timeIndex) => {
+    const updatedDates = [...dates];
+    updatedDates[dateIndex].times = updatedDates[dateIndex].times.filter(
+      (_, i) => i !== timeIndex
+    );
+    setDates(updatedDates);
+  };
+
+  const removeDate = (dateIndex) => {
+    const updatedDates = dates.filter((_, i) => i !== dateIndex);
+    setDates(updatedDates);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedDate || !timeSlots.length || !availabilityName) {
+    if (!dates.length || !availabilityName) {
       toast.error("Please fill in all fields");
       return;
     }
 
     try {
       setLoading(true);
-      const formattedDate = moment(selectedDate).startOf("day").toDate();
       await api.post("/therapist/availability", {
-        date: formattedDate,
-        times: timeSlots,
+        dates,
         availabilityName,
       });
 
       toast.success("Availability created successfully");
-      setSelectedDate(null);
-      setTimeSlots([]);
+      setDates([]);
       setAvailabilityName("");
     } catch (err) {
       toast.error(err.response?.data?.message || "Error creating availability");
@@ -65,13 +77,6 @@ const CreateAvailability = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            Select Date
-          </h2>
-          <AvailabilityDayPicker onDateClick={handleDateClick} />
-        </div>
-
-        <div className="bg-white rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
             Availability Name
           </h2>
           <input
@@ -85,33 +90,56 @@ const CreateAvailability = () => {
 
         <div className="bg-white rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            Time Slots
+            Select Dates
           </h2>
-          {timeSlots.map((timeSlot, index) => (
-            <div key={index} className="flex items-center mb-2">
-              <input
-                type="time"
-                value={timeSlot}
-                onChange={(e) => handleTimeChange(index, e.target.value)}
-                className="w-full border border-gray-300 rounded-lg p-2"
-              />
+          <AvailabilityDayPicker
+            onDateClick={handleDateClick}
+            selectedDates={dates.map((d) => d.date)}
+          />
+        </div>
+
+        {dates.map((date, dateIndex) => (
+          <div key={dateIndex} className="bg-white rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-700">
+                {moment(date.date).format("MMMM Do, YYYY")}
+              </h2>
               <button
                 type="button"
-                onClick={() => removeTimeSlot(index)}
-                className="ml-2 text-red-500 hover:text-red-700"
+                onClick={() => removeDate(dateIndex)}
+                className="text-red-500 hover:text-red-700"
               >
-                Remove
+                Remove Date
               </button>
             </div>
-          ))}
-          <button
-            type="button"
-            onClick={addTimeSlot}
-            className="mt-4 bg-blue-500 text-white rounded-lg p-2"
-          >
-            Add Time Slot
-          </button>
-        </div>
+            {date.times.map((timeSlot, timeIndex) => (
+              <div key={timeIndex} className="flex items-center mb-2">
+                <input
+                  type="time"
+                  value={timeSlot}
+                  onChange={(e) =>
+                    handleTimeChange(dateIndex, timeIndex, e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded-lg p-2"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeTimeSlot(dateIndex, timeIndex)}
+                  className="ml-2 text-red-500 hover:text-red-700"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => addTimeSlot(dateIndex)}
+              className="mt-4 bg-blue-500 text-white rounded-lg p-2"
+            >
+              Add Time Slot
+            </button>
+          </div>
+        ))}
 
         <div className="bg-white rounded-lg p-6 text-right">
           <button

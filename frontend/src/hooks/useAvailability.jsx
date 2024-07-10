@@ -13,18 +13,22 @@ export const useAvailability = (onUpdate) => {
     setError(null);
     try {
       const response = await action(id);
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(
-          data.message || `HTTP error! status: ${response.status}`
-        );
+      // Assuming the API returns data in the 'data' property
+      if (response.data) {
+        onUpdate(id);
+        return response.data;
+      } else {
+        throw new Error("No data received from the server");
       }
-      onUpdate(id);
-      return data;
     } catch (err) {
-      setError(err.message);
-      console.error(`Error: ${err.message}`);
-      throw err;
+      // If it's an error from the API, it might be in err.response.data
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "An unknown error occurred";
+      setError(errorMessage);
+      console.error(`Error: ${errorMessage}`);
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +69,7 @@ export const useAvailability = (onUpdate) => {
   const deleteAvailability = (id) =>
     handleAction(
       () =>
-        api.delete(`/api/v1/therapist/my-availability/${id}`, {
+        api.delete(`/therapist/my-availability/${id}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${currentUser.token}`,

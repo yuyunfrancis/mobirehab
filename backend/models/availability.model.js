@@ -31,7 +31,10 @@ const availabilitySchema = new mongoose.Schema({
     ref: "Therapist",
     required: true,
   },
-  availabilities: [dateAvailabilitySchema],
+  availabilities: {
+    type: [dateAvailabilitySchema],
+    validate: [arrayLimit, "{PATH} exceeds the limit of 7"],
+  },
   availabilityName: {
     type: String,
     required: true,
@@ -41,6 +44,10 @@ const availabilitySchema = new mongoose.Schema({
     default: false,
   },
 });
+
+function arrayLimit(val) {
+  return val.length <= 7;
+}
 
 const Availability = mongoose.model("Availability", availabilitySchema);
 
