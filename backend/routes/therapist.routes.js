@@ -1,6 +1,7 @@
 import express from "express";
 import validateToken from "../middleware/validateToken.js";
 import {
+  getPatientDetails,
   loginTherapist,
   signupTherapist,
   verifyAccount,
@@ -78,6 +79,9 @@ router
   .patch(updateMyAvailability)
   .delete(deleteAvailability);
 router.put("/my-availability/:availabilityId/activate", setAvailabilityActive);
+
+// get patient
+router.get("/patient/:id", getPatientDetails);
 router.get("/profile", (req, res) => {
   res.json(req.user);
 });

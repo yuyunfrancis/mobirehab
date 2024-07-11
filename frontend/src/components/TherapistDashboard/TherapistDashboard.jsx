@@ -8,6 +8,7 @@ import SuccessPage from "../auth/therapist/signup/SuccessPage";
 import { UserContext } from "../../context/UserContext";
 import Availabilities from "./pages/availability/Availabilities";
 import CreateAvailability from "./pages/availability/CreateAvailability";
+import Appointments from "./pages/appointments/Appointments";
 
 const TherapistDashboard = () => {
   const { currentUser, loading } = React.useContext(UserContext);
@@ -23,6 +24,7 @@ const TherapistDashboard = () => {
           <Route index element={<Availabilities />} />
           <Route path="create" element={<CreateAvailability />} />
         </Route>
+        <Route path="appointments" element={<Appointments />} />
         <Route path="settings" element={<ProfilePage />} />
       </Route>
       <Route path="/success" element={<SuccessPage success={success} />} />

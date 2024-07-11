@@ -3,6 +3,7 @@ import generateToken from "../../utils/generateToken.js";
 import Therapist from "../../models/therapist.model.js";
 import { uploadFilesToCloudinary } from "../../utils/cloudinary.js";
 import sendEmail from "../../utils/sendGridEmail.js";
+import Patient from "../../models/patient.model.js";
 
 const createSendToken = (user, statusCode, res) => {
   const token = generateToken(user._id, user.userType, res);
@@ -192,5 +193,23 @@ export const loginTherapist = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// get patient details by id
+
+export const getPatientDetails = async (req, res) => {
+  try {
+    const patientId = req.params.id;
+    const patient = await Patient.findById(patientId).select("-password");
+
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    res.status(200).json({ success: "success", data: patient });
+  } catch (error) {
+    console.error("Error fetching therapist details:", error);
+    res.status(500).json({ message: "Internal server error", error: error });
   }
 };

@@ -41,7 +41,7 @@ const useDataFetching = (url) => {
       }
     };
 
-    fetchData(); // Initial fetch
+    fetchData();
 
     // No return statement or cleanup needed with useEffect
   }, [url, currentUser]);
