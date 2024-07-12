@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import usePatientDetails from "../../../../hooks/usePatientDetails";
+import { Link } from "react-router-dom";
 
 const AppointmentRow = ({ appointment, onViewDetails }) => {
-  const { loading, error, patient } = usePatientDetails(appointment.patient);
+  const { loading, error, patient, fetchPatientDetails } = usePatientDetails();
+
+  useEffect(() => {
+    fetchPatientDetails(appointment.patient);
+  }, [appointment.patient, fetchPatientDetails]);
 
   if (loading) {
     return (
@@ -55,7 +60,7 @@ const AppointmentRow = ({ appointment, onViewDetails }) => {
           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
             appointment.status === "Pending"
               ? "bg-yellow-100 text-yellow-800"
-              : appointment.status === "Approved"
+              : appointment.status === "Accepted"
               ? "bg-green-100 text-green-800"
               : "bg-red-100 text-red-800"
           }`}
@@ -64,12 +69,12 @@ const AppointmentRow = ({ appointment, onViewDetails }) => {
         </span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-        <button
-          onClick={() => onViewDetails(appointment._id)}
+        <Link
+          to={`/therapist/appointments/${appointment._id}`}
           className="text-indigo-600 hover:text-indigo-900 focus:outline-none focus:underline"
         >
           View Details
-        </button>
+        </Link>
       </td>
     </tr>
   );
@@ -103,11 +108,7 @@ const AppointmentTable = ({ appointments, onViewDetails }) => {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {appointments.map((appointment) => (
-            <AppointmentRow
-              key={appointment._id}
-              appointment={appointment}
-              onViewDetails={onViewDetails}
-            />
+            <AppointmentRow key={appointment._id} appointment={appointment} />
           ))}
         </tbody>
       </table>

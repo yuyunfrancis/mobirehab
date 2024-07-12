@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import useDataFetching from "../../../../hooks/useFech";
 import AppointmentTable from "./AppointmentTable";
+import AppointmentDetails from "./AppointmentDetails";
 import { FiSearch, FiFilter } from "react-icons/fi";
 import Loading from "../../../utilities/Loading";
 
 const Appointments = () => {
-  const [loading, error, data] = useDataFetching("/therapist/appointments");
+  const [loading, error, data, fetchData] = useDataFetching(
+    "/therapist/appointments"
+  );
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedAppointments, setSelectedAppointments] = useState([]);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   useEffect(() => {
     if (data && data.data) {
@@ -57,6 +61,23 @@ const Appointments = () => {
     console.log(`Performing ${action} on`, selectedAppointments);
   };
 
+  const handleViewDetails = (appointmentId) => {
+    const appointment = filteredData.find((app) => app._id === appointmentId);
+    setSelectedAppointment(appointment);
+  };
+
+  const handleUpdateStatus = async (appointmentId, newStatus) => {
+    // This function is no longer needed as the status update is handled in the AppointmentDetails component
+    // However, we need to refetch the appointments data after a status update
+    await refetch();
+  };
+
+  const handleAddNote = async (appointmentId, note) => {
+    // Implement the logic to add a note to the appointment
+    console.log(`Adding note to appointment ${appointmentId}: ${note}`);
+    // After adding the note, you should refetch the appointments or update the local state
+    await refetch();
+  };
   if (loading) {
     return <Loading />;
   }
@@ -129,6 +150,15 @@ const Appointments = () => {
           selectedAppointments={selectedAppointments}
           onSelectAll={handleSelectAll}
           onSelect={handleSelect}
+          onViewDetails={handleViewDetails}
+        />
+      )}
+
+      {selectedAppointment && (
+        <AppointmentDetails
+          appointment={selectedAppointment}
+          onClose={() => setSelectedAppointment(null)}
+          onAddNote={handleAddNote}
         />
       )}
     </div>
