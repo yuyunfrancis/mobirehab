@@ -14,6 +14,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import useUpdateAppointmentStatus from "../../../../hooks/useUpdateAppointmentStatus";
 import usePatientDetails from "../../../../hooks/usePatientDetails";
 import useAppointmentDetails from "../../../../hooks/useAppointmentDetails";
+import toast from "react-hot-toast";
 
 const AppointmentDetails = () => {
   const { id } = useParams();
@@ -42,7 +43,7 @@ const AppointmentDetails = () => {
 
   useEffect(() => {
     if (appointment?.data?.patient) {
-      fetchPatientDetails(appointment.data.patient);
+      fetchPatientDetails(appointment?.data?.patient);
     }
   }, [appointment, fetchPatientDetails]);
 
@@ -75,16 +76,21 @@ const AppointmentDetails = () => {
     dateOfBirth,
     address,
     patientId,
-  } = patient.data;
+  } = patient?.data;
 
   const handleStatusChange = async (newStatus) => {
     if (newStatus === "Declined" && !showDeclineWarning) {
       setShowDeclineWarning(true);
     } else {
       try {
-        await updateStatus(appointment._id, newStatus);
+        await updateStatus(appointment?.data?._id, newStatus);
+        toast.success(`Appointment ${newStatus.toLowerCase()}successfully`);
         setShowDeclineWarning(false);
+        window.location.reload();
       } catch (err) {
+        toast.error(
+          "Failed to mark appointment as complete. Please try again."
+        );
         console.error("Failed to update appointment status:", err);
       }
     }
@@ -93,6 +99,15 @@ const AppointmentDetails = () => {
   const handleAddNote = () => {
     // Implement note addition logic here
     setNote("");
+  };
+
+  const handleMarkComplete = async () => {
+    try {
+      await updateStatus(appointment?.data?._id, "Completed");
+      window.location.reload(); // Refresh the page
+    } catch (err) {
+      console.error("Failed to mark appointment as complete:", err);
+    }
   };
 
   const handleBack = () => {
@@ -191,16 +206,6 @@ const AppointmentDetails = () => {
                   {appointment?.data?.purpose}
                 </dd>
               </div>
-              {/* <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500 flex items-center">
-                  <FiPhone className="mr-2" />
-                  Contact
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  <p>Phone: {phoneNumber}</p>
-                  <p>Guardian Phone: {guardianPhoneNumber}</p>
-                </dd>
-              </div> */}
               <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500 flex items-center">
                   <FiFlag className="mr-2" />
@@ -266,31 +271,44 @@ const AppointmentDetails = () => {
           </div>
         )}
 
-        <div className="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
-          <div className="px-4 py-5 sm:px-6 bg-indigo-50">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">
-              Add Note
-            </h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">Optional</p>
-          </div>
-          <div className="px-4 py-5 sm:p-6">
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={4}
-              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-              placeholder="Add a note about this appointment (optional)"
-            />
-            <div className="mt-4 flex justify-end">
+        {appointment?.data.status === "Accepted" && (
+          <div className="mt-8">
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 sm:px-6 bg-indigo-50">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  Add Note
+                </h3>
+                <p className="mt-1 max-w-2xl text-sm text-gray-500">Optional</p>
+              </div>
+              <div className="px-4 py-5 sm:p-6">
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={4}
+                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                  placeholder="Add a note about this appointment (optional)"
+                />
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={handleAddNote}
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out"
+                  >
+                    Add Note
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="mt-8 flex justify-end">
               <button
-                onClick={handleAddNote}
-                className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out"
+                onClick={handleMarkComplete}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-md transition duration-150 ease-in-out"
+                disabled={updateLoading}
               >
-                Add Note
+                {updateLoading ? "Loading..." : "Mark as Complete"}
               </button>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

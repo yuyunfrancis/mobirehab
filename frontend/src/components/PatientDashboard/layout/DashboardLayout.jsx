@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../../sidebar/Sidebar";
-import { patientRoutes, therapistRoutes } from "../../../constants/routes";
+import { patientRoutes } from "../../../constants/routes";
 import Header from "../../Header";
 import { SidebarContext } from "../../../context/SidebarContext";
 

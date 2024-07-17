@@ -185,9 +185,6 @@ export const setAvailabilityActive = asyncHandler(async (req, res) => {
     const therapistId = req.user._id;
     const { availabilityId } = req.params;
 
-    console.log("Therapist ID:", therapistId);
-    console.log("Availability ID:", availabilityId);
-
     const activeAvailability = await AvailabilityService.setAvailabilityActive(
       therapistId,
       availabilityId

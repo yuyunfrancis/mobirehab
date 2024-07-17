@@ -31,7 +31,7 @@ const appointmentSchema = new mongoose.Schema({
       "Pending",
       "Accepted",
       "Declined",
-      "Done",
+      "Completed",
       "Cancelled",
       "Rescheduled",
       "Waiting for Payment",
