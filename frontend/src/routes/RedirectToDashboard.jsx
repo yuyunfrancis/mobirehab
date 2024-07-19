@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
+import WelcomePage from "../pages/WelcomePage";
 
 const RedirectToDashboard = () => {
   const { currentUser, loading } = useContext(UserContext);
@@ -32,7 +33,7 @@ const RedirectToDashboard = () => {
     return <h1>Loading...</h1>;
   }
 
-  return null;
+  return <WelcomePage />;
 };
 
 export default RedirectToDashboard;

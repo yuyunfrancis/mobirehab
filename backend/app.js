@@ -11,6 +11,7 @@ import swaggerOptions from "./utils/swaggerOptions.js";
 import patientRoutes from "./routes/patient.routes.js";
 import therapistRoutes from "./routes/therapist.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
+import commonRoutes from "./routes/common.routes.js";
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use(bodyParser.json());
 app.use("/api/v1/patient", patientRoutes);
 app.use("/api/v1/therapist", therapistRoutes);
 app.use("/api/v1/", webhookRoutes);
+app.use("/api/v1/", commonRoutes);
 
 //Documentation
 app.use(

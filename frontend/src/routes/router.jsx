@@ -18,7 +18,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<RedirectToDashboard />} />
-      <Route path="/welcome" element={<WelcomePage />} />
+      <Route path="/welcome" element={<RedirectToDashboard />} />
       <Route
         path="/patient/login"
         element={<PatientLogin END_POINT="patient/login" />}
