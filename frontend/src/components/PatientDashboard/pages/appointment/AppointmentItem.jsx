@@ -86,7 +86,7 @@ const AppointmentItem = ({ appointment, isSelected, onSelect }) => {
       </td>
       <td className="px-6 py-4">
         <Link
-          to={`/appointments/${appointment._id}`}
+          to={`/patient/appointments/${appointment._id}`}
           className="font-medium text-blue-600 hover:text-blue-800 transition duration-150 ease-in-out"
         >
           View Details

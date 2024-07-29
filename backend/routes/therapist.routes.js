@@ -24,6 +24,8 @@ import {
   updateAvailabilityTimeSlot,
   updateMyAvailability,
 } from "../controllers/therapist/availability.controller.js";
+import Therapist from "../models/therapist.model.js";
+import { getTherapistProfileWithRatings } from "../controllers/therapist/common.controller.js";
 
 const dir = "/tmp/my-uploads";
 
@@ -82,8 +84,7 @@ router.put("/my-availability/:availabilityId/activate", setAvailabilityActive);
 
 // get patient
 router.get("/patient/:id", getPatientDetails);
-router.get("/profile", (req, res) => {
-  res.json(req.user);
-});
+router.get("/profile", getTherapistProfileWithRatings);
+
 
 export default router;

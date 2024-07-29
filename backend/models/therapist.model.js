@@ -17,6 +17,7 @@ const therapistSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      unique: true,
     },
     phoneNumber: {
       type: String,
@@ -46,7 +47,6 @@ const therapistSchema = new mongoose.Schema(
         type: String,
       },
     },
-
     profession: {
       type: String,
       required: true,
@@ -55,12 +55,10 @@ const therapistSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     numOfYearsOfExperience: {
       type: String,
       required: true,
     },
-
     specialization: {
       type: String,
       required: true,
@@ -74,17 +72,14 @@ const therapistSchema = new mongoose.Schema(
         "Medical Doctor",
       ],
     },
-
     licenseNumber: {
       type: String,
       required: true,
     },
-
     licenseDocument: {
       type: String,
       default: "",
     },
-
     profilePicture: {
       type: String,
       default: "",
@@ -92,7 +87,6 @@ const therapistSchema = new mongoose.Schema(
     cloudinaryId: {
       type: String,
     },
-
     cv: {
       type: String,
       default: "",
@@ -110,17 +104,20 @@ const therapistSchema = new mongoose.Schema(
     },
     otp: {
       type: String,
-      // select: false,
     },
     otpExpires: {
       type: Date,
-      // select: false,
     },
     active: {
       type: Boolean,
       default: true,
-      // select: false,
     },
+    ratings: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "TherapistRating",
+      },
+    ],
     password: {
       type: String,
       required: true,
@@ -129,10 +126,15 @@ const therapistSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-therapistSchema.pre("save", function (next) {
+therapistSchema.pre("save", async function (next) {
   if (!this.therapistId) {
     this.therapistId = generateTherapistId();
   }
+  if (!this.isModified("password")) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
@@ -140,11 +142,9 @@ function generateTherapistId() {
   let id = "";
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
   for (let i = 0; i < 8; i++) {
     id += characters.charAt(Math.floor(Math.random() * characters.length));
   }
-
   return id;
 }
 

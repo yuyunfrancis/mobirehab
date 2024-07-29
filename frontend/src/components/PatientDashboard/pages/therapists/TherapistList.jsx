@@ -62,7 +62,7 @@ const TherapistList = () => {
   }
 
   const handleBookAppointment = (therapist) => {
-    navigate("/patient/book-appointment", {
+    navigate("/patient/appointments/book", {
       state: {
         therapist: {
           id: therapist.id,

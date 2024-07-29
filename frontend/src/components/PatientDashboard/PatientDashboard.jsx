@@ -4,7 +4,7 @@ import DashboardLayout from "./layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "../../pages/NotFound";
-import { Appointments } from "./pages/appointment";
+import { AppointmentDetails, Appointments } from "./pages/appointment";
 import TherapistList from "./pages/therapists/TherapistList";
 import BookAppointment from "./pages/appointment/BookAppointment";
 import AppointmentSuccess from "./pages/appointment/AppointmentSuccess";
@@ -15,9 +15,12 @@ const PatientDashboard = () => {
       <Route path="/" element={<DashboardLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="profile" element={<ProfilePage />} />
-        <Route path="appointments" element={<Appointments />} />
+        <Route path="appointments">
+          <Route index element={<Appointments />} />
+          <Route path=":id" element={<AppointmentDetails />} />
+          <Route path="book" element={<BookAppointment />} />
+        </Route>
         <Route path="therapist-list" element={<TherapistList />} />
-        <Route path="book-appointment" element={<BookAppointment />} />
         <Route path="payment-success-page" element={<AppointmentSuccess />} />
         <Route path="settings" element={<ProfilePage />} />
       </Route>

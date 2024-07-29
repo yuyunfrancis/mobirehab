@@ -11,13 +11,14 @@ const Button = ({
   className = "",
 }) => {
   const baseClasses =
-    "px-4 py-2 rounded-md font-medium transition-all duration-300 flex items-center justify-center";
+    "px-4 py-2 rounded-md font-medium transition-all duration-300 flex items-center justify-center w-full";
   const disabledClasses = "opacity-50 cursor-not-allowed";
-  const hoverClasses = "hover:shadow-lg transform hover:-translate-y-1";
+  const hoverClasses =
+    "hover:shadow-lg transform hover:-translate-y-1 transition duration-150 ease-in-out";
 
   const variants = {
     filled: `bg-${color} text-white hover:bg-${color} ${hoverClasses}`,
-    outlined: `border-2 border-${color} text-${color}-600 hover:bg-${color} ${hoverClasses}`,
+    outlined: `border-2 border-${color} text-${color} hover:bg-${color} ${hoverClasses}`,
   };
 
   return (

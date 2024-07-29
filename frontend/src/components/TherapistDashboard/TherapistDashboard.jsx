@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import NotFound from "../../pages/NotFound";
 import TherapistDashboardLayout from "./layout/TherapistDashboardLayout";
-import Dashboard from "./pages/Dashboard";
+
 import ProfilePage from "./pages/ProfilePage";
 import SuccessPage from "../auth/therapist/signup/SuccessPage";
 import { UserContext } from "../../context/UserContext";
@@ -10,6 +10,7 @@ import Availabilities from "./pages/availability/Availabilities";
 import CreateAvailability from "./pages/availability/CreateAvailability";
 import Appointments from "./pages/appointments/Appointments";
 import AppointmentDetails from "./pages/appointments/AppointmentDetails";
+import Dashboard from "./pages/dasboard/Dashboard";
 
 const TherapistDashboard = () => {
   const { currentUser, loading } = React.useContext(UserContext);

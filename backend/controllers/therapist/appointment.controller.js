@@ -1,5 +1,6 @@
 import { asyncHandler } from "../../middleware/asyncHandler.js";
 import AppointmentService from "../../services/appointment.service.js";
+import { ForbiddenError } from "../../utils/error.js";
 
 // Get all appointments for the current user
 export const getAppointments = asyncHandler(async (req, res) => {
@@ -30,15 +31,32 @@ export const getAppointments = asyncHandler(async (req, res) => {
 
 // Fetch appointment details
 export const getAppointmentDetails = asyncHandler(async (req, res) => {
-  const appointmentId = req.params._id; // Assuming the appointment ID is passed as a URL parameter
-  const appointment = await AppointmentService.getAppointmentById(
-    appointmentId
-  );
+  const appointmentId = req.params._id;
+  const userId = req.user._id;
+  const userType = req.user.userType;
+
+  const appointment = await AppointmentService.getAppointmentById(appointmentId);
+
+  // Check if the user is authorized to view the appointment
+  let isAuthorized = false;
+
+  if (userType === 'patient') {
+    isAuthorized = appointment.patient.toString() === userId.toString();
+  } else if (userType === 'therapist') {
+    isAuthorized = appointment.therapist.toString() === userId.toString();
+  }
+
+  if (!isAuthorized) {
+    throw new ForbiddenError('You do not have permission to view this appointment');
+  }
+
   res.status(200).json({
     success: true,
     data: appointment,
   });
 });
+
+
 
 // update appointment status
 export const updateAppointmentStatus = asyncHandler(async (req, res) => {
@@ -66,3 +84,32 @@ export const deleteAppointment = asyncHandler(async (req, res) => {
     data: {},
   });
 });
+
+
+// Get upcoming appointments for the current user (patient or therapist)
+export const getUpcomingAppointments = asyncHandler(async (req, res) => {
+ try {
+
+  const userId = req.user._id;
+  const userType = req.user.userType;
+
+  const appointments = await AppointmentService.upcomingAppointments(userId, userType);
+
+  res.status(200).json({
+    success: true,
+    count: appointments.length,
+    data: appointments,
+  });
+ }catch(err){
+   console.error(err);
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+ })
+
+  }
+}
+);
+
+
+

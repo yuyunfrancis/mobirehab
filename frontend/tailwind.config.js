@@ -9,7 +9,10 @@ export default {
         blueColor: "#16B1DF",
         blueHover: "#23c1ed",
       },
+       lineClamp: {
+        3: '3',
+      },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/line-clamp')],
 };

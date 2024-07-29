@@ -130,9 +130,11 @@ class AppointmentService {
   // Fetch appointment by ID
   static async getAppointmentById(appointmentId) {
     const appointment = await Appointment.findById(appointmentId);
+  
     if (!appointment) {
       throw new NotFoundError("Appointment not found");
     }
+    
     return appointment;
   }
 
@@ -167,6 +169,54 @@ class AppointmentService {
       throw new NotFoundError("Appointment not found");
     }
     return appointment;
+  }
+
+
+// Patient rescheduling an appointment with a therapist. This function is to allow patient to reschedule an appointment with a therapist by updating the appointment details.
+// This is valid on for 48 hours after appointment have been booked...after 48 hours appointment can't be rescheduled.
+
+  static async rescheduleAppointment(appointmentId, newDate, newTime) {
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found");
+    }
+
+    // console.log('====================================');
+    // console.log(appointment);
+    // console.log('====================================');
+
+    const currentDate = new Date();
+    const appointmentDate = new Date(appointment.date);
+    const timeDifference = currentDate - appointmentDate;
+    const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+    if (hoursDifference > 48) {
+      throw new Error("Appointment cannot be rescheduled after 48 hours");
+    }
+
+    appointment.date = newDate;
+    appointment.time = newTime;
+    await appointment.save();
+
+  }
+
+
+
+  // Cancel an appointment. An apppointment can either be cancelled by patient or therapist.
+
+  // Getting upcoming appointments for a therapist || patient
+  static async upcomingAppointments(userId, userType) {
+    const query = userType === "patient" ? { patient: userId } : { therapist: userId };
+    const appointments = await Appointment.find({
+      ...query,
+      date: { $gte: new Date() },
+    }).sort({ date: 1 });
+
+    return appointments;
+
+    
+
   }
 }
 

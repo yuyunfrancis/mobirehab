@@ -245,3 +245,32 @@ export const getAppointments = asyncHandler(async (req, res) => {
     data: appointments,
   });
 });
+
+
+
+// Patient rescheduling an appointment with a therapist. This function is to allow patient to reschedule an appointment with a therapist by updating the appointment details.
+// This is valid on for 48 hours after appointment have been booked...after 48 hours appointment can't be rescheduled.
+
+export const rescheduleAppointment = asyncHandler(async (req, res) => {
+try {
+    const { newDate, newTime } = req.body;
+  const appointmentId = req.params._id;
+
+  const appointment = await AppointmentService.rescheduleAppointment(
+    appointmentId,
+    newDate,
+    newTime
+  );
+
+  res.status(200).json({
+    success: true,
+    data: appointment,
+  });
+}catch(error){
+  console.error("Error in rescheduleAppointment controller:", error);
+  if (error.message === "Appointment not found") {
+    res.status(404).json({ message: error.message });
+  } else {
+    res.status(500).json({ message: "Failed to reschedule appointment", error: error});
+  }
+}});

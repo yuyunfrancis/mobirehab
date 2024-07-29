@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
-  FiMessageSquare,
-  FiPhone,
   FiArrowLeft,
   FiCalendar,
   FiClock,
   FiMapPin,
   FiUser,
-  FiMail,
   FiFlag,
 } from "react-icons/fi";
 import { useParams, useNavigate } from "react-router-dom";
@@ -15,6 +12,8 @@ import useUpdateAppointmentStatus from "../../../../hooks/useUpdateAppointmentSt
 import usePatientDetails from "../../../../hooks/usePatientDetails";
 import useAppointmentDetails from "../../../../hooks/useAppointmentDetails";
 import toast from "react-hot-toast";
+import Loading from "../../../utilities/Loading";
+import Button from "../../../common/Button";
 
 const AppointmentDetails = () => {
   const { id } = useParams();
@@ -48,11 +47,7 @@ const AppointmentDetails = () => {
   }, [appointment, fetchPatientDetails]);
 
   if (appointmentLoading || patientLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (appointmentError || patientError) {
@@ -65,18 +60,8 @@ const AppointmentDetails = () => {
     );
   }
 
-  const {
-    firstName,
-    lastName,
-    email,
-    profilePicture,
-    phoneNumber,
-    guardianPhoneNumber,
-    gender,
-    dateOfBirth,
-    address,
-    patientId,
-  } = patient?.data;
+  const { firstName, lastName, email, profilePicture, address, patientId } =
+    patient?.data;
 
   const handleStatusChange = async (newStatus) => {
     if (newStatus === "Declined" && !showDeclineWarning) {
@@ -289,23 +274,28 @@ const AppointmentDetails = () => {
                   placeholder="Add a note about this appointment (optional)"
                 />
                 <div className="mt-4 flex justify-end">
-                  <button
+                  {/* <button
                     onClick={handleAddNote}
                     className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out"
                   >
                     Add Note
-                  </button>
+                  </button> */}
+                  <Button
+                    onClick={handleAddNote}
+                    // disabled={updateLoading}
+                    label={"Add Note"}
+                    variant="outlined"
+                  />
                 </div>
               </div>
             </div>
             <div className="mt-8 flex justify-end">
-              <button
+              <Button
                 onClick={handleMarkComplete}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-md transition duration-150 ease-in-out"
                 disabled={updateLoading}
-              >
-                {updateLoading ? "Loading..." : "Mark as Complete"}
-              </button>
+                label={updateLoading ? "Updating..." : "Mark as Complete"}
+                variant="filled"
+              />
             </div>
           </div>
         )}
