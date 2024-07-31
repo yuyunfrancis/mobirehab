@@ -80,6 +80,7 @@ export const logout = async (API_ENDPOINT) => {
   try {
     await api.post(API_ENDPOINT);
     localStorage.removeItem("user");
+    
   } catch (err) {
     console.error("Error during logout:", err);
     throw err;

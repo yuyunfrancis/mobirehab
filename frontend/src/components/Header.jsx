@@ -1,14 +1,19 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
+import toast from "react-hot-toast";
 import { Dropdown, DropdownItem } from "./features/Dropdowns";
 import Input from "./common/forms/Input";
 import { Avatar, Badge } from "./features/Avatar";
 import { Link } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
+import { logout } from "../services/AuthServices";
 
 function Header({ toggleSidebar }) {
   const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const { currentUser } = useContext(UserContext);
+
+  const [loading, setLoading] = useState(false);
+  // const navigate = useNavigate();
 
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
@@ -39,6 +44,27 @@ function Header({ toggleSidebar }) {
   function handleProfileClick() {
     setIsProfileMenuOpen(!isProfileMenuOpen);
   }
+
+  const handleLogout = async () => {
+    try {
+      setLoading(true);
+
+      const END_POINT =
+        currentUser?.data?.user?.userType === "therapist"
+          ? "/therapist/logout"
+          : "/patient/logout";
+      await logout(END_POINT);
+      setLoading(false);
+      toast.success("Logged out successfully");
+
+      // Instead of using React Router's navigate, we'll use window.location
+      window.location.href = "/welcome";
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm">
@@ -162,8 +188,8 @@ function Header({ toggleSidebar }) {
                 <DropdownItem onClick={() => alert("Settings!")}>
                   <span>Settings</span>
                 </DropdownItem>
-                <DropdownItem onClick={() => alert("Log out!")}>
-                  <span>Log out</span>
+                <DropdownItem onClick={handleLogout}>
+                  <span>{loading ? "Logging out ..." : "Logout"}</span>
                 </DropdownItem>
               </Dropdown>
             </div>

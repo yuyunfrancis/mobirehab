@@ -13,6 +13,8 @@ const Appointments = () => {
   const [dateFilter, setDateFilter] = useState("");
   const [selectedAppointments, setSelectedAppointments] = useState([]);
 
+  // console.log("filterexd", filteredData);
+
   useEffect(() => {
     if (data && data.data) {
       let filtered = data.data;

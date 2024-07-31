@@ -206,18 +206,19 @@ class AppointmentService {
   // Cancel an appointment. An apppointment can either be cancelled by patient or therapist.
 
   // Getting upcoming appointments for a therapist || patient
-  static async upcomingAppointments(userId, userType) {
+static async upcomingAppointments(userId, userType) {
     const query = userType === "patient" ? { patient: userId } : { therapist: userId };
     const appointments = await Appointment.find({
       ...query,
       date: { $gte: new Date() },
-    }).sort({ date: 1 });
+      status: "Accepted"
+    })
+    .sort({ date: 1 })
+    .populate('patient', 'firstName lastName')
+    .populate('therapist', 'firstName lastName');
 
     return appointments;
-
-    
-
-  }
+}
 }
 
 export default AppointmentService;

@@ -4,35 +4,14 @@ import { UserContext } from "../../../../context/UserContext";
 import useDataFetching from "../../../../hooks/useFech";
 
 const UpcomingAppointments = ({ darkMode }) => {
-  const appointments = [
-    {
-      id: 1,
-      patient: "John Doe",
-      date: "2024-07-30 10:00 AM",
-    },
-    {
-      id: 2,
-      patient: "Jane Smith",
-      date: "2024-07-30 2:00 PM",
-    },
-    {
-      id: 3,
-      patient: "Bob Johnson",
-      date: "2024-07-31 11:30 AM",
-    },
-  ];
-
   const [loading, error, data, fetchData] = useDataFetching(
     "upcoming-appointments"
   );
+  const { currentUser } = useContext(UserContext);
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  //   console.log("====================================");
-  //   console.log(data);
-  //   console.log("====================================");
+  }, [fetchData]);
 
   return (
     <div
@@ -43,14 +22,17 @@ const UpcomingAppointments = ({ darkMode }) => {
       <h2 className="text-xl font-semibold mb-4">Upcoming Appointments</h2>
       {loading ? (
         <p>Loading Appointments...</p>
+      ) : error ? (
+        <p>Error loading appointments</p>
       ) : (
         <>
           {data?.data?.length > 0 ? (
             <div className="space-y-4">
-              {appointments.map((appointment) => (
+              {data.data.map((appointment) => (
                 <UpcomingAppointmentCard
-                  key={appointment.id}
-                  {...appointment}
+                  key={appointment._id}
+                  appointment={appointment}
+                  userType={currentUser?.data?.user?.userType}
                   darkMode={darkMode}
                 />
               ))}
