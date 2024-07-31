@@ -10,10 +10,6 @@ function Header({ toggleSidebar }) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const { currentUser } = useContext(UserContext);
 
-  console.log("====================================");
-  console.log(currentUser);
-  console.log("====================================");
-
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
 
