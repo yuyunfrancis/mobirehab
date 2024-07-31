@@ -28,6 +28,8 @@ const RescheduleAppointment = ({
     `/therapist/availability/${therapistId}`
   );
 
+  console.log("current user", currentUser.token);
+
   useEffect(() => {
     if (isOpen) {
       fetchData();
@@ -108,6 +110,17 @@ const RescheduleAppointment = ({
       return;
     }
 
+    const appointmentDate = moment(appointment.date);
+    const currentDate = moment();
+    const hoursDifference = currentDate.diff(appointmentDate, "hours");
+
+    if (hoursDifference > 48) {
+      toast.error(
+        "Appointments can only be rescheduled within 48 hours of booking"
+      );
+      return;
+    }
+
     const newDate = moment(selectedDate).format("YYYY-MM-DD");
     const newTime = selectedTime;
 
@@ -116,6 +129,7 @@ const RescheduleAppointment = ({
       await rescheduleAppointment(appointment._id, newDate, newTime, note);
       toast.success("Appointment rescheduled successfully");
       onClose();
+      window.location.reload();
     } catch (error) {
       toast.error("Error rescheduling appointment");
       console.error("Error rescheduling appointment:", error);
@@ -130,22 +144,40 @@ const RescheduleAppointment = ({
     newTime,
     reason
   ) => {
-    const response = await api.put(
-      `patient/appointments/${appointmentId}`,
-      { newDate, newTime, reason },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${currentUser.token}`,
-        },
-      }
-    );
+    try {
+      // Make sure newTime is a string, not an object
+      const timeString = typeof newTime === "object" ? newTime.time : newTime;
 
-    if (response.status !== 200) {
-      throw new Error("Failed to reschedule appointment");
-    } else {
-      updateAvailability(therapistId, newDate, newTime);
-      updateLocalAvailability(newDate, newTime);
+      const response = await api.put(
+        `/patient/appointments/${appointmentId}`,
+        {
+          newDate,
+          newTime: timeString, // Send the time as a string
+          reason,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${currentUser.token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        updateAvailability(therapistId, newDate, timeString);
+        updateLocalAvailability(newDate, timeString);
+      } else {
+        throw new Error(
+          response.data.message || "Failed to reschedule appointment"
+        );
+      }
+    } catch (error) {
+      console.error("Reschedule error:", error);
+      throw new Error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to reschedule appointment"
+      );
     }
   };
 
