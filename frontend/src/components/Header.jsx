@@ -1,11 +1,18 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { Dropdown, DropdownItem } from "./features/Dropdowns";
 import Input from "./common/forms/Input";
 import { Avatar, Badge } from "./features/Avatar";
+import { Link } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 function Header({ toggleSidebar }) {
   const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const { currentUser } = useContext(UserContext);
+
+  console.log("====================================");
+  console.log(currentUser);
+  console.log("====================================");
 
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
@@ -145,9 +152,17 @@ function Header({ toggleSidebar }) {
                 isOpen={isProfileMenuOpen}
                 onClose={() => setIsProfileMenuOpen(false)}
               >
-                <DropdownItem onClick={() => alert("Profile!")}>
-                  <span>Profile</span>
-                </DropdownItem>
+                <Link
+                  to={
+                    currentUser?.data?.user.userType === "therapist"
+                      ? "/therapist/profile"
+                      : "/patient/profile"
+                  }
+                >
+                  <DropdownItem>
+                    <span>Profile</span>
+                  </DropdownItem>
+                </Link>
                 <DropdownItem onClick={() => alert("Settings!")}>
                   <span>Settings</span>
                 </DropdownItem>
