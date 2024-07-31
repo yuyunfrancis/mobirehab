@@ -29,9 +29,9 @@ const TherapistProfile = ({ darkMode }) => {
     fetchData();
   }, [currentUser.token]);
 
-  console.log("====================================");
-  console.log("TherapistProfile:", profile);
-  console.log("====================================");
+  //   console.log("====================================");
+  //   console.log("TherapistProfile:", profile);
+  //   console.log("====================================");
 
   const SkeletonLoader = () => (
     <div
@@ -65,25 +65,27 @@ const TherapistProfile = ({ darkMode }) => {
     >
       <div className="flex items-center mb-4">
         <div className="relative">
-          {profile.profilePicture ? (
+          {profile?.therapist?.profilePicture ? (
             <img
-              src={profile.profilePicture}
+              src={profile?.therapist?.profilePicture}
               alt="Therapist"
               className="w-20 h-20 rounded-full mr-4 border-4 border-indigo-500"
             />
           ) : (
             <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 text-xl mr-3">
-              {profile.firstName ? profile.firstName[0].toUpperCase() : ""}
+              {profile?.therapist?.firstName
+                ? profile?.therapist?.firstName[0].toUpperCase()
+                : ""}
             </div>
           )}
         </div>
         <div>
           <div className="flex items-center">
             <h2 className="text-2xl font-bold mr-2">
-              Dr. {profile.firstName} {profile.lastName}
+              Dr. {profile?.therapist?.firstName} {profile?.lastName}
             </h2>
             <span
-              className="bg-blue-500 text-white rounded-full p-1"
+              className={`bg-blue-500 text-white rounded-full p-1`}
               title="Verified Account"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -92,7 +94,7 @@ const TherapistProfile = ({ darkMode }) => {
             </span>
           </div>
           <p className={`${darkMode ? "text-gray-400" : "text-gray-500"}`}>
-            {profile.specialization}
+            {profile?.therapist?.specialization}
           </p>
         </div>
       </div>
@@ -103,23 +105,24 @@ const TherapistProfile = ({ darkMode }) => {
           }`}
         ></i>
         <span>
-          {profile.address.country} {profile.address.city}
+          {profile?.therapist?.address?.country}{" "}
+          {profile?.therapist?.address?.city}
         </span>
       </div>
       <div className="flex items-center mb-4">
         <i className="fas fa-star text-yellow-400 mr-2"></i>
-        <span>4.8 (120 reviews)</span>
+        <span>
+          {profile?.averageRating.toFixed(1)} (
+          {profile?.therapist?.ratings.length} reviews)
+        </span>
       </div>
       <p
         className={`mb-4 ${
           darkMode ? "text-gray-300" : "text-gray-600"
         } line-clamp-3`}
       >
-        {profile?.bio}
+        {profile?.therapist?.bio}
       </p>
-      {/* <button className="bg-indigo-500 text-white px-4 py-2 rounded-lg w-full hover:bg-indigo-600 transition duration-300">
-        Edit Profile
-      </button> */}
 
       <Button label={"Edit Profile"} variant="filled" />
     </div>

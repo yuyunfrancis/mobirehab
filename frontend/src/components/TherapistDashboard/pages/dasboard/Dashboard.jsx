@@ -90,22 +90,6 @@ const stats = [
   { title: "Rating", value: "4.8", icon: "star" },
 ];
 
-const appointments = [
-  { id: 1, patient: "John Doe", date: "2024-07-30 10:00 AM", type: "Regular" },
-  {
-    id: 2,
-    patient: "Jane Smith",
-    date: "2024-07-30 2:00 PM",
-    type: "New Patient",
-  },
-  {
-    id: 3,
-    patient: "Bob Johnson",
-    date: "2024-07-31 11:30 AM",
-    type: "Follow-up",
-  },
-];
-
 const patients = [
   { id: 1, name: "John Doe", age: 35, lastVisit: "2024-07-15" },
   { id: 2, name: "Jane Smith", age: 28, lastVisit: "2024-07-20" },

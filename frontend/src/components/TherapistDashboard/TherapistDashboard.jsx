@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import NotFound from "../../pages/NotFound";
 import TherapistDashboardLayout from "./layout/TherapistDashboardLayout";
 
-import ProfilePage from "./pages/ProfilePage";
+import ProfilePage from "./pages/profile/ProfilePage";
 import SuccessPage from "../auth/therapist/signup/SuccessPage";
 import { UserContext } from "../../context/UserContext";
 import Availabilities from "./pages/availability/Availabilities";

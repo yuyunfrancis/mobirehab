@@ -1,6 +1,6 @@
 import React from "react";
 
-const UpcomingAppointmentCard = ({ patient, date, type, darkMode }) => {
+const UpcomingAppointmentCard = ({ patient, date, darkMode }) => {
   return (
     <div
       className={`rounded-lg p-4 flex justify-between items-center ${
@@ -15,7 +15,7 @@ const UpcomingAppointmentCard = ({ patient, date, type, darkMode }) => {
           {date}
         </p>
       </div>
-      <span
+      {/* <span
         className={`px-3 py-1 rounded-full text-sm ${
           darkMode
             ? "bg-indigo-900 text-indigo-200"
@@ -23,7 +23,7 @@ const UpcomingAppointmentCard = ({ patient, date, type, darkMode }) => {
         }`}
       >
         {type}
-      </span>
+      </span> */}
     </div>
   );
 };
