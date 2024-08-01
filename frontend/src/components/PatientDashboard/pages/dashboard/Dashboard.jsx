@@ -62,10 +62,7 @@ const Dashboard = ({ darkMode }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <PatientProfile patient={mockPatient} darkMode={darkMode} />
-          <UpcomingAppointments
-            appointments={mockPatient.upcomingAppointments}
-            darkMode={darkMode}
-          />
+          <UpcomingAppointments darkMode={darkMode} />
           <AppointmentHistory
             appointments={mockPatient.appointmentHistory}
             darkMode={darkMode}
