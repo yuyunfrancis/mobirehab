@@ -217,7 +217,7 @@ static async upcomingAppointments(userId, userType) {
     })
     .sort({ date: 1 })
     .populate('patient', 'firstName lastName')
-    .populate('therapist', 'firstName lastName');
+    .populate('therapist', 'firstName lastName specialization');
 
     return appointments;
 }
