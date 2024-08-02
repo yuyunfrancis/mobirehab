@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
 import Dashboard from "./pages/dashboard/Dashboard";
-import ProfilePage from "./pages/ProfilePage";
+import ProfilePage from "./pages/profile/ProfilePage";
 import NotFound from "../../pages/NotFound";
 import { AppointmentDetails, Appointments } from "./pages/appointment";
 import TherapistList from "./pages/therapists/TherapistList";

@@ -1,5 +1,22 @@
 import mongoose from "mongoose";
 
+const medicalHistorySchema = new mongoose.Schema({
+  condition: String,
+  diagnosedDate: Date
+});
+
+const vitalSchema = new mongoose.Schema({
+  type: String,
+  value: String,
+  unit: String
+});
+
+const medicationSchema = new mongoose.Schema({
+  name: String,
+  dosage: String,
+  frequency: String
+});
+
 const patientSchema = new mongoose.Schema(
   {
     patientId: {
@@ -36,7 +53,6 @@ const patientSchema = new mongoose.Schema(
     cloudinaryId: {
       type: String,
     },
-
     phoneNumber: {
       type: String,
       required: true,
@@ -70,8 +86,14 @@ const patientSchema = new mongoose.Schema(
       type: String,
       default: "patient",
     },
+    medicalHistory: [medicalHistorySchema],
+    vitals: [vitalSchema],
+    medications: [medicationSchema],
+    emergencyContact: {
+      type: String,
+    },
   },
-  { timesstamps: true }
+  { timestamps: true }
 );
 
 patientSchema.pre("save", function (next) {

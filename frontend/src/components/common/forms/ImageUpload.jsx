@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ImageUpload = ({
   handleChange,
@@ -9,14 +9,21 @@ const ImageUpload = ({
   labelText,
   customClass,
 }) => {
-  const [preview, setPreview] = useState(
-    value ? URL.createObjectURL(value) : null
-  );
+  const [preview, setPreview] = useState(null);
+
+  useEffect(() => {
+    if (value instanceof File) {
+      const objectUrl = URL.createObjectURL(value);
+      setPreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    } else if (typeof value === "string" && value) {
+      setPreview(value);
+    }
+  }, [value]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setPreview(URL.createObjectURL(file));
       handleChange(e);
     }
   };
