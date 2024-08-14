@@ -8,6 +8,8 @@ import { AppointmentDetails, Appointments } from "./pages/appointment";
 import TherapistList from "./pages/therapists/TherapistList";
 import BookAppointment from "./pages/appointment/BookAppointment";
 import AppointmentSuccess from "./pages/appointment/AppointmentSuccess";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const PatientDashboard = () => {
   return (
@@ -24,6 +26,8 @@ const PatientDashboard = () => {
         <Route path="payment-success-page" element={<AppointmentSuccess />} />
         <Route path="settings" element={<ProfilePage />} />
       </Route>
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

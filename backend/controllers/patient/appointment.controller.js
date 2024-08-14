@@ -5,7 +5,7 @@ import Payment from "../../models/payment.model.js";
 import Therapist from "../../models/therapist.model.js";
 import AppointmentService from "../../services/appointment.service.js";
 import processPayment from "../../utils/payment.js";
-import sendEmail from "../../utils/sendGridEmail.js";
+import {sendEmail} from "../../utils/sendGridEmail.js";
 
 // import paymentGateway from "../utils/paymentGateway.js";
 
@@ -205,6 +205,8 @@ export const createAppointment = asyncHandler(async (req, res) => {
 
     const patientEmailResponse = await sendEmail(patientEmailData);
     const therapistEmailResponse = await sendEmail(therapistEmailData);
+
+    
 
     res.status(201).json({
       appointment: savedAppointment,

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import generateToken from "../../utils/generateToken.js";
 import Therapist from "../../models/therapist.model.js";
 import { uploadFilesToCloudinary } from "../../utils/cloudinary.js";
-import sendEmail from "../../utils/sendGridEmail.js";
+import {sendEmail} from "../../utils/sendGridEmail.js";
 import Patient from "../../models/patient.model.js";
 
 const createSendToken = (user, statusCode, res) => {
@@ -147,7 +147,7 @@ export const verifyAccount = async (req, res) => {
     therapist.otpExpires = null;
 
     await therapist.save();
-    return res.redirect("/therapist/success");
+    return res.redirect("/therapist/login");
   } catch (e) {
     console.log(e);
     if (!res.headersSent) {

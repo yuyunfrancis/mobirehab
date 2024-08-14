@@ -12,6 +12,8 @@ import PatientSignup from "../components/auth/patient/PatientSignup";
 import TherapistDashboard from "../components/TherapistDashboard/TherapistDashboard";
 import TherapistSignup from "../components/auth/therapist/signup/TherapistSignup";
 import Loading from "../components/utilities/Loading";
+import ForgotPassword from "../components/PatientDashboard/pages/ForgotPassword";
+import ResetPassword from "../components/PatientDashboard/pages/ResetPassword";
 
 const AppRoutes = () => {
   return (
@@ -58,6 +60,8 @@ const AppRoutes = () => {
 
         <Route path="/not-authorized" element={<NotAuthorized />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/patient/forgot-password" element={<ForgotPassword />} />
+        <Route path="/patient/reset-password" element={<ResetPassword />} />
       </Routes>
     </Suspense>
   );

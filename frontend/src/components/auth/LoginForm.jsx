@@ -5,14 +5,14 @@ import { login } from "../../services/AuthServices";
 import { loginFields } from "../../constants/formFields";
 import { toast } from "react-hot-toast";
 import Input from "../common/forms/Input";
-import FormExtra from "../common/forms/FormExtra";
+import { FormExtra } from "../common/forms/FormExtra";
 import FormAction from "../common/forms/FormAction";
 
 const fields = loginFields;
 let fieldsState = {};
 fields.forEach((field) => (fieldsState[field.id] = ""));
 
-export default function LoginForm({ API_ENDPOINT }) {
+export default function LoginForm({ API_ENDPOINT, place }) {
   const [loginState, setLoginState] = useState(fieldsState);
   const { currentUser, setCurrentUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
@@ -89,7 +89,7 @@ export default function LoginForm({ API_ENDPOINT }) {
         ))}
       </div>
 
-      <FormExtra />
+      <FormExtra goTo={place} />
       <FormAction
         handleSubmit={handleSubmit}
         text={loading ? "Loading..." : "Login"}

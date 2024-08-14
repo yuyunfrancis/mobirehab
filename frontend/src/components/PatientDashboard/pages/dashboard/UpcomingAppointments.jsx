@@ -8,7 +8,6 @@ const UpcomingAppointments = ({ darkMode }) => {
   const [loading, error, data, fetchData] = useDataFetching(
     "upcoming-appointments"
   );
-  const { currentUser } = useContext(UserContext);
 
   useEffect(() => {
     fetchData();

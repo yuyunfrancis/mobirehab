@@ -28,7 +28,10 @@ const TherapistLogin = ({ END_POINT }) => {
               linkName="Signup"
               linkUrl="/patient/signup"
             />
-            <LoginForm API_ENDPOINT={END_POINT} />
+            <LoginForm
+              API_ENDPOINT={END_POINT}
+              place={"/patient/forgot-password"}
+            />
           </div>
         </div>
       </div>

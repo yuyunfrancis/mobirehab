@@ -116,7 +116,7 @@ const sendEmail = async ({
                 <li><strong>Status:</strong> ${template_data.status}</li>
               </ul>
               <div class="button">
-                <a href="http://${req.headers.host}/api/v1/appointments/view/${template_data.appointmentId}">View Appointment</a>
+                <a href="http://${req.headers.host}/patient/appointments/${template_data.data.appointmentId}">View Appointment</a>
               </div>
               <p>Please make sure to arrive 10 minutes early.</p>
             </div>
@@ -243,4 +243,32 @@ const sendEmail = async ({
   }
 };
 
-export default sendEmail;
+const sendPasswordResetEmail = async (email, resetLink) => {
+  const msg = {
+    to: email,
+    from: process.env.SENDGRID_VERIFIED_SENDER || "falconinnovcm@gmail.com",
+    subject: "Password Reset Request",
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; background-color: #f9f9f9; border-radius: 8px;">
+        <h2 style="color: #4CAF50;">Password Reset Request</h2>
+        <p>Hello,</p>
+        <p>We received a request to reset your password. Click the button below to reset your password.</p>
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="${resetLink}" style="background-color: #4CAF50; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px;">Reset Password</a>
+        </div>
+        <p>If you did not request a password reset, you can safely ignore this email.</p>
+        <p>Best,</p>
+        <p>The MoniHealth Team</p>
+      </div>
+    `
+  };
+
+  try {
+    await sgMail.send(msg);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw new Error("Could not send email");
+  }
+};
+
+export { sendEmail, sendPasswordResetEmail };

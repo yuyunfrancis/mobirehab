@@ -23,7 +23,7 @@ const RedirectToDashboard = () => {
             navigate("/admin/", { replace: true });
             break;
           default:
-            navigate("/patient/login", { replace: true });
+            navigate("/", { replace: true });
         }
       }
     }

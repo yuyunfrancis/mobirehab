@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const medicalHistorySchema = new mongoose.Schema({
   condition: String,
@@ -113,6 +114,11 @@ function generatePatientId() {
   }
   return id;
 }
+
+
+patientSchema.methods.comparePassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 const Patient = mongoose.model("Patient", patientSchema);
 

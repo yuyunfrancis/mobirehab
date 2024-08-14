@@ -2,7 +2,7 @@
 import Appointment from "../models/appointment.model.js";
 import Therapist from "../models/therapist.model.js";
 import Patient from "../models/patient.model.js";
-import sendEmail from "../utils/sendGridEmail.js";
+import {sendEmail} from "../utils/sendGridEmail.js";
 import { NotFoundError } from "../utils/error.js";
 
 class AppointmentService {
@@ -174,7 +174,6 @@ class AppointmentService {
 
 // Patient rescheduling an appointment with a therapist. This function is to allow patient to reschedule an appointment with a therapist by updating the appointment details.
 // This is valid on for 48 hours after appointment have been booked...after 48 hours appointment can't be rescheduled.
-
 static async rescheduleAppointment(appointmentId, newDate, newTime) {
   const appointment = await Appointment.findById(appointmentId);
   if (!appointment) {
@@ -192,7 +191,7 @@ static async rescheduleAppointment(appointmentId, newDate, newTime) {
 
   appointment.date = newDate;
   appointment.time = newTime;  
-  appointment.status = "Pending"; 
+  appointment.status = "Pending";
 
   try {
     await appointment.save();
