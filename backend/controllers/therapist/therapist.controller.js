@@ -257,12 +257,17 @@ export const updateTherapistProfile = asyncHandler(async (req, res) => {
     };
   }
 
+
+
   // Validate specialization if provided
   if (updates.specialization && !Therapist.schema.path('specialization').enumValues.includes(updates.specialization)) {
     res.status(400).json({ message: 'Invalid specialization' });
   }
 
   Object.assign(therapist, updates);
+
+//   console.log('Received data:', req.body);
+// console.log('Updates to be applied:', updates);
 
   const updatedTherapist = await therapist.save();
 

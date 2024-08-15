@@ -59,34 +59,6 @@ const ProfilePage = () => {
     confirmPassword: "",
   });
 
-  // useEffect(() => {
-  //   if (therapistData && !loading) {
-  //     setFormData({
-  //       firstName: therapistData?.therapist?.firstName || "",
-  //       lastName: therapistData?.therapist?.lastName || "",
-  //       email: therapistData?.therapist?.email || "",
-  //       phoneNumber: therapistData?.therapist?.phoneNumber || "",
-  //       alternativePhoneNumber:
-  //         therapistData?.therapist?.alternativePhoneNumber || "",
-  //       gender: therapistData?.therapist?.gender || "",
-  //       address: {
-  //         country: therapistData?.therapist?.address?.country || "",
-  //         city: therapistData?.therapist?.address?.city || "",
-  //         district: therapistData?.therapist?.address?.district || "",
-  //         street: therapistData?.therapist?.address?.street || "",
-  //       },
-  //       profession: therapistData?.therapist?.profession || "",
-  //       bio: therapistData?.therapist?.bio || "",
-  //       numOfYearsOfExperience: therapistData.numOfYearsOfExperience || "",
-  //       licenseNumber: therapistData.licenseNumber || "",
-  //       specialization: therapistData.specialization || "Physiotherapist",
-  //       licenseDocument: therapistData.licenseDocument || null,
-  //       cv: therapistData.cv || null,
-  //       profilePicture: therapistData.profilePicture || null,
-  //     });
-  //   }
-  // }, [therapistData, loading]);
-
   const handleInputChange = (field, value) => {
     setTherapist((prev) => ({ ...prev, [field]: value }));
   };
@@ -122,20 +94,33 @@ const ProfilePage = () => {
     }
   };
 
-  // update therapist personal info
+  // Update personal info
   const updatePersonalInfo = async () => {
     try {
       setIsLoading(true);
-      const response = await api.patch("/therapist/profile", formData, {
+      console.log("Form data being sent:", formData);
+
+      // Only send changed fields
+      const changedData = Object.keys(formData).reduce((acc, key) => {
+        if (formData[key] !== initialTherapistData[key]) {
+          acc[key] = formData[key];
+        }
+        return acc;
+      }, {});
+
+      console.log("Changed data being sent:", changedData);
+
+      const response = await api.patch("/therapist/profile", changedData, {
         headers: {
           Authorization: `Bearer ${currentUser.token}`,
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
+
+      console.log("Server response:", response.data);
+
       if (response.data && response.data.therapist) {
         toast.success("Profile updated successfully");
-
-        // Update the local state with the new data
         setFormData((prevData) => ({
           ...prevData,
           ...response.data.therapist,
@@ -144,15 +129,19 @@ const ProfilePage = () => {
             ...response.data.therapist.address,
           },
         }));
-
-        // Refetch the data to ensure consistency
-        refetchTherapistData();
+        await refetchTherapistData();
+        console.log("Data after refetch:", therapistData);
       } else {
         throw new Error("Unexpected response format");
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("An error occurred. Please try again.");
+      console.error(
+        "Error updating profile:",
+        error.response?.data || error.message
+      );
+      toast.error(
+        `An error occurred: ${error.response?.data?.message || error.message}`
+      );
     } finally {
       setIsLoading(false);
     }

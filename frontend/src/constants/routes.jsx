@@ -27,6 +27,6 @@ export const therapistRoutes = [
   { path: "/therapist/", name: "Dashboard" },
   { path: "/therapist/availability", name: "Availability" },
   { path: "/therapist/appointments", name: "Appointments" },
-  { path: "/therapist/settings", name: "Settings" },
-  { path: "/therapist/profile", name: "Profile" },
+  // { path: "/therapist/settings", name: "Settings" },
+  // { path: "/therapist/profile", name: "Profile" },
 ];
