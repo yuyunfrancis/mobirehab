@@ -4,6 +4,7 @@ import Therapist from "../../models/therapist.model.js";
 import { uploadFilesToCloudinary } from "../../utils/cloudinary.js";
 import {sendEmail} from "../../utils/sendGridEmail.js";
 import Patient from "../../models/patient.model.js";
+import { asyncHandler } from "../../middleware/asyncHandler.js";
 
 const createSendToken = (user, statusCode, res) => {
   const token = generateToken(user._id, user.userType, res);
@@ -212,7 +213,80 @@ export const getPatientDetails = async (req, res) => {
     console.error("Error fetching therapist details:", error);
     res.status(500).json({ message: "Internal server error", error: error });
   }
+  
 };
+
+
+/**
+ * Update therapist profile
+ * @route PATCH /api/v1/therapists/profile
+ * @access Private
+ */
+export const updateTherapistProfile = asyncHandler(async (req, res) => {
+  const therapist = await Therapist.findById(req.user._id);
+
+  if (!therapist) {
+    res.status(404).json({ message: 'Therapist not found' });
+  }
+
+  const updatableFields = [
+    'firstName',
+    'lastName',
+    'phoneNumber',
+    'alternativePhoneNumber',
+    'gender',
+    'profession',
+    'bio',
+    'numOfYearsOfExperience',
+    'specialization'
+  ];
+
+  const updates = {};
+
+  updatableFields.forEach(field => {
+    if (req.body[field] !== undefined) {
+      updates[field] = req.body[field];
+    }
+  });
+
+  // Handle nested address field
+  if (req.body.address) {
+    updates.address = {
+      ...therapist.address,
+      ...req.body.address
+    };
+  }
+
+  // Validate specialization if provided
+  if (updates.specialization && !Therapist.schema.path('specialization').enumValues.includes(updates.specialization)) {
+    res.status(400).json({ message: 'Invalid specialization' });
+  }
+
+  Object.assign(therapist, updates);
+
+  const updatedTherapist = await therapist.save();
+
+  res.json({
+    message: 'Profile updated successfully',
+    therapist: {
+      id: updatedTherapist._id,
+      firstName: updatedTherapist.firstName,
+      lastName: updatedTherapist.lastName,
+      email: updatedTherapist.email,
+      phoneNumber: updatedTherapist.phoneNumber,
+      alternativePhoneNumber: updatedTherapist.alternativePhoneNumber,
+      gender: updatedTherapist.gender,
+      address: updatedTherapist.address,
+      profession: updatedTherapist.profession,
+      bio: updatedTherapist.bio,
+      numOfYearsOfExperience: updatedTherapist.numOfYearsOfExperience,
+      specialization: updatedTherapist.specialization,
+      licenseNumber: updatedTherapist.licenseNumber,
+      profilePicture: updatedTherapist.profilePicture,
+      cv: updatedTherapist.cv,
+    }
+  });
+});
 
 
 

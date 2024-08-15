@@ -181,6 +181,7 @@ export const createAppointment = asyncHandler(async (req, res) => {
         date: savedAppointment.date.toDateString(),
         time: savedAppointment.time,
         status: savedAppointment.status,
+        appointmentId: savedAppointment._id,
       },
       req,
       emailType: "appointment_patient",

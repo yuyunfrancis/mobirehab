@@ -4,6 +4,7 @@ import {
   getPatientDetails,
   loginTherapist,
   signupTherapist,
+  updateTherapistProfile,
   verifyAccount,
 } from "../controllers/therapist/therapist.controller.js";
 import fs from "fs";
@@ -84,7 +85,7 @@ router.put("/my-availability/:availabilityId/activate", setAvailabilityActive);
 
 // get patient
 router.get("/patient/:id", getPatientDetails);
-router.get("/profile", getTherapistProfileWithRatings);
+router.route("/profile").get(getTherapistProfileWithRatings).patch(updateTherapistProfile);
 
 
 export default router;

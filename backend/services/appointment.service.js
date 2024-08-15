@@ -139,28 +139,95 @@ class AppointmentService {
   }
 
   // Update appointment status
-  static async updateAppointmentStatus(appointmentId, status) {
-    const appointment = await Appointment.findById(appointmentId);
-    if (!appointment) {
-      throw new NotFoundError("Appointment not found");
-    }
-    const validStatuses = [
-      "Pending",
-      "Accepted",
-      "Declined",
-      "Done",
-      "Cancelled",
-    ];
+  // static async updateAppointmentStatus(appointmentId, status) {
+  //   const appointment = await Appointment.findById(appointmentId);
+  //   if (!appointment) {
+  //     throw new NotFoundError("Appointment not found");
+  //   }
+  //   const validStatuses = [
+  //     "Pending",
+  //     "Accepted",
+  //     "Declined",
+  //     "Done",
+  //     "Cancelled",
+  //   ];
 
-    if (!validStatuses.includes(status)) {
-      throw new Error("Invalid status");
-    }
+  //   if (!validStatuses.includes(status)) {
+  //     throw new Error("Invalid status");
+  //   }
 
-    appointment.status = status;
-    await appointment.save();
+  //   appointment.status = status;
+  //   await appointment.save();
 
-    return appointment;
+  // // send email to patient after appointment status is updated
+  //   const patientDetails = await Patient.findById(appointment.patient);
+  //   const therapistDetails = await Therapist.findById(appointment.therapist);
+
+  //   const patientEmailData = {
+  //     recipientEmail: patientDetails.email,
+  //     subject: "Appointment Status Update",
+  //     template_data: {
+  //       name: `${patientDetails.firstName} ${patientDetails.lastName}`,
+  //       therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+  //       date: appointment.date.toDateString(),
+  //       time: appointment.time,
+  //       status: appointment.status,
+  //       appointmentId: appointment._id,
+  //     },
+  //     emailType: "appointment_status_update",
+  //   };
+
+  //   const patientEmailResponse = await sendEmail(patientEmailData);
+
+  //   return { appointment, patientEmailResponse };
+
+
+  // }
+
+static async updateAppointmentStatus(appointmentId, status, req) {
+  const appointment = await Appointment.findById(appointmentId);
+  if (!appointment) {
+    throw new NotFoundError("Appointment not found");
   }
+
+  const validStatuses = ["Pending", "Accepted", "Declined", "Done", "Cancelled"];
+  if (!validStatuses.includes(status)) {
+    throw new Error("Invalid status");
+  }
+
+  appointment.status = status;
+  await appointment.save();
+
+  // Only send email for Accepted or Declined statuses
+  if (status === "Accepted" || status === "Declined") {
+    const patientDetails = await Patient.findById(appointment.patient);
+    const therapistDetails = await Therapist.findById(appointment.therapist);
+
+    const patientEmailData = {
+      recipientEmail: patientDetails.email,
+      subject: `Appointment ${status}: ${therapistDetails.firstName} ${therapistDetails.lastName}`,
+      template_data: {
+        name: `${patientDetails.firstName} ${patientDetails.lastName}`,
+        therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+        date: appointment.date.toDateString(),
+        time: appointment.time,
+        status: status,
+        appointmentId: appointment._id,
+        message: status === "Accepted" 
+          ? "Your appointment has been accepted by the therapist."
+          : "Unfortunately, your appointment has been declined by the therapist.",
+      },
+      emailType: "appointment_status_update",
+      req,
+    };
+
+    const patientEmailResponse = await sendEmail(patientEmailData);
+    return { appointment, patientEmailResponse };
+  }
+
+  return { appointment };
+}
+
 
   // Delete appointment
   static async deleteAppointment(appointmentId) {

@@ -69,9 +69,9 @@ const AppointmentDetails = () => {
     } else {
       try {
         await updateStatus(appointment?.data?._id, newStatus);
-        toast.success(`Appointment ${newStatus.toLowerCase()}successfully`);
         setShowDeclineWarning(false);
         window.location.reload();
+        toast.success(`Appointment ${newStatus.toLowerCase()}successfully`);
       } catch (err) {
         toast.error(
           "Failed to mark appointment as complete. Please try again."

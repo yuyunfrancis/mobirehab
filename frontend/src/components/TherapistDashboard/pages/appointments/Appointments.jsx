@@ -4,10 +4,13 @@ import AppointmentTable from "./AppointmentTable";
 import AppointmentDetails from "./AppointmentDetails";
 import { FiSearch, FiFilter } from "react-icons/fi";
 import Loading from "../../../utilities/Loading";
+import Pagination from "../../../common/widgets/Pagination";
 
 const Appointments = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, error, data, fetchData] = useDataFetching(
-    "/therapist/appointments"
+    `/therapist/appointments?page=${currentPage}&limit=10`
   );
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -39,8 +42,14 @@ const Appointments = () => {
       }
 
       setFilteredData(filtered);
+      setTotalPages(Math.ceil(data.total / data.limit));
     }
   }, [data, searchTerm, statusFilter]);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    fetchData(`/therapist/appointments?page=${pageNumber}&limit=10`);
+  };
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
@@ -113,8 +122,11 @@ const Appointments = () => {
           >
             <option value="All">All Statuses</option>
             <option value="Pending">Pending</option>
-            <option value="Confirmed">Confirmed</option>
+            <option value="Accepted">Accepted</option>
             <option value="Cancelled">Cancelled</option>
+            <option value="Completed">Completed</option>
+            <option value="Declined">Declined</option>
+            <option value="Waiting for Payment">Waiting for Payment</option>
           </select>
           <FiFilter className="absolute left-3 top-3 text-gray-400" />
         </div>
@@ -145,13 +157,20 @@ const Appointments = () => {
           <p>No appointments found.</p>
         </div>
       ) : (
-        <AppointmentTable
-          appointments={filteredData}
-          selectedAppointments={selectedAppointments}
-          onSelectAll={handleSelectAll}
-          onSelect={handleSelect}
-          onViewDetails={handleViewDetails}
-        />
+        <>
+          <AppointmentTable
+            appointments={filteredData}
+            selectedAppointments={selectedAppointments}
+            onSelectAll={handleSelectAll}
+            onSelect={handleSelect}
+            onViewDetails={handleViewDetails}
+          />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </>
       )}
 
       {selectedAppointment && (

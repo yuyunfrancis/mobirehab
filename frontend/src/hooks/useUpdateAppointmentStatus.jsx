@@ -25,9 +25,9 @@ const useUpdateAppointmentStatus = () => {
       );
 
       setLoading(false);
-      console.log("====================================");
-      console.log(response.data);
-      console.log("====================================");
+      // console.log("====================================");
+      // console.log(response.data);
+      // console.log("====================================");
       return response.data;
     } catch (err) {
       setLoading(false);

@@ -63,15 +63,23 @@ export const updateAppointmentStatus = asyncHandler(async (req, res) => {
   const { status } = req.body;
   const appointmentId = req.params._id;
 
-  const appointment = await AppointmentService.updateAppointmentStatus(
+  const result = await AppointmentService.updateAppointmentStatus(
     appointmentId,
-    status
+    status,
+    req
   );
 
-  res.status(200).json({
+  const response = {
     success: true,
-    data: appointment,
-  });
+    data: result.appointment,
+  };
+
+  if (result.patientEmailResponse) {
+    response.emailSent = true;
+    response.emailResponse = result.patientEmailResponse;
+  }
+
+  res.status(200).json(response);
 });
 
 // delete appointment
