@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import Patient from "../models/patient.model.js";
 import Therapist from "../models/therapist.model.js";
+import Admin from "../models/admin.model.js";
 
 const validateToken = async (req, res, next) => {
   try {
@@ -22,6 +23,9 @@ const validateToken = async (req, res, next) => {
         break;
       case "therapist":
         user = await Therapist.findById(decoded.userId).select("-password");
+        break;
+      case "admin":
+        user = await Admin.findById(decoded.userId).select("-password");
         break;
       default:
         return res

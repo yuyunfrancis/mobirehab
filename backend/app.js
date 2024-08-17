@@ -12,6 +12,7 @@ import patientRoutes from "./routes/patient.routes.js";
 import therapistRoutes from "./routes/therapist.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import commonRoutes from "./routes/common.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/api/v1/patient", patientRoutes);
 app.use("/api/v1/therapist", therapistRoutes);
 app.use("/api/v1/", webhookRoutes);
 app.use("/api/v1/", commonRoutes);
+app.use("/api/admin", adminRoutes);
 
 //Documentation
 app.use(
@@ -52,12 +54,20 @@ app.get("*", (req, res) => {
 });
 
 // NOT FOUND ROUTE
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
+app.use((req, res, next) => {
+  const error = new Error("Not Found");
+  error.status = 404;
+  next(error);
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  res.status(err.status || 500);
+  res.json({
+    success: false,
+    message: err.message || "An unexpected error occurred",
+    error: process.env.NODE_ENV === "production" ? {} : err,
+  });
+});
 
 export default app;
