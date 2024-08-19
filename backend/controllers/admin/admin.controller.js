@@ -1,10 +1,9 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-
 import { asyncHandler } from "../../middleware/asyncHandler.js";
 import AdminService from "../../services/admin.service.js";
-import { log } from "console";
+import Therapist from "../../models/therapist.model.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -81,7 +80,6 @@ export const createAdmin = asyncHandler(async (req, res) => {
 });
 
 // login admin || super-admin
-
 export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -91,3 +89,70 @@ export const loginAdmin = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// Get all therapists
+export const getAllTherapists = async (req, res) => {
+  try {
+    const admin = req.user;
+
+    if (
+      admin.role !== "super-admin" &&
+      admin.role !== "admin" &&
+      admin.userType !== "admin"
+    ) {
+      return res.status(403).json({
+        message:
+          "Unauthorized: You do not have permission to access this resource",
+      });
+    }
+
+    const therapists = await Therapist.find().select("-password");
+    res.json({ status: "success", count: therapists.length, data: therapists });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// approve therapist account by admin
+export const approveTherapist = asyncHandler(async (req, res) => {
+  try {
+    console.log("Request params:", req.params.id);
+    console.log("Request query:", req.query);
+    console.log("Request body:", req.body);
+
+    const therapistId = req.params.id;
+    const adminId = req.user._id;
+
+    console.log(
+      `Attempting to approve therapist. TherapistId: ${therapistId}, AdminId: ${adminId}`
+    );
+
+    if (!therapistId) {
+      throw new Error("TherapistId is required");
+    }
+
+    const updatedTherapist = await AdminService.approveTherapistAccount(
+      adminId,
+      therapistId
+    );
+
+    console.log(`Therapist approved successfully: ${updatedTherapist.email}`);
+
+    res.status(200).json({
+      success: true,
+      message: "Therapist account approved successfully",
+      data: {
+        therapistId: updatedTherapist.therapistId,
+        email: updatedTherapist.email,
+        isVerified: updatedTherapist.isVerified,
+      },
+    });
+  } catch (error) {
+    console.error(`Error in approveTherapist: ${error.message}`);
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});

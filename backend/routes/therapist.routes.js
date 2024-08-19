@@ -82,8 +82,6 @@ router
   .delete(deleteAvailability);
 router.put("/my-availability/:availabilityId/activate", setAvailabilityActive);
 
-// get patient
-router.get("/patient/:id", getPatientDetails);
 router
   .route("/profile")
   .get(getTherapistProfileWithRatings)

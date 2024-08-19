@@ -23,7 +23,7 @@ const useTherapistDetails = (therapistId) => {
       }
 
       try {
-        const response = await api.get(`/patient/therapist/${therapistId}`, {
+        const response = await api.get(`/therapist/${therapistId}`, {
           headers: {
             Authorization: `Bearer ${currentUser.token}`,
           },

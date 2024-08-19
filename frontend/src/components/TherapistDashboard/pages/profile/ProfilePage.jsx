@@ -95,7 +95,7 @@ const ProfilePage = () => {
   };
 
   // Update personal info
-  const updatePersonalInfo = async () => {
+  const updateTherapistInfo = async () => {
     try {
       setIsLoading(true);
       console.log("Form data being sent:", formData);
@@ -156,17 +156,25 @@ const ProfilePage = () => {
           <PersonalTab
             formData={formData}
             handleChange={handleChange}
-            handleSubmit={updatePersonalInfo}
+            handleSubmit={updateTherapistInfo}
             updating={isLoading}
           />
         )}
       </>
     ),
     professional: (
-      <ProfessionalTab
-        therapist={formData}
-        handleInputChange={handleInputChange}
-      />
+      <>
+        {loading ? (
+          <Loading />
+        ) : (
+          <ProfessionalTab
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={updateTherapistInfo}
+            updating={isLoading}
+          />
+        )}
+      </>
     ),
     security: <SecurityTab />,
     ratings: <RatingsTab therapist={therapist} />,

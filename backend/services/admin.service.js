@@ -1,4 +1,5 @@
 import Admin from "../models/admin.model.js";
+import Therapist from "../models/therapist.model.js";
 import generateToken from "../utils/generateToken.js";
 
 class AdminService {
@@ -114,7 +115,6 @@ class AdminService {
 
       // Update last login
       await Admin.updateOne({ _id: admin._id }, { lastLogin: new Date() });
-
       // Generate token
       const token = generateToken(admin._id, admin.userType, res);
 
@@ -126,6 +126,65 @@ class AdminService {
       };
     } catch (error) {
       console.log("Error in AdminService.loginAdmin", error);
+      throw error;
+    }
+  }
+
+  // approve therapist account by either super-admin or admin after verifying the therapist details
+  static async approveTherapistAccount(adminId, therapistId) {
+    try {
+      console.log(
+        `Starting approval process. AdminId: ${adminId}, TherapistId: ${therapistId}`
+      );
+
+      const admin = await Admin.findById(adminId);
+      if (!admin) {
+        console.log(`Admin not found with ID: ${adminId}`);
+        throw new Error("Admin not found");
+      }
+
+      console.log(`Admin found: ${admin.email}`);
+
+      if (
+        admin.role !== "super-admin" &&
+        admin.role !== "admin" &&
+        admin.userType !== "admin"
+      ) {
+        console.log(`Unauthorized access attempt by admin: ${admin.email}`);
+        throw new Error("Unauthorized: Only super-admin or admin can approve");
+      }
+
+      console.log(`Searching for therapist with ID: ${therapistId}`);
+      const therapist = await Therapist.findById(therapistId);
+
+      if (!therapist) {
+        console.log(`Therapist not found with ID: ${therapistId}`);
+        throw new Error("Therapist not found");
+      }
+
+      console.log(`Therapist found: ${therapist.email}`);
+
+      if (therapist.isVerified) {
+        throw new Error("Therapist account is already approved");
+      }
+
+      // check that therapist has uploaded all required documents
+      if (
+        !therapist.cv ||
+        !therapist.licenseDocument ||
+        !therapist.profilePicture
+      ) {
+        throw new Error("Therapist has not uploaded all required documents");
+      }
+
+      therapist.isVerified = true;
+      await therapist.save();
+
+      console.log(`Therapist account approved: ${therapist.email}`);
+
+      return therapist;
+    } catch (error) {
+      console.log("Error in AdminService.approveTherapistAccount", error);
       throw error;
     }
   }

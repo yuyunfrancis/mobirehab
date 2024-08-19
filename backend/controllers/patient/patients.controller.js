@@ -128,29 +128,15 @@ export const logoutPatient = (req, res) => {
   }
 };
 
-// Get all therapists
-export const getAllTherapists = async (req, res) => {
+// Get all verified therapists
+export const getAllVerifiedTherapists = async (req, res) => {
   try {
-    const therapists = await Therapist.find().select("-password");
+    const therapists = await Therapist.find({ isVerified: true }).select(
+      "-password"
+    );
     res.json({ status: "success", count: therapists.length, data: therapists });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-// Get therapist details by ID
-export const getTherapistDetails = async (req, res) => {
-  try {
-    const therapistId = req.params.id;
-    const therapist = await Therapist.findById(therapistId).select("-password");
-    if (!therapist) {
-      return res.status(404).json({ message: "Therapist not found" });
-    }
-
-    res.json({ success: "success", data: therapist });
-  } catch (error) {
-    console.error("Error fetching therapist details:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -202,7 +188,6 @@ export const sendPasswordResetLink = async (req, res) => {
     if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
     }
-
 
     const token = jwt.sign(
       {
@@ -278,11 +263,9 @@ export const changePassword = async (req, res) => {
 
     // Check if the new password is different from the old password
     if (oldPassword === newPassword) {
-      return res
-        .status(400)
-        .json({
-          message: "New password must be different from the current password",
-        });
+      return res.status(400).json({
+        message: "New password must be different from the current password",
+      });
     }
 
     // Hash the new password

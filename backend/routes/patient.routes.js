@@ -1,7 +1,6 @@
 import express from "express";
 import {
-  getAllTherapists,
-  getTherapistDetails,
+  getAllVerifiedTherapists,
   loginPatient,
   logoutPatient,
   resetPassword,
@@ -23,10 +22,11 @@ const router = express.Router();
 router.post("/signup", signupPatient);
 router.post("/login", loginPatient);
 
-
 router.post("/forgot-password", sendPasswordResetLink);
 router.get("/reset-password/:token", validateResetToken, (req, res) => {
-  const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${req.params.token}`;
+  const resetUrl = `${req.protocol}://${req.get("host")}/reset-password?token=${
+    req.params.token
+  }`;
   res.redirect(resetUrl);
 });
 
@@ -34,17 +34,19 @@ router.post("/reset-password", validateResetToken, resetPassword);
 
 router.use(validateToken);
 router.route("/appointments").get(getAppointments).post(createAppointment);
-router.route("/appointments/:_id").get(getAppointmentDetails).put(rescheduleAppointment);
+router
+  .route("/appointments/:_id")
+  .get(getAppointmentDetails)
+  .put(rescheduleAppointment);
 router.get("/payment-success-page", (req, res) => {
   res.send("Payment successful and appointment updated!");
 });
 
-router.route("/therapists").get(getAllTherapists);
-router.get("/therapist/:id", getTherapistDetails);
+router.route("/therapists").get(getAllVerifiedTherapists);
+
 router.get("/profile", (req, res) => {
   res.json(req.user);
 });
-
 
 router.post("/logout", logoutPatient);
 
