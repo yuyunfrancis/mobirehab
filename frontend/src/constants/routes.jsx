@@ -30,3 +30,10 @@ export const therapistRoutes = [
   // { path: "/therapist/settings", name: "Settings" },
   // { path: "/therapist/profile", name: "Profile" },
 ];
+
+export const adminRoutes = [
+  { path: "/admin/", name: "Dashboard" },
+  { path: "/admin/profile", name: "Availability" },
+  // { path: "/therapist/settings", name: "Settings" },
+  // { path: "/therapist/profile", name: "Profile" },
+];

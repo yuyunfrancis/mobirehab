@@ -156,3 +156,45 @@ export const approveTherapist = asyncHandler(async (req, res) => {
     });
   }
 });
+
+// deactivate therapist account by admin
+
+export const disapproveTherapist = asyncHandler(async (req, res) => {
+  try {
+    const therapistId = req.params.id;
+    const adminId = req.user._id;
+
+    console.log(
+      `Attempting to disapprove therapist. TherapistId: ${therapistId}, AdminId: ${adminId}`
+    );
+
+    if (!therapistId) {
+      throw new Error("TherapistId is required");
+    }
+
+    const updatedTherapist = await AdminService.deactivateTherapistAccount(
+      adminId,
+      therapistId
+    );
+
+    console.log(
+      `Therapist disapproved successfully: ${updatedTherapist.email}`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Therapist account disapproved successfully",
+      data: {
+        therapistId: updatedTherapist.therapistId,
+        email: updatedTherapist.email,
+        isVerified: updatedTherapist.isVerified,
+      },
+    });
+  } catch (error) {
+    console.error(`Error in disapproveTherapist: ${error.message}`);
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});

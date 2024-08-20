@@ -52,6 +52,13 @@ const WelcomePage = () => {
         Empowering your recovery journey with cutting-edge mobile
         rehabilitation.
       </p>
+
+      <Link
+        className="absolute bottom-4 right-4 text-gray-600 hover:text-gray-800"
+        to="/admin/login"
+      >
+        I am an Admin
+      </Link>
     </div>
   );
 };

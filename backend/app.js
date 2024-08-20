@@ -13,6 +13,7 @@ import therapistRoutes from "./routes/therapist.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import commonRoutes from "./routes/common.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import adminSetupRoutes from "./routes/setupAdmin.routes.js";
 
 const app = express();
 
@@ -37,7 +38,8 @@ app.use("/api/v1/patient", patientRoutes);
 app.use("/api/v1/therapist", therapistRoutes);
 app.use("/api/v1/", webhookRoutes);
 app.use("/api/v1/", commonRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/setup/", adminSetupRoutes);
 
 //Documentation
 app.use(

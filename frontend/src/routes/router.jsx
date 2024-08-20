@@ -14,13 +14,17 @@ import TherapistSignup from "../components/auth/therapist/signup/TherapistSignup
 import Loading from "../components/utilities/Loading";
 import ForgotPassword from "../components/PatientDashboard/pages/ForgotPassword";
 import ResetPassword from "../components/PatientDashboard/pages/ResetPassword";
+import AccountStatus from "../components/TherapistDashboard/pages/AccountStatus";
+import AdminDashboardRoute from "../components/admin/AdminDashboardRoute";
+import AdminLogin from "../components/admin/auth/AdminLogin";
+import WelcomePage from "../pages/WelcomePage";
 
 const AppRoutes = () => {
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
+        <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/" element={<RedirectToDashboard />} />
-        <Route path="/welcome" element={<RedirectToDashboard />} />
         <Route
           path="/patient/login"
           element={<PatientLogin END_POINT="patient/login" />}
@@ -28,6 +32,10 @@ const AppRoutes = () => {
         <Route
           path="/patient/signup"
           element={<PatientSignup END_POINT="patient/signup" />}
+        />
+        <Route
+          path="/admin/login"
+          element={<AdminLogin END_POINT="admin/login" />}
         />
         <Route
           path="/therapist/login"
@@ -38,26 +46,15 @@ const AppRoutes = () => {
           element={<TherapistSignup END_POINT="therapist/signup" />}
         />
         <Route
-          path="/patient/*"
-          element={<PrivateRoutes allowedRoles={["patient"]} />}
+          element={
+            <PrivateRoutes allowedRoles={["patient", "therapist", "admin"]} />
+          }
         >
-          <Route path="*" element={<PatientDashboard />} />
+          <Route path="/patient/*" element={<PatientDashboard />} />
+          <Route path="/therapist/*" element={<TherapistDashboard />} />
+          <Route path="/admin/*" element={<AdminDashboardRoute />} />
         </Route>
-
-        <Route
-          path="/therapist/*"
-          element={<PrivateRoutes allowedRoles={["therapist"]} />}
-        >
-          <Route path="*" element={<TherapistDashboard />} />
-        </Route>
-
-        {/* <Route
-        path="/admin/*"
-        element={<PrivateRoutes allowedRoles={["admin"]} />}
-      >
-        <Route path="*" element={<AdminDashboard />} />
-      </Route> */}
-
+        <Route path="/therapist/account-status" element={<AccountStatus />} />
         <Route path="/not-authorized" element={<NotAuthorized />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/patient/forgot-password" element={<ForgotPassword />} />

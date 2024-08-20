@@ -20,11 +20,7 @@ const PrivateRoutes = ({ allowedRoles }) => {
     return <h1>Loading...</h1>;
   }
 
-  if (!currentUser) {
-    return null;
-  }
-
-  if (!allowedRoles.includes(currentUser.data.user.userType)) {
+  if (!currentUser || !allowedRoles.includes(currentUser.data.user.userType)) {
     return null;
   }
 

@@ -5,6 +5,7 @@ import {
   approveTherapist,
   createAdmin,
   createSuperAdmin,
+  disapproveTherapist,
   getAllTherapists,
   loginAdmin,
 } from "../controllers/admin/admin.controller.js";
@@ -34,5 +35,6 @@ router.use(validateToken);
 router.route("/create").post(checkPasswordStrength, createAdmin);
 router.route("/all-therapists").get(getAllTherapists);
 router.route("/all-therapist/approve/:id").patch(approveTherapist);
+router.route("/all-therapist/disapprove/:id").patch(disapproveTherapist);
 
 export default router;
