@@ -35,7 +35,7 @@ const AppRoutes = () => {
         />
         <Route
           path="/admin/login"
-          element={<AdminLogin END_POINT="admin/login" />}
+          element={<AdminLogin API_ENDPOINT="admin/login" />}
         />
         <Route
           path="/therapist/login"

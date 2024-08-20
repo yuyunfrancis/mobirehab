@@ -1,41 +1,121 @@
-import React from "react";
-import Header from "../../common/Header";
-import LoginForm from "../../auth/LoginForm";
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Input from "../../common/forms/Input";
+import { loginFields } from "../../../constants/formFields";
+import { login } from "../../../services/AuthServices";
+import toast from "react-hot-toast";
+import Button from "../../common/Button";
+import { UserContext } from "../../../context/UserContext";
+import FormAction from "../../common/forms/FormAction";
 
-const AdminLogin = ({ END_POINT }) => {
+const fields = loginFields;
+let fieldsState = {};
+fields.forEach((field) => (fieldsState[field.id] = ""));
+
+export default function AdminLogin({ API_ENDPOINT }) {
+  const [loginState, setLoginState] = useState(fieldsState);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { currentUser, setCurrentUser } = useContext(UserContext);
+
+  const handleChange = (e) => {
+    setLoginState({ ...loginState, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    await authenticateUser();
+    // console.log(loginState);
+    setLoading(false);
+  };
+
+  // Handle Login API Integration here
+  const authenticateUser = async () => {
+    let loginFields = {
+      email: loginState["email-address"],
+      password: loginState["password"],
+    };
+
+    // console.log("Fields", loginFields.email, loginFields.password);
+
+    try {
+      const userData = await login(
+        loginFields.email,
+        loginFields.password,
+        API_ENDPOINT
+      );
+      if (userData) {
+        setCurrentUser(userData);
+        toast.success("Logged in successfully");
+
+        if (userData.data.user.userType === "patient") {
+          navigate("/patient/", { replace: true });
+        }
+        if (userData.data.user.userType === "therapist") {
+          navigate("/therapist/", { replace: true });
+        }
+      } else {
+        toast.error("Login failed");
+      }
+    } catch (err) {
+      if (!err.message || !err.message.includes("Login failed")) {
+        if (err.response) {
+          toast.error(`Login failed: ${err.response.data.message}`);
+        } else {
+          toast.error("An error occurred. Please try again later.");
+        }
+      }
+    }
+  };
+  const isFormValid = () => {
+    return loginState["email-address"] && loginState["password"];
+  };
+
   return (
-    <div className="w-screen h-screen flex overflow-hidden">
-      <div className="flex flex-col md:flex-row w-full h-full">
-        <div className="w-full md:w-1/2 h-full bg-hoverColor md:flex hidden flex-col justify-center items-center p-4">
-          <div className="w-1/2 h-1/2 flex justify-center items-center">
-            <img
-              src="https://res.cloudinary.com/da0fkowyd/image/upload/v1716320301/Gynecology_consultation-rafiki_d37prc.png"
-              alt="Doctor attending to a patient remotely"
-              className="max-h-full w-auto"
-            />
-          </div>
-          <p className="text-white px-4 text-center bg-opacity-50 p-2 rounded mt-4">
-            MOBIREHAB is a digital healthcare platform to improve accessibility
-            and quality of rehabilitation services towards independent life. We
-            serve Kigali, and we plan to launch in other parts of Rwanda soon.
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-teal-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
+        <div>
+          <img
+            className="mx-auto h-16 w-auto"
+            src="/path-to-your-logo.svg"
+            alt="Your Company Logo"
+          />
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Admin Login
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Welcome back! Please enter your details.
           </p>
         </div>
-        <div className="w-full md:w-1/2 h-full bg-white flex items-center justify-center">
-          <div className="flex-wrap w-3/4 max-h-full overflow-y-auto">
-            <Header
-              heading="Welcome Back. Login into your account and talk to a therapist now"
-              paragraph="Don't have an account yet? "
-              linkName="Signup"
-              linkUrl="/therapist/signup"
-              additionalLinkName="I am a patient"
-              additionalLinkUrl="/patient/login"
-            />
-            <LoginForm API_ENDPOINT={END_POINT} />
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            {fields.map((field) => (
+              <Input
+                customClass="mb-5"
+                key={field.id}
+                handleChange={handleChange}
+                value={loginState[field.id]}
+                labelText={field.labelText}
+                labelFor={field.labelFor}
+                id={field.id}
+                name={field.name}
+                type={field.type}
+                isRequired={field.isRequired}
+                placeholder={field.placeholder}
+              />
+            ))}
           </div>
-        </div>
+
+          {/* <FormExtra goTo={place} /> */}
+          <FormAction
+            handleSubmit={handleSubmit}
+            text={loading ? "Loading..." : "Login"}
+            disabled={loading ? true : false}
+          />
+        </form>
       </div>
     </div>
   );
-};
-
-export default AdminLogin;
+}
