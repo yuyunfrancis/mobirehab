@@ -28,7 +28,7 @@ export default function AdminLogin() {
   const loginAdmin = async (email, password) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/admin/login",
+        "https://mobirehab.onrender.com/api/admin/login",
         {
           email,
           password,
