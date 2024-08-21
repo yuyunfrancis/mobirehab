@@ -38,7 +38,7 @@ app.use("/api/v1/patient", patientRoutes);
 app.use("/api/v1/therapist", therapistRoutes);
 app.use("/api/v1/", webhookRoutes);
 app.use("/api/v1/", commonRoutes);
-app.use("/api/v1/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/setup/", adminSetupRoutes);
 
 //Documentation

@@ -15,15 +15,15 @@ import Loading from "../components/utilities/Loading";
 import ForgotPassword from "../components/PatientDashboard/pages/ForgotPassword";
 import ResetPassword from "../components/PatientDashboard/pages/ResetPassword";
 import AccountStatus from "../components/TherapistDashboard/pages/AccountStatus";
-import AdminDashboardRoute from "../components/admin/AdminDashboardRoute";
-import AdminLogin from "../components/admin/auth/AdminLogin";
 import WelcomePage from "../pages/WelcomePage";
+import AdminDashboard from "../components/admin/AdminDashboard";
+import AdminLogin from "../components/admin/auth/AdminLogin";
 
 const AppRoutes = () => {
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
-        <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/welcome" element={<RedirectToDashboard />} />
         <Route path="/" element={<RedirectToDashboard />} />
         <Route
           path="/patient/login"
@@ -33,10 +33,7 @@ const AppRoutes = () => {
           path="/patient/signup"
           element={<PatientSignup END_POINT="patient/signup" />}
         />
-        <Route
-          path="/admin/login"
-          element={<AdminLogin API_ENDPOINT="admin/login" />}
-        />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route
           path="/therapist/login"
           element={<TherapistLogin END_POINT="therapist/login" />}
@@ -52,7 +49,7 @@ const AppRoutes = () => {
         >
           <Route path="/patient/*" element={<PatientDashboard />} />
           <Route path="/therapist/*" element={<TherapistDashboard />} />
-          <Route path="/admin/*" element={<AdminDashboardRoute />} />
+          <Route path="/admin/*" element={<AdminDashboard />} />
         </Route>
         <Route path="/therapist/account-status" element={<AccountStatus />} />
         <Route path="/not-authorized" element={<NotAuthorized />} />

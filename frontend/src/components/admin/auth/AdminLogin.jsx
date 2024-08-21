@@ -7,12 +7,15 @@ import toast from "react-hot-toast";
 import Button from "../../common/Button";
 import { UserContext } from "../../../context/UserContext";
 import FormAction from "../../common/forms/FormAction";
+import api from "../../../utils/api";
+import adminApi from "../../../utils/adminApi";
+import axios from "axios";
 
 const fields = loginFields;
 let fieldsState = {};
 fields.forEach((field) => (fieldsState[field.id] = ""));
 
-export default function AdminLogin({ API_ENDPOINT }) {
+export default function AdminLogin() {
   const [loginState, setLoginState] = useState(fieldsState);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,56 +25,67 @@ export default function AdminLogin({ API_ENDPOINT }) {
     setLoginState({ ...loginState, [e.target.id]: e.target.value });
   };
 
+  const loginAdmin = async (email, password) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/admin/login",
+        {
+          email,
+          password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const token = response.data.token;
+
+      if (token) {
+        localStorage.setItem("user", JSON.stringify(response.data));
+        // console.log("Token stored:", token);
+      } else {
+        throw new Error("User not found or Invalid credentials");
+      }
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await authenticateUser();
-    // console.log(loginState);
-    setLoading(false);
-  };
-
-  // Handle Login API Integration here
-  const authenticateUser = async () => {
-    let loginFields = {
-      email: loginState["email-address"],
-      password: loginState["password"],
-    };
-
-    // console.log("Fields", loginFields.email, loginFields.password);
 
     try {
-      const userData = await login(
-        loginFields.email,
-        loginFields.password,
-        API_ENDPOINT
+      const userData = await loginAdmin(
+        loginState["email-address"],
+        loginState["password"]
       );
-      if (userData) {
-        setCurrentUser(userData);
-        toast.success("Logged in successfully");
+      setCurrentUser(userData);
+      console.log("Admin User", currentUser);
 
-        if (userData.data.user.userType === "patient") {
-          navigate("/patient/", { replace: true });
-        }
-        if (userData.data.user.userType === "therapist") {
-          navigate("/therapist/", { replace: true });
-        }
+      toast.success("Logged in successfully");
+      navigate("/admin/", { replace: true });
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        console.log("====================================");
+        console.log(error.response.data.message);
+        console.log("====================================");
+        toast.error(error.response.data.message);
       } else {
-        toast.error("Login failed");
+        toast.error("An error occurred. Please try again later.");
       }
-    } catch (err) {
-      if (!err.message || !err.message.includes("Login failed")) {
-        if (err.response) {
-          toast.error(`Login failed: ${err.response.data.message}`);
-        } else {
-          toast.error("An error occurred. Please try again later.");
-        }
-      }
+    } finally {
+      setLoading(false);
     }
   };
-  const isFormValid = () => {
-    return loginState["email-address"] && loginState["password"];
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-teal-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="max-w-md w-full space-y-8 bg-white p-6 sm:p-8 rounded-xl shadow-2xl">

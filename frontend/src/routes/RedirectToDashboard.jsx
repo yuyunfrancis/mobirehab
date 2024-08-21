@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
+import WelcomePage from "../pages/WelcomePage";
 
 const RedirectToDashboard = () => {
   const { currentUser, loading } = useContext(UserContext);
@@ -15,20 +16,24 @@ const RedirectToDashboard = () => {
           case "patient":
             navigate("/patient/", { replace: true });
             break;
-          case "therapist":
-            navigate("/therapist/", { replace: true });
-            break;
           case "admin":
             navigate("/admin/", { replace: true });
             break;
+          case "therapist":
+            navigate("/therapist/", { replace: true });
+            break;
           default:
-            navigate("/not-authorized", { replace: true });
+            navigate("/", { replace: true });
         }
       }
     }
   }, [currentUser, loading, navigate]);
 
-  return null;
+  if (loading) {
+    return <h1>Loading...</h1>;
+  }
+
+  return <WelcomePage />;
 };
 
 export default RedirectToDashboard;

@@ -84,7 +84,12 @@ export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
     const adminData = await AdminService.loginAdmin({ email, password, res });
-    res.json(adminData);
+    res.status(200).json({
+      token: adminData.token,
+      data: {
+        user: adminData.admin,
+      },
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

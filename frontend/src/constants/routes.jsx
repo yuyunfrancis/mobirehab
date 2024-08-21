@@ -4,23 +4,6 @@ export const patientRoutes = [
   { path: "/patient/appointments", name: "Appointments" },
   { path: "/patient/profile", name: "Profile" },
   { path: "/patient/settings", name: "Settings" },
-
-  // {
-  //   path: "/",
-  //   name: "Dashboard",
-  //   icon: "home",
-  //   exact: true,
-  // },
-  // {
-  //   path: "/patient/profile",
-  //   name: "Profile",
-  //   icon: "user",
-  // },
-  // {
-  //   path: "/patient/appointments",
-  //   name: "Appointments",
-  //   icon: "calendar",
-  // },
 ];
 
 export const therapistRoutes = [
@@ -32,8 +15,8 @@ export const therapistRoutes = [
 ];
 
 export const adminRoutes = [
-  { path: "/admin/", name: "Dashboard" },
-  { path: "/admin/profile", name: "Availability" },
+  { path: "/admin/", name: "MainDashboard" },
+  { path: "/admin/therapists", name: "Therapist" },
   // { path: "/therapist/settings", name: "Settings" },
   // { path: "/therapist/profile", name: "Profile" },
 ];

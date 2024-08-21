@@ -118,12 +118,7 @@ class AdminService {
       // Generate token
       const token = generateToken(admin._id, admin.userType, res);
 
-      return {
-        _id: admin._id,
-        email: admin.email,
-        role: admin.role,
-        token: token,
-      };
+      return { admin, token };
     } catch (error) {
       console.log("Error in AdminService.loginAdmin", error);
       throw error;
