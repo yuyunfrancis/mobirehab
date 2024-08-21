@@ -7,6 +7,7 @@ import AdminAccount from "./pages/account/AdminAccount";
 import NotFound from "../../pages/NotFound";
 import Dashboard from "./pages/dashboard/Dashboard";
 import AllTherapist from "./pages/therapists/AllTherapist";
+import TherapistDetails from "./pages/therapists/TherapistDetails";
 
 const AdminDashboard = () => {
   return (
@@ -15,7 +16,7 @@ const AdminDashboard = () => {
         <Route index element={<Dashboard />} />
         <Route path="therapists">
           <Route index element={<AllTherapist />} />
-          <Route path=":id" element={<AllTherapist />} />
+          <Route path=":id" element={<TherapistDetails />} />
         </Route>
         <Route path="profile" element={<AdminAccount />} />
       </Route>

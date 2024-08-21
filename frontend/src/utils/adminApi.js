@@ -5,7 +5,7 @@ const apiLocalUrl = "http://localhost:5000/";
 const apiLiveUrl = "https://mobirehab.onrender.com/";
 
 const adminApi = axios.create({
-  baseURL: `${apiLiveUrl}api/v1/`,
+  baseURL: `${apiLocalUrl}api/admin/`,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -13,43 +13,43 @@ const adminApi = axios.create({
 });
 
 // Function to check if the token is expired
-// const isTokenExpired = (token) => {
-//   try {
-//     const decodedToken = jwtDecode(token);
-//     return decodedToken.exp < Date.now() / 1000;
-//   } catch (error) {
-//     return true;
-//   }
-// };
+const isTokenExpired = (token) => {
+  try {
+    const decodedToken = jwtDecode(token);
+    return decodedToken.exp < Date.now() / 1000;
+  } catch (error) {
+    return true;
+  }
+};
 
-// // Request interceptor
-// adminApi.interceptors.request.use(
-//   (config) => {
-//     const user = JSON.parse(localStorage.getItem("user"));
-//     if (user && user.token) {
-//       if (isTokenExpired(user.token)) {
-//         // Token is expired, remove it and let the response interceptor handle the redirect
-//         localStorage.removeItem("user");
-//       } else {
-//         config.headers["Authorization"] = `Bearer ${user.token}`;
-//       }
-//     }
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
+// Request interceptor
+adminApi.interceptors.request.use(
+  (config) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.token) {
+      if (isTokenExpired(user.token)) {
+        // Token is expired, remove it and let the response interceptor handle the redirect
+        localStorage.removeItem("user");
+      } else {
+        config.headers["Authorization"] = `Bearer ${user.token}`;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-// // Response interceptor
-// adminApi.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response && error.response.status === 401) {
-//       // Token is invalid or expired
-//       localStorage.removeItem("user");
-//       window.location.href = "/welcome";
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+// Response interceptor
+adminApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Token is invalid or expired
+      localStorage.removeItem("user");
+      window.location.href = "/welcome";
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default adminApi;

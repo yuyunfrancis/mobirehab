@@ -7,6 +7,7 @@ import {
   createSuperAdmin,
   disapproveTherapist,
   getAllTherapists,
+  getTherapistById,
   loginAdmin,
 } from "../controllers/admin/admin.controller.js";
 import validateToken from "../middleware/validateToken.js";
@@ -30,11 +31,10 @@ router.route("/login").post(setupLimiter, loginAdmin);
 
 // Protected admin routes
 router.use(validateToken);
-
-// create admin route
 router.route("/create").post(checkPasswordStrength, createAdmin);
-router.route("/all-therapists").get(getAllTherapists);
-router.route("/all-therapist/approve/:id").patch(approveTherapist);
+router.route("/therapists").get(getAllTherapists);
+router.route("/therapists/:id").get(getTherapistById);
+router.route("/herapist/approve/:id").patch(approveTherapist);
 router.route("/all-therapist/disapprove/:id").patch(disapproveTherapist);
 
 export default router;

@@ -187,24 +187,24 @@ class AdminService {
   // deactivate therapist account by either super-admin or admin
   static async deactivateTherapistAccount(adminId, therapistId) {
     try {
-      console.log(
-        `Starting deactivation process. AdminId: ${adminId}, TherapistId: ${therapistId}`
-      );
+      // console.log(
+      //   `Starting deactivation process. AdminId: ${adminId}, TherapistId: ${therapistId}`
+      // );
 
       const admin = await Admin.findById(adminId);
       if (!admin) {
-        console.log(`Admin not found with ID: ${adminId}`);
+        // console.log(`Admin not found with ID: ${adminId}`);
         throw new Error("Admin not found");
       }
 
-      console.log(`Admin found: ${admin.email}`);
+      // console.log(`Admin found: ${admin.email}`);
 
       if (
         admin.role !== "super-admin" &&
         admin.role !== "admin" &&
         admin.userType !== "admin"
       ) {
-        console.log(`Unauthorized access attempt by admin: ${admin.email}`);
+        // console.log(`Unauthorized access attempt by admin: ${admin.email}`);
         throw new Error(
           "Unauthorized: Only super-admin or admin can deactivate"
         );
@@ -214,11 +214,11 @@ class AdminService {
       const therapist = await Therapist.findById(therapistId);
 
       if (!therapist) {
-        console.log(`Therapist not found with ID: ${therapistId}`);
+        // console.log(`Therapist not found with ID: ${therapistId}`);
         throw new Error("Therapist not found");
       }
 
-      console.log(`Therapist found: ${therapist.email}`);
+      // console.log(`Therapist found: ${therapist.email}`);
 
       if (!therapist.isVerified) {
         throw new Error("Therapist account is already deactivated");
@@ -227,11 +227,56 @@ class AdminService {
       therapist.isVerified = false;
       await therapist.save();
 
-      console.log(`Therapist account deactivated: ${therapist.email}`);
+      // console.log(`Therapist account deactivated: ${therapist.email}`);
 
       return therapist;
     } catch (error) {
       console.log("Error in AdminService.deactivateTherapistAccount", error);
+      throw error;
+    }
+  }
+
+  // get Therapist details from their ID by either super-admin or admin
+  static async getTherapistDetails(adminId, therapistId) {
+    try {
+      // console.log(
+      //   `Starting getTherapistDetails process. AdminId: ${adminId}, TherapistId: ${therapistId}`
+      // );
+
+      const admin = await Admin.findById(adminId);
+      if (!admin) {
+        // console.log(`Admin not found with ID: ${adminId}`);
+        throw new Error("Admin not found");
+      }
+
+      // console.log(`Admin found: ${admin.email}`);
+
+      if (
+        admin.role !== "super-admin" &&
+        admin.role !== "admin" &&
+        admin.userType !== "admin"
+      ) {
+        // console.log(`Unauthorized access attempt by admin: ${admin.email}`);
+        throw new Error(
+          "Unauthorized: Only super-admin or admin can get Therapist details"
+        );
+      }
+
+      // console.log(`Searching for therapist with ID: ${therapistId}`);
+      const therapist = await Therapist.findById(therapistId).select(
+        "-password"
+      );
+
+      if (!therapist) {
+        // console.log(`Therapist not found with ID: ${therapistId}`);
+        throw new Error("Therapist not found");
+      }
+
+      // console.log(`Therapist found: ${therapist.email}`);
+
+      return therapist;
+    } catch (error) {
+      console.log("Error in AdminService.getTherapistDetails", error);
       throw error;
     }
   }

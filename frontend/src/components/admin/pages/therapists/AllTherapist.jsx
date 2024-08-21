@@ -1,31 +1,67 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { UserContext } from "../../../../context/UserContext";
+import Loading from "../../../utilities/Loading";
 
-const therapists = [
-  {
-    _id: "667549c161ea82da42c3f61c",
-    firstName: "Berinyuy",
-    lastName: "Yuyun",
-    email: "francisyuyun04@gmail.com",
-    phoneNumber: "673993113",
-    profession: "Doctor",
-    specialization: "Occupational Therapist",
-    isVerified: true,
-    profilePicture:
-      "https://res.cloudinary.com/da0fkowyd/image/upload/v1718962624/therapistProfilePictures/ylntgzysbwvjtn4b2pom.jpg",
-    createdAt: "2024-06-21T09:37:05.816Z",
-  },
-  // Add more mock data as needed
-];
+const adminBaseLocalURL = "http://localhost:5000/api/admin";
+const adminBaseURL = "https://mobirehab.onrender.com/api/admin";
 
 const AllTherapist = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { currentUser } = useContext(UserContext);
+
+  const [therapists, setTherapists] = useState([]);
+
+  const getAllTherapists = async () => {
+    if (!currentUser || !currentUser.token) {
+      console.error("Token is missing or undefined");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await axios.get(`${adminBaseURL}/therapists`, {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setTherapists(response?.data?.data);
+      } else {
+        console.error(
+          "Failed to fetch therapists: Unexpected response status",
+          response.status
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching therapists:",
+        error.response?.data || error.message
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch therapists on component mount or when currentUser changes
+  useEffect(() => {
+    // console.log("currentUser:", currentUser);
+    if (currentUser && currentUser.token) {
+      getAllTherapists();
+    }
+  }, [currentUser.token]);
 
   const filteredTherapists = therapists.filter((therapist) =>
-    `${therapist.firstName} ${therapist.lastName}`
+    `${therapist?.firstName} ${therapist?.lastName}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <h1 className="text-3xl font-bold mb-8">Therapists List</h1>
@@ -58,7 +94,7 @@ const AllTherapist = () => {
           <tbody className="text-gray-600 text-sm font-light">
             {filteredTherapists.map((therapist) => (
               <tr
-                key={therapist._id}
+                key={therapist?._id}
                 className="border-b border-gray-200 hover:bg-gray-100"
               >
                 <td className="py-3 px-6 text-left">
@@ -69,36 +105,36 @@ const AllTherapist = () => {
                     <div className="mr-2">
                       <img
                         src={therapist.profilePicture}
-                        alt={`${therapist.firstName} ${therapist.lastName}`}
+                        alt={`${therapist?.firstName} ${therapist?.lastName}`}
                         className="h-10 w-10 rounded-full"
                       />
                     </div>
                   </div>
                 </td>
                 <td className="py-3 px-6 text-left">
-                  {therapist.firstName} {therapist.lastName}
+                  {therapist?.firstName} {therapist?.lastName}
                 </td>
                 <td className="py-3 px-6 text-left">
-                  {new Date(therapist.createdAt).toLocaleDateString()}
+                  {new Date(therapist?.createdAt).toLocaleDateString()}
                 </td>
                 <td className="py-3 px-6 text-left">
                   <span
                     className={`py-1 px-3 rounded-full text-xs ${
-                      therapist.isVerified
+                      therapist?.isVerified
                         ? "bg-green-200 text-green-600"
                         : "bg-red-200 text-red-600"
                     }`}
                   >
-                    {therapist.isVerified ? "Verified" : "Not Verified"}
+                    {therapist?.isVerified ? "Verified" : "Not Verified"}
                   </span>
                 </td>
                 <td className="py-3 px-6 text-center">
-                  <a
-                    href={`/therapist/${therapist._id}`}
+                  <Link
+                    to={`/admin/therapists/${therapist?._id}`}
                     className="text-blue-500 hover:underline"
                   >
                     View Details
-                  </a>
+                  </Link>
                 </td>
               </tr>
             ))}

@@ -7,13 +7,14 @@ import toast from "react-hot-toast";
 import Button from "../../common/Button";
 import { UserContext } from "../../../context/UserContext";
 import FormAction from "../../common/forms/FormAction";
-import api from "../../../utils/api";
-import adminApi from "../../../utils/adminApi";
 import axios from "axios";
 
 const fields = loginFields;
 let fieldsState = {};
 fields.forEach((field) => (fieldsState[field.id] = ""));
+
+const adminBaseLocalURL = "http://localhost:5000/api/admin";
+const adminBaseURL = "https://mobirehab.onrender.com/api/admin";
 
 export default function AdminLogin() {
   const [loginState, setLoginState] = useState(fieldsState);
@@ -28,7 +29,7 @@ export default function AdminLogin() {
   const loginAdmin = async (email, password) => {
     try {
       const response = await axios.post(
-        "https://mobirehab.onrender.com/api/admin/login",
+        `${adminBaseURL}/login`,
         {
           email,
           password,

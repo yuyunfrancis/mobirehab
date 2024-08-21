@@ -119,19 +119,47 @@ export const getAllTherapists = async (req, res) => {
   }
 };
 
+// Get therapist by id
+export const getTherapistById = asyncHandler(async (req, res) => {
+  try {
+    const admin = req.user;
+    const therapistId = req.params.id;
+
+    if (
+      admin.role !== "super-admin" &&
+      admin.role !== "admin" &&
+      admin.userType !== "admin"
+    ) {
+      return res.status(403).json({
+        message:
+          "Unauthorized: You do not have permission to access this resource",
+      });
+    }
+
+    const therapist = await AdminService.getTherapistDetails(
+      admin._id,
+      therapistId
+    );
+    res.json({ status: "success", data: therapist });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // approve therapist account by admin
 export const approveTherapist = asyncHandler(async (req, res) => {
   try {
-    console.log("Request params:", req.params.id);
-    console.log("Request query:", req.query);
-    console.log("Request body:", req.body);
+    // console.log("Request params:", req.params.id);
+    // console.log("Request query:", req.query);
+    // console.log("Request body:", req.body);
 
     const therapistId = req.params.id;
     const adminId = req.user._id;
 
-    console.log(
-      `Attempting to approve therapist. TherapistId: ${therapistId}, AdminId: ${adminId}`
-    );
+    // console.log(
+    //   `Attempting to approve therapist. TherapistId: ${therapistId}, AdminId: ${adminId}`
+    // );
 
     if (!therapistId) {
       throw new Error("TherapistId is required");
@@ -142,7 +170,7 @@ export const approveTherapist = asyncHandler(async (req, res) => {
       therapistId
     );
 
-    console.log(`Therapist approved successfully: ${updatedTherapist.email}`);
+    // console.log(`Therapist approved successfully: ${updatedTherapist.email}`);
 
     res.status(200).json({
       success: true,
@@ -154,7 +182,7 @@ export const approveTherapist = asyncHandler(async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(`Error in approveTherapist: ${error.message}`);
+    // console.error(`Error in approveTherapist: ${error.message}`);
     res.status(400).json({
       success: false,
       message: error.message,
@@ -169,9 +197,9 @@ export const disapproveTherapist = asyncHandler(async (req, res) => {
     const therapistId = req.params.id;
     const adminId = req.user._id;
 
-    console.log(
-      `Attempting to disapprove therapist. TherapistId: ${therapistId}, AdminId: ${adminId}`
-    );
+    // console.log(
+    //   `Attempting to disapprove therapist. TherapistId: ${therapistId}, AdminId: ${adminId}`
+    // );
 
     if (!therapistId) {
       throw new Error("TherapistId is required");
@@ -182,9 +210,9 @@ export const disapproveTherapist = asyncHandler(async (req, res) => {
       therapistId
     );
 
-    console.log(
-      `Therapist disapproved successfully: ${updatedTherapist.email}`
-    );
+    // console.log(
+    //   `Therapist disapproved successfully: ${updatedTherapist.email}`
+    // );
 
     res.status(200).json({
       success: true,
