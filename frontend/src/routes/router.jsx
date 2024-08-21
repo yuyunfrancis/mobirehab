@@ -42,7 +42,7 @@ const AppRoutes = () => {
           path="/therapist/signup"
           element={<TherapistSignup END_POINT="therapist/signup" />}
         />
-        <Route
+        {/* <Route
           element={
             <PrivateRoutes allowedRoles={["patient", "therapist", "admin"]} />
           }
@@ -50,7 +50,28 @@ const AppRoutes = () => {
           <Route path="/patient/*" element={<PatientDashboard />} />
           <Route path="/therapist/*" element={<TherapistDashboard />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
+        </Route> */}
+
+        <Route
+          path="/patient/*"
+          element={<PrivateRoutes allowedRoles={["patient"]} />}
+        >
+          <Route path="*" element={<PatientDashboard />} />
         </Route>
+
+        <Route
+          path="/therapist/*"
+          element={<PrivateRoutes allowedRoles={["therapist"]} />}
+        >
+          <Route path="*" element={<TherapistDashboard />} />
+        </Route>
+        <Route
+          path="/admin/*"
+          element={<PrivateRoutes allowedRoles={["admin"]} />}
+        >
+          <Route path="*" element={<AdminDashboard />} />
+        </Route>
+
         <Route path="/therapist/account-status" element={<AccountStatus />} />
         <Route path="/not-authorized" element={<NotAuthorized />} />
         <Route path="*" element={<NotFound />} />
