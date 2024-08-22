@@ -1,6 +1,7 @@
 import Admin from "../models/admin.model.js";
 import Therapist from "../models/therapist.model.js";
 import generateToken from "../utils/generateToken.js";
+import { sendEmail } from "../utils/sendGridEmail.js";
 
 class AdminService {
   static async createSuperAdmin(email, password, res) {
@@ -126,7 +127,7 @@ class AdminService {
   }
 
   // approve therapist account by either super-admin or admin after verifying the therapist details
-  static async approveTherapistAccount(adminId, therapistId) {
+  static async approveTherapistAccount(adminId, therapistId, req) {
     try {
       console.log(
         `Starting approval process. AdminId: ${adminId}, TherapistId: ${therapistId}`
@@ -163,6 +164,12 @@ class AdminService {
         throw new Error("Therapist account is already approved");
       }
 
+      if (therapist.active === false) {
+        throw new Error(
+          "This therapist haven't verified their email yet. Account can't be approved"
+        );
+      }
+
       // check that therapist has uploaded all required documents
       if (
         !therapist.cv ||
@@ -175,9 +182,23 @@ class AdminService {
       therapist.isVerified = true;
       await therapist.save();
 
-      console.log(`Therapist account approved: ${therapist.email}`);
+      // send email to therapist after account approval
+      const therapistDetails = await Therapist.findById(therapistId);
 
-      return therapist;
+      const accountApprovalEmailData = {
+        recipientEmail: therapistDetails.email,
+        subject: "Account Approval",
+        template_data: {
+          isVerified: therapistDetails.isVerified,
+          name: therapistDetails.firstName,
+        },
+        emailType: "therapist_account_update",
+        req,
+      };
+
+      const emailResponse = await sendEmail(accountApprovalEmailData);
+
+      return { therapist, emailResponse };
     } catch (error) {
       console.log("Error in AdminService.approveTherapistAccount", error);
       throw error;
@@ -185,40 +206,27 @@ class AdminService {
   }
 
   // deactivate therapist account by either super-admin or admin
-  static async deactivateTherapistAccount(adminId, therapistId) {
+  static async deactivateTherapistAccount(adminId, therapistId, req) {
     try {
-      // console.log(
-      //   `Starting deactivation process. AdminId: ${adminId}, TherapistId: ${therapistId}`
-      // );
-
       const admin = await Admin.findById(adminId);
       if (!admin) {
-        // console.log(`Admin not found with ID: ${adminId}`);
         throw new Error("Admin not found");
       }
-
-      // console.log(`Admin found: ${admin.email}`);
 
       if (
         admin.role !== "super-admin" &&
         admin.role !== "admin" &&
         admin.userType !== "admin"
       ) {
-        // console.log(`Unauthorized access attempt by admin: ${admin.email}`);
         throw new Error(
           "Unauthorized: Only super-admin or admin can deactivate"
         );
       }
-
-      console.log(`Searching for therapist with ID: ${therapistId}`);
       const therapist = await Therapist.findById(therapistId);
 
       if (!therapist) {
-        // console.log(`Therapist not found with ID: ${therapistId}`);
         throw new Error("Therapist not found");
       }
-
-      // console.log(`Therapist found: ${therapist.email}`);
 
       if (!therapist.isVerified) {
         throw new Error("Therapist account is already deactivated");
@@ -227,9 +235,22 @@ class AdminService {
       therapist.isVerified = false;
       await therapist.save();
 
-      // console.log(`Therapist account deactivated: ${therapist.email}`);
+      const therapistDetails = await Therapist.findById(therapistId);
 
-      return therapist;
+      const accountApprovalEmailData = {
+        recipientEmail: therapistDetails.email,
+        subject: "Account Status Update",
+        template_data: {
+          isVerified: therapistDetails.isVerified,
+          name: therapistDetails.firstName,
+        },
+        emailType: "therapist_account_update",
+        req,
+      };
+
+      const emailResponse = await sendEmail(accountApprovalEmailData);
+
+      return { therapist, emailResponse };
     } catch (error) {
       console.log("Error in AdminService.deactivateTherapistAccount", error);
       throw error;
@@ -239,40 +260,28 @@ class AdminService {
   // get Therapist details from their ID by either super-admin or admin
   static async getTherapistDetails(adminId, therapistId) {
     try {
-      // console.log(
-      //   `Starting getTherapistDetails process. AdminId: ${adminId}, TherapistId: ${therapistId}`
-      // );
-
       const admin = await Admin.findById(adminId);
       if (!admin) {
-        // console.log(`Admin not found with ID: ${adminId}`);
         throw new Error("Admin not found");
       }
-
-      // console.log(`Admin found: ${admin.email}`);
 
       if (
         admin.role !== "super-admin" &&
         admin.role !== "admin" &&
         admin.userType !== "admin"
       ) {
-        // console.log(`Unauthorized access attempt by admin: ${admin.email}`);
         throw new Error(
           "Unauthorized: Only super-admin or admin can get Therapist details"
         );
       }
 
-      // console.log(`Searching for therapist with ID: ${therapistId}`);
       const therapist = await Therapist.findById(therapistId).select(
         "-password"
       );
 
       if (!therapist) {
-        // console.log(`Therapist not found with ID: ${therapistId}`);
         throw new Error("Therapist not found");
       }
-
-      // console.log(`Therapist found: ${therapist.email}`);
 
       return therapist;
     } catch (error) {

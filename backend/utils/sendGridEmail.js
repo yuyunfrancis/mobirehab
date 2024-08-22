@@ -305,7 +305,9 @@ const sendEmail = async ({
         <div class="content">
           <p>Hello ${template_data.name},</p>
           <p>${template_data.message}</p>
-          <p>Your appointment with ${template_data.therapistName} has been updated:</p>
+          <p>Your appointment with ${
+            template_data.therapistName
+          } has been updated:</p>
           <ul>
             <li><strong>Date:</strong> ${template_data.date}</li>
             <li><strong>Time:</strong> ${template_data.time}</li>
@@ -313,9 +315,15 @@ const sendEmail = async ({
             <li><strong>Status:</strong> ${template_data.status}</li>
           </ul>
           <div class="button">
-            <a href="http://${req.headers.host}/patient/appointments/${template_data.appointmentId}">View Appointment</a>
+            <a href="http://${req.headers.host}/patient/appointments/${
+        template_data.appointmentId
+      }">View Appointment</a>
           </div>
-          ${template_data.status === 'Accepted' ? '<p>Please make sure to arrive 10 minutes early.</p>' : ''}
+          ${
+            template_data.status === "Accepted"
+              ? "<p>Please make sure to arrive 10 minutes early.</p>"
+              : ""
+          }
         </div>
         <div class="footer">
           <p>&copy; MOBIREHAB Team</p>
@@ -324,6 +332,102 @@ const sendEmail = async ({
     </body>
           </html>
         `;
+      break;
+
+    case "therapist_account_update":
+      htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${subject}</title>
+      <style>
+        body, h1, h2, h3, p {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #4CAF50;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 30px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            background-color: #f0f0f0;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>${
+                  template_data.isVerified === true
+                    ? "Account Verified!"
+                    : "Account Update"
+                }</h1>
+            </div>
+            <div class="content">
+                <h2>Hello ${template_data.name},</h2>
+                ${
+                  template_data.isVerified === true
+                    ? `
+                    <p>Congratulations! Your Mobirehab therapist account has been successfully verified.</p>
+                    <p>You can now start accepting appointments from patients and provide your valuable services through our platform.</p>
+                    <p>Here's what you can do next:</p>
+                    <ul>
+                        <li>Complete your profile with any additional information</li>
+                        <li>Set your availability for appointments</li>
+                        <li>Familiarize yourself with the platform's features</li>
+                    </ul>
+                    <a href="http://${req.headers.host}/therapist/" class="button">Go to Dashboard</a>
+                `
+                    : `
+                    <p>We regret to inform you that your Mobirehab therapist account verification was unsuccessful at this time.</p>
+                    <p>This decision was made after careful review of the information provided. We understand this may be disappointing, but we want to ensure the highest standards for our platform and patients.</p>
+                    <p>For more information about the specific reasons for this decision or to discuss how you can improve your application, please contact our admin team.</p>
+                    <a href="mailto:admin@mobirehab.com" class="button">Contact Admin</a>
+                `
+                }
+            </div>
+            <div class="footer">
+                <p>&copy; ${new Date().getFullYear()} Mobirehab. All rights reserved.</p>
+                <p>If you have any questions, please contact our support team at support@mobirehab.com</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
       break;
   }
 

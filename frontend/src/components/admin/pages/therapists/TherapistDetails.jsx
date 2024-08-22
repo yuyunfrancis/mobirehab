@@ -5,6 +5,7 @@ import axios from "axios";
 import { UserContext } from "../../../../context/UserContext";
 import Loading from "../../../utilities/Loading";
 import { adminBaseURL } from "../../../../utils/adminApi";
+import toast from "react-hot-toast";
 
 // const adminBaseLocalURL = "http://localhost:5000/api/admin";
 // const adminBaseURL = "https://mobirehab.onrender.com/api/admin";
@@ -13,6 +14,7 @@ const TherapistDetails = () => {
   const { id } = useParams();
   const [therapist, setTherapist] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [onApprove, setOnApprove] = useState(false);
   const { currentUser } = useContext(UserContext);
 
   const getTherapist = async () => {
@@ -42,6 +44,53 @@ const TherapistDetails = () => {
     }
   };
 
+  // Approve therapist account
+  const approveTherapist = async () => {
+    try {
+      setOnApprove(true);
+      const response = await axios.patch(
+        `${adminBaseURL}/therapists/approve/${id}`,
+        {
+          isVerified: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setTherapist((prev) => ({
+          ...prev,
+          isVerified: true,
+        }));
+
+        console.log("Therapist approved successfully:", response.data);
+        toast.success("Therapist approved successfully");
+
+        setOnApprove(false);
+      } else {
+        console.error(
+          "Failed to approve therapist: Unexpected response status",
+          response.status
+        );
+        toast.error("Failed to approve therapist");
+        setOnApprove(false);
+      }
+    } catch (error) {
+      console.error(
+        "Error approving therapist:",
+        error.response?.data || error.message
+      );
+      toast.error(
+        `An error occurred: ${error.response?.data?.message || error.message}`
+      );
+      setOnApprove(false);
+    }
+  };
+
   useEffect(() => {
     if (currentUser && currentUser.token) {
       getTherapist();
@@ -56,7 +105,7 @@ const TherapistDetails = () => {
     return <div>No therapist data found</div>;
   }
 
-  console.log("therapist:", therapist);
+  // console.log("therapist:", therapist);
 
   return (
     <div className="min-h-screen bg-white p-8">
@@ -266,7 +315,8 @@ const TherapistDetails = () => {
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
-            disabled={therapist.isVerified}
+            disabled={onApprove || therapist.isVerified}
+            onClick={approveTherapist}
             whileTap={{ scale: 0.95 }}
             className={`py-3 px-8 rounded-lg text-white font-semibold text-lg transition duration-300 ${
               therapist.isVerified
@@ -274,7 +324,11 @@ const TherapistDetails = () => {
                 : "bg-blue-500 hover:bg-blue-600"
             }`}
           >
-            {therapist.isVerified ? "Verified" : "Verify Therapist"}
+            {therapist.isVerified
+              ? "Verified"
+              : onApprove
+              ? "Verifying..."
+              : "Verify Therapist"}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}

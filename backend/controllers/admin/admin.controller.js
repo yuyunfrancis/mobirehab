@@ -185,7 +185,8 @@ export const approveTherapist = asyncHandler(async (req, res) => {
 
     const updatedTherapist = await AdminService.approveTherapistAccount(
       adminId,
-      therapistId
+      therapistId,
+      req
     );
 
     // console.log(`Therapist approved successfully: ${updatedTherapist.email}`);
@@ -194,7 +195,7 @@ export const approveTherapist = asyncHandler(async (req, res) => {
       success: true,
       message: "Therapist account approved successfully",
       data: {
-        therapistId: updatedTherapist.therapistId,
+        therapistId: updatedTherapist._id,
         email: updatedTherapist.email,
         isVerified: updatedTherapist.isVerified,
       },

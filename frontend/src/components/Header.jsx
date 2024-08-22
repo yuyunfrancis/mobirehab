@@ -51,10 +51,10 @@ function Header({ toggleSidebar }) {
     try {
       setLoading(true);
 
-      // const END_POINT =
-      currentUser?.data?.user?.userType === "therapist"
-        ? "/patient/logout"
-        : "/patient/logout";
+      const END_POINT =
+        currentUser?.data?.user?.userType === "therapist"
+          ? "/patient/logout"
+          : "/patient/logout";
       // await logout(END_POINT);
 
       if (
