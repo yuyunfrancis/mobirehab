@@ -9,6 +9,7 @@ import {
   getAllTherapists,
   getTherapistById,
   loginAdmin,
+  logoutAdmin,
 } from "../controllers/admin/admin.controller.js";
 import validateToken from "../middleware/validateToken.js";
 import { checkRouteIsEnabled } from "../middleware/checkRouteIsEnabled.js";
@@ -36,5 +37,7 @@ router.route("/therapists").get(getAllTherapists);
 router.route("/therapists/:id").get(getTherapistById);
 router.route("/herapist/approve/:id").patch(approveTherapist);
 router.route("/all-therapist/disapprove/:id").patch(disapproveTherapist);
+
+router.post("/logout", logoutAdmin);
 
 export default router;

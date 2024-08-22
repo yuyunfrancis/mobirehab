@@ -3,9 +3,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { UserContext } from "../../../../context/UserContext";
 import Loading from "../../../utilities/Loading";
+import { adminBaseURL } from "../../../../utils/adminApi";
 
-const adminBaseLocalURL = "http://localhost:5000/api/admin";
-const adminBaseURL = "https://mobirehab.onrender.com/api/admin";
+// const adminBaseLocalURL = "http://localhost:5000/api/admin";
+// const adminBaseURL = "https://mobirehab.onrender.com/api/admin";
 
 const AllTherapist = () => {
   const [searchTerm, setSearchTerm] = useState("");

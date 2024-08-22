@@ -119,6 +119,24 @@ export const getAllTherapists = async (req, res) => {
   }
 };
 
+/**
+ * Logout admin
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ * @description Logout admin
+ */
+
+export const logoutAdmin = asyncHandler(async (req, res) => {
+  try {
+    res.clearCookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Admin logged out successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Get therapist by id
 export const getTherapistById = asyncHandler(async (req, res) => {
   try {

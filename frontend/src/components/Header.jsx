@@ -6,6 +6,8 @@ import { Avatar, Badge } from "./features/Avatar";
 import { Link } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import { logout } from "../services/AuthServices";
+import axios from "axios";
+import { adminBaseURL } from "../utils/adminApi";
 
 function Header({ toggleSidebar }) {
   const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false);
@@ -49,11 +51,26 @@ function Header({ toggleSidebar }) {
     try {
       setLoading(true);
 
-      const END_POINT =
-        currentUser?.data?.user?.userType === "therapist"
-          ? "/patient/logout"
-          : "/patient/logout";
-      await logout(END_POINT);
+      // const END_POINT =
+      currentUser?.data?.user?.userType === "therapist"
+        ? "/patient/logout"
+        : "/patient/logout";
+      // await logout(END_POINT);
+
+      if (
+        currentUser?.data?.user?.userType === "therapist" ||
+        currentUser?.data?.user?.userType === "patient"
+      ) {
+        await logout(END_POINT);
+      } else {
+        await axios.post(`${adminBaseURL}/logout`, {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`,
+          },
+        });
+        localStorage.removeItem("user");
+        toast.success("Logged out successfully");
+      }
       setLoading(false);
       toast.success("Logged out successfully");
 

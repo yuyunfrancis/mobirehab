@@ -4,9 +4,10 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { UserContext } from "../../../../context/UserContext";
 import Loading from "../../../utilities/Loading";
+import { adminBaseURL } from "../../../../utils/adminApi";
 
-const adminBaseLocalURL = "http://localhost:5000/api/admin";
-const adminBaseURL = "https://mobirehab.onrender.com/api/admin";
+// const adminBaseLocalURL = "http://localhost:5000/api/admin";
+// const adminBaseURL = "https://mobirehab.onrender.com/api/admin";
 
 const TherapistDetails = () => {
   const { id } = useParams();
