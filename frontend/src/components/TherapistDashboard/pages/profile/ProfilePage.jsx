@@ -108,7 +108,7 @@ const ProfilePage = () => {
         return acc;
       }, {});
 
-      console.log("Changed data being sent:", changedData);
+      // console.log("Changed data being sent:", changedData);
 
       const response = await api.patch("/therapist/profile", changedData, {
         headers: {
