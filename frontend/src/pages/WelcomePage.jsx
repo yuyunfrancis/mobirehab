@@ -1,65 +1,114 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FaUser, FaUserMd, FaUserShield } from "react-icons/fa";
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1 },
+};
 
 const WelcomePage = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delay: 0.2,
+        when: "beforeChildren",
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 relative overflow-hidden px-4 py-12">
-      <div className="absolute top-0 left-0 w-1/2 h-1/2 max-w-md max-h-md bg-blue-200 rounded-full filter blur-3xl opacity-50 transform -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-1/2 h-1/2 max-w-md max-h-md bg-green-200 rounded-full filter blur-3xl opacity-50 transform translate-x-1/2 translate-y-1/2"></div>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 px-4 py-12 relative">
+      <motion.div
+        className="w-full max-w-4xl"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.h1
+          className="text-4xl md:text-6xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 mb-8"
+          variants={itemVariants}
+        >
+          Welcome to MOBIREHAB
+        </motion.h1>
 
-      <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 mb-8 sm:mb-12">
-        Welcome to MOBIREHAB
-      </h1>
+        <motion.p
+          className="text-xl text-center text-gray-600 mb-12"
+          variants={itemVariants}
+        >
+          Empowering your recovery journey with cutting-edge mobile
+          rehabilitation.
+        </motion.p>
 
-      <div className="flex flex-col sm:flex-row space-y-6 sm:space-y-0 sm:space-x-6 md:space-x-12">
-        <div className="group">
-          <div className="shadow-xl p-6 sm:p-8 md:p-10 rounded-2xl flex flex-col items-center space-y-4 sm:space-y-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white transform transition-transform duration-300 group-hover:scale-105">
-            <h2 className="text-2xl sm:text-3xl font-bold">Patient</h2>
-            <Link
-              to="/patient/login"
-              className="text-xl sm:text-2xl hover:underline transition-colors duration-300 hover:text-blue-100"
-            >
-              Login
-            </Link>
-            <Link
-              to="/patient/signup"
-              className="text-xl sm:text-2xl hover:underline transition-colors duration-300 hover:text-blue-100"
-            >
-              Signup
-            </Link>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <UserCard
+            title="Patient"
+            icon={FaUser}
+            loginPath="/patient/login"
+            signupPath="/patient/signup"
+            color="blue"
+          />
+          <UserCard
+            title="Therapist"
+            icon={FaUserMd}
+            loginPath="/therapist/login"
+            signupPath="/therapist/signup"
+            color="green"
+          />
         </div>
-        <div className="group">
-          <div className="shadow-xl p-6 sm:p-8 md:p-10 rounded-2xl flex flex-col items-center space-y-4 sm:space-y-6 bg-gradient-to-br from-green-500 to-green-600 text-white transform transition-transform duration-300 group-hover:scale-105">
-            <h2 className="text-2xl sm:text-3xl font-bold">Therapist</h2>
-            <Link
-              to="/therapist/login"
-              className="text-xl sm:text-2xl hover:underline transition-colors duration-300 hover:text-green-100"
-            >
-              Login
-            </Link>
-            <Link
-              to="/therapist/signup"
-              className="text-xl sm:text-2xl hover:underline transition-colors duration-300 hover:text-green-100"
-            >
-              Signup
-            </Link>
-          </div>
+
+        <motion.div className="mt-12 text-center" variants={itemVariants}>
+          <Link
+            to="/admin/login"
+            className="inline-flex items-center justify-center space-x-2 bg-gray-800 text-white py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors duration-300"
+          >
+            <FaUserShield className="text-xl" />
+            <span>Admin Portal</span>
+          </Link>
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        className="absolute bottom-4 text-sm text-gray-500"
+        variants={itemVariants}
+      >
+        © 2023 MOBIREHAB. All rights reserved.
+      </motion.div>
+    </div>
+  );
+};
+
+const UserCard = ({ title, icon: Icon, loginPath, signupPath, color }) => {
+  return (
+    <motion.div
+      className={`bg-white rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-105`}
+      variants={itemVariants}
+    >
+      <div className={`bg-${color}-600 p-6 flex items-center justify-center`}>
+        <Icon className="text-white text-5xl" />
+      </div>
+      <div className="p-6">
+        <h2 className={`text-2xl font-bold text-${color}-600 mb-4`}>{title}</h2>
+        <div className="space-y-4">
+          <Link
+            to={loginPath}
+            className={`block w-full text-center py-2 px-4 rounded bg-${color}-600 text-white hover:bg-${color}-700 transition-colors duration-300`}
+          >
+            Login
+          </Link>
+          <Link
+            to={signupPath}
+            className={`block w-full text-center py-2 px-4 rounded border border-${color}-600 text-${color}-600 hover:bg-${color}-50 transition-colors duration-300`}
+          >
+            Sign Up
+          </Link>
         </div>
       </div>
-
-      <p className="mt-8 sm:mt-12 text-sm sm:text-base text-gray-600 text-center max-w-md">
-        Empowering your recovery journey with cutting-edge mobile
-        rehabilitation.
-      </p>
-
-      <Link
-        className="absolute bottom-4 right-4 text-gray-600 hover:text-gray-800"
-        to="/admin/login"
-      >
-        I am an Admin
-      </Link>
-    </div>
+    </motion.div>
   );
 };
 
