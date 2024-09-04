@@ -27,24 +27,28 @@ class CommonService {
   }
 
   static async getTherapistRatings(therapistId) {
-     try {
-    const therapist = await Therapist.findById(therapistId).populate('ratings');
-    if (!therapist) {
-      throw new Error('Therapist not found');
+    try {
+      const therapist = await Therapist.findById(therapistId).populate(
+        "ratings"
+      );
+      if (!therapist) {
+        throw new Error("Therapist not found");
+      }
+      return therapist;
+    } catch (error) {
+      console.error("Error fetching therapist profile:", error);
+      throw error;
     }
-    return therapist;
-  } catch (error) {
-    console.error('Error fetching therapist profile:', error);
-    throw error;
   }
-};
 
+  static calculateAverageRating = (ratings) => {
+    if (!ratings.length) return 0;
+    const total = ratings.reduce((sum, rating) => sum + rating.rating, 0);
+    return total / ratings.length;
+  };
 
-static calculateAverageRating = (ratings) => {
-  if (!ratings.length) return 0;
-  const total = ratings.reduce((sum, rating) => sum + rating.rating, 0);
-  return total / ratings.length;
-};
+  // login
+  // static loginTherapistAccount
 }
 
 export default CommonService;

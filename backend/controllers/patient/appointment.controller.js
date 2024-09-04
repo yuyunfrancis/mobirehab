@@ -4,7 +4,10 @@ import Patient from "../../models/patient.model.js";
 import Payment from "../../models/payment.model.js";
 import Therapist from "../../models/therapist.model.js";
 import AppointmentService from "../../services/appointment.service.js";
-import { appointmentConfirmationTemplate } from "../../utils/emailTemplates.js";
+import {
+  appointmentConfirmationTemplate,
+  appointmentConfrimationTherapistTemplate,
+} from "../../utils/emailTemplates.js";
 import processPayment from "../../utils/payment.js";
 import { sendEmail } from "../../utils/sendGridEmail.js";
 
@@ -193,13 +196,14 @@ export const createAppointment = asyncHandler(async (req, res) => {
       }),
     };
 
+    const appointmentLinkTherapist = `${baseURL}/therapist/appointments/${savedAppointment._id}`;
     // For therapist
     const therapistEmailData = {
       recipientEmail: therapistDetails.email,
       subject: "New Appointment Notification",
       template_data: {},
-      htmlContent: appointmentNotificationTemplate({
-        appointment: {
+      htmlContent: appointmentConfrimationTherapistTemplate({
+        template_data: {
           subject: "New Appointment Notification",
           name: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
           patientName: `${patientDetails.firstName} ${patientDetails.lastName}`,
@@ -208,7 +212,7 @@ export const createAppointment = asyncHandler(async (req, res) => {
           service: savedAppointment.service,
           purpose: savedAppointment.purpose,
           status: savedAppointment.status,
-          link: appointmentLinkPatient,
+          link: appointmentLinkTherapist,
         },
       }),
     };

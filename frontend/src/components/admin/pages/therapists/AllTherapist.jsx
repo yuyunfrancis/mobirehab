@@ -25,6 +25,7 @@ const AllTherapist = () => {
       const response = await axios.get(`${adminBaseURL}/therapists`, {
         headers: {
           Authorization: `Bearer ${currentUser.token}`,
+          "Content-Type": "application/json",
         },
       });
 

@@ -184,6 +184,9 @@ class AdminService {
       therapist.isVerified = true;
       await therapist.save();
 
+      const baseURL = `${req.protocol}://${req.get("host")}`;
+      const link = `${baseURL}/api/v1/therapist/`;
+
       // send email to therapist after account approval
       const therapistDetails = await Therapist.findById(therapistId);
 
@@ -193,9 +196,8 @@ class AdminService {
         template_data: {
           isVerified: therapistDetails.isVerified,
           name: therapistDetails.firstName,
+          link: link,
         },
-        emailType: "therapist_account_update",
-        req,
       };
 
       const emailResponse = await sendEmail(accountApprovalEmailData);

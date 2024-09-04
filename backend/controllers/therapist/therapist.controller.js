@@ -53,8 +53,8 @@ export const signupTherapist = async (req, res) => {
     }
 
     // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(password, salt);
 
     // Check for required files
     const profilePicture = req.files.profilePicture
@@ -96,7 +96,7 @@ export const signupTherapist = async (req, res) => {
       licenseNumber,
       numOfYearsOfExperience,
       specialization,
-      password: hashedPassword,
+      password,
       profilePicture: uploadResults[0].secure_url,
       cv: uploadResults[1].secure_url,
       licenseDocument: uploadResults[2].secure_url,
@@ -165,50 +165,50 @@ export const verifyAccount = async (req, res) => {
 };
 
 // Login therapist
-
 export const loginTherapist = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, phoneNumber, password } = req.body;
 
-    // Check if email and password are provided
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Please provide email and password" });
-    }
+    // Find therapist by email or phone number
+    const therapist = await Therapist.findOne({
+      $or: [{ email }, { phoneNumber }],
+    }).select("+password");
 
     // Check if therapist exists
-    const therapist = await Therapist.findOne({ email }).select("+password");
     if (!therapist) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    // Check if password is correct
-    const isMatch = await therapist.matchPassword(password);
-    console.log("Entered Password:", password);
-    console.log("Hashed Password:", therapist.password);
-    console.log("Password Match:", isMatch);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password" });
-    }
-
-    // Check if therapist account is verified
-    if (!therapist.active) {
       return res.status(400).json({
-        message:
-          "Account is not active. Please make sure your email is verified",
+        message: "Invalid login credentials. Please check your credentials.",
       });
     }
 
-    createSendToken(therapist, 200, res);
+    // Compare the entered password with the stored hashed password
+    const isPasswordValid = await therapist.matchPassword(password);
+
+    // If password is not valid, return an error
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Invalid password." });
+    }
+
+    // Check if therapist account is active
+    if (!therapist.active) {
+      return res.status(400).json({
+        message:
+          "Account is not active. Please verify your email before logging in.",
+      });
+    }
+
+    // Send a token to the client
+    const user = await Therapist.findByIdAndUpdate(therapist._id).select(
+      "-password"
+    );
+    createSendToken(user, 200, res);
   } catch (error) {
-    console.log(error);
+    console.log("Error during login:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
 // get patient details by id
-
 export const getPatientDetails = async (req, res) => {
   try {
     const patientId = req.params.id;

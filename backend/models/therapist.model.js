@@ -131,13 +131,27 @@ therapistSchema.pre("save", async function (next) {
   if (!this.therapistId) {
     this.therapistId = generateTherapistId();
   }
+  next();
+});
+
+// password hashing
+therapistSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
+
+// compare password
+therapistSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 function generateTherapistId() {
   let id = "";
@@ -148,11 +162,6 @@ function generateTherapistId() {
   }
   return id;
 }
-
-// Methods to check password
-therapistSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
 
 therapistSchema.methods.createOTP = function () {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
