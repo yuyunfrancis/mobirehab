@@ -185,6 +185,9 @@ export const loginTherapist = async (req, res) => {
 
     // Check if password is correct
     const isMatch = await therapist.matchPassword(password);
+    console.log("Entered Password:", password);
+    console.log("Hashed Password:", therapist.password);
+    console.log("Password Match:", isMatch);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid password" });
     }

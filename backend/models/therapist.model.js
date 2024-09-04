@@ -121,6 +121,7 @@ const therapistSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      select: false, // Ensure password is not selected by default
     },
   },
   { timestamps: true }
