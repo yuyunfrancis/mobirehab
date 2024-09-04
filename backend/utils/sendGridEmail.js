@@ -441,7 +441,7 @@ const sendEmail = async ({
   try {
     await sgMail.send(msg);
   } catch (error) {
-    console.error(error);
+    console.error("sending email error", error);
     throw new Error("Could not send email");
   }
 };

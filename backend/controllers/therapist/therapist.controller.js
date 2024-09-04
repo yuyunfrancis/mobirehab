@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import generateToken from "../../utils/generateToken.js";
 import Therapist from "../../models/therapist.model.js";
 import { uploadFilesToCloudinary } from "../../utils/cloudinary.js";
-import {sendEmail} from "../../utils/sendGridEmail.js";
+import { sendEmail } from "../../utils/sendGridEmail.js";
 import Patient from "../../models/patient.model.js";
 import { asyncHandler } from "../../middleware/asyncHandler.js";
 
@@ -110,7 +110,7 @@ export const signupTherapist = async (req, res) => {
 
     // Send OTP to therapist
     await sendEmail({
-      receipientEmail: email,
+      receipientEmail: newTherapist.email,
       subject: "Email Verification Mobirehab",
       req: req,
       template_data: {
@@ -213,9 +213,7 @@ export const getPatientDetails = async (req, res) => {
     console.error("Error fetching therapist details:", error);
     res.status(500).json({ message: "Internal server error", error: error });
   }
-  
 };
-
 
 /**
  * Update therapist profile
@@ -226,24 +224,24 @@ export const updateTherapistProfile = asyncHandler(async (req, res) => {
   const therapist = await Therapist.findById(req.user._id);
 
   if (!therapist) {
-    res.status(404).json({ message: 'Therapist not found' });
+    res.status(404).json({ message: "Therapist not found" });
   }
 
   const updatableFields = [
-    'firstName',
-    'lastName',
-    'phoneNumber',
-    'alternativePhoneNumber',
-    'gender',
-    'profession',
-    'bio',
-    'numOfYearsOfExperience',
-    'specialization'
+    "firstName",
+    "lastName",
+    "phoneNumber",
+    "alternativePhoneNumber",
+    "gender",
+    "profession",
+    "bio",
+    "numOfYearsOfExperience",
+    "specialization",
   ];
 
   const updates = {};
 
-  updatableFields.forEach(field => {
+  updatableFields.forEach((field) => {
     if (req.body[field] !== undefined) {
       updates[field] = req.body[field];
     }
@@ -253,26 +251,29 @@ export const updateTherapistProfile = asyncHandler(async (req, res) => {
   if (req.body.address) {
     updates.address = {
       ...therapist.address,
-      ...req.body.address
+      ...req.body.address,
     };
   }
 
-
-
   // Validate specialization if provided
-  if (updates.specialization && !Therapist.schema.path('specialization').enumValues.includes(updates.specialization)) {
-    res.status(400).json({ message: 'Invalid specialization' });
+  if (
+    updates.specialization &&
+    !Therapist.schema
+      .path("specialization")
+      .enumValues.includes(updates.specialization)
+  ) {
+    res.status(400).json({ message: "Invalid specialization" });
   }
 
   Object.assign(therapist, updates);
 
-//   console.log('Received data:', req.body);
-// console.log('Updates to be applied:', updates);
+  //   console.log('Received data:', req.body);
+  // console.log('Updates to be applied:', updates);
 
   const updatedTherapist = await therapist.save();
 
   res.json({
-    message: 'Profile updated successfully',
+    message: "Profile updated successfully",
     therapist: {
       id: updatedTherapist._id,
       firstName: updatedTherapist.firstName,
@@ -289,9 +290,6 @@ export const updateTherapistProfile = asyncHandler(async (req, res) => {
       licenseNumber: updatedTherapist.licenseNumber,
       profilePicture: updatedTherapist.profilePicture,
       cv: updatedTherapist.cv,
-    }
+    },
   });
 });
-
-
-
