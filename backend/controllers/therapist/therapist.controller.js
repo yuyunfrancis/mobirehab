@@ -5,6 +5,7 @@ import { uploadFilesToCloudinary } from "../../utils/cloudinary.js";
 import { sendEmail } from "../../utils/sendGridEmail.js";
 import Patient from "../../models/patient.model.js";
 import { asyncHandler } from "../../middleware/asyncHandler.js";
+import { signUpTemplate } from "../../utils/emailTemplates.js";
 
 const createSendToken = (user, statusCode, res) => {
   const token = generateToken(user._id, user.userType, res);
@@ -108,16 +109,22 @@ export const signupTherapist = async (req, res) => {
     const otp = await newTherapist.createOTP();
     await newTherapist.save({ validateBeforeSave: false });
 
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+
+    const verifyLink = `${baseURL}/api/v1/therapist/verify-email?otp=${otp}`;
+
+    console.log("Verify link:", verifyLink);
+
     // Send OTP to therapist
     await sendEmail({
-      receipientEmail: newTherapist.email,
+      // receipientEmail: newTherapist.email,
+      recipientEmail: email,
       subject: "Email Verification Mobirehab",
-      req: req,
       template_data: {
         name: firstName,
         otp: otp,
       },
-      emailType: "signup ",
+      htmlContent: signUpTemplate({ verifyLink }),
     });
 
     res.json({

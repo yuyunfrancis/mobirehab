@@ -4,8 +4,9 @@ import Patient from "../../models/patient.model.js";
 import Payment from "../../models/payment.model.js";
 import Therapist from "../../models/therapist.model.js";
 import AppointmentService from "../../services/appointment.service.js";
+import { appointmentConfirmationTemplate } from "../../utils/emailTemplates.js";
 import processPayment from "../../utils/payment.js";
-import {sendEmail} from "../../utils/sendGridEmail.js";
+import { sendEmail } from "../../utils/sendGridEmail.js";
 
 // import paymentGateway from "../utils/paymentGateway.js";
 
@@ -171,43 +172,49 @@ export const createAppointment = asyncHandler(async (req, res) => {
     const patientDetails = await Patient.findById(patientId);
     const therapistDetails = await Therapist.findById(therapist);
 
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+    const appointmentLinkPatient = `${baseURL}/patient/appointments/${savedAppointment._id}`;
+
     // For patient
     const patientEmailData = {
       recipientEmail: patientDetails.email,
-      subject: "Appointment Confirmation",
-      template_data: {
-        name: `${patientDetails.firstName} ${patientDetails.lastName}`,
-        therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
-        date: savedAppointment.date.toDateString(),
-        time: savedAppointment.time,
-        status: savedAppointment.status,
-        appointmentId: savedAppointment._id,
-      },
-      req,
-      emailType: "appointment_patient",
+      subject: "Appointment Booking Details",
+      template_data: {},
+      htmlContent: appointmentConfirmationTemplate({
+        appointment: {
+          subject: "Appointment Booking Details",
+          name: `${patientDetails.firstName} ${patientDetails.lastName}`,
+          therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+          date: savedAppointment.date.toDateString(),
+          time: savedAppointment.time,
+          status: savedAppointment.status,
+          link: appointmentLinkPatient,
+        },
+      }),
     };
 
     // For therapist
     const therapistEmailData = {
       recipientEmail: therapistDetails.email,
       subject: "New Appointment Notification",
-      template_data: {
-        name: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
-        patientName: `${patientDetails.firstName} ${patientDetails.lastName}`,
-        date: savedAppointment.date.toDateString(),
-        time: savedAppointment.time,
-        service: savedAppointment.service,
-        purpose: savedAppointment.purpose,
-        status: savedAppointment.status,
-      },
-      req,
-      emailType: "appointment_therapist",
+      template_data: {},
+      htmlContent: appointmentNotificationTemplate({
+        appointment: {
+          subject: "New Appointment Notification",
+          name: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+          patientName: `${patientDetails.firstName} ${patientDetails.lastName}`,
+          date: savedAppointment.date.toDateString(),
+          time: savedAppointment.time,
+          service: savedAppointment.service,
+          purpose: savedAppointment.purpose,
+          status: savedAppointment.status,
+          link: appointmentLinkPatient,
+        },
+      }),
     };
 
     const patientEmailResponse = await sendEmail(patientEmailData);
     const therapistEmailResponse = await sendEmail(therapistEmailData);
-
-    
 
     res.status(201).json({
       appointment: savedAppointment,
@@ -249,8 +256,6 @@ export const getAppointments = asyncHandler(async (req, res) => {
   });
 });
 
-
-
 // Patient rescheduling an appointment with a therapist. This function is to allow patient to reschedule an appointment with a therapist by updating the appointment details.
 // This is valid on for 48 hours after appointment have been booked...after 48 hours appointment can't be rescheduled.
 
@@ -270,20 +275,22 @@ export const rescheduleAppointment = asyncHandler(async (req, res) => {
   } catch (error) {
     console.error("Error in rescheduleAppointment controller:", error);
     if (error.name === "ValidationError") {
-      res.status(400).json({ 
-        success: false, 
+      res.status(400).json({
+        success: false,
         message: "Invalid data provided for rescheduling",
-        error: error.message 
+        error: error.message,
       });
     } else if (error.message === "Appointment not found") {
       res.status(404).json({ success: false, message: error.message });
-    } else if (error.message === "Appointment cannot be rescheduled after 48 hours") {
+    } else if (
+      error.message === "Appointment cannot be rescheduled after 48 hours"
+    ) {
       res.status(400).json({ success: false, message: error.message });
     } else {
-      res.status(500).json({ 
-        success: false, 
-        message: "Failed to reschedule appointment", 
-        error: error.message 
+      res.status(500).json({
+        success: false,
+        message: "Failed to reschedule appointment",
+        error: error.message,
       });
     }
   }
