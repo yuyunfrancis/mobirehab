@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
 import Admin from "../models/admin.model.js";
 import Therapist from "../models/therapist.model.js";
+import Appointment from "../models/appointment.model.js";
 import generateToken from "../utils/generateToken.js";
 import { sendEmail } from "../utils/sendGridEmail.js";
 
@@ -289,6 +291,293 @@ class AdminService {
       throw error;
     }
   }
+
+  // get a therapist statistics
+  static async getTherapistStatistics(adminId, therapistId) {
+    try {
+      const admin = await Admin.findById(adminId);
+      if (!admin || (admin.role !== "super-admin" && admin.role !== "admin")) {
+        throw new Error(
+          "Unauthorized: Only super-admin or admin can access this resource"
+        );
+      }
+      const therapistObjectId = new mongoose.Types.ObjectId(
+        therapistId.toString()
+      );
+
+      const therapistStats = await Appointment.aggregate([
+        { $match: { therapist: therapistObjectId } },
+        {
+          $group: {
+            _id: "$therapist",
+            totalAppointments: { $sum: 1 },
+            appointmentStatusCounts: {
+              $push: "$status",
+            },
+            appointmentIds: { $push: "$_id" },
+          },
+        },
+        {
+          $lookup: {
+            from: "payments",
+            let: { appointmentIds: "$appointmentIds" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $in: ["$appointment", "$$appointmentIds"] },
+                      { $eq: ["$status", "success"] },
+                    ],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: "$currency",
+                  totalAmount: { $sum: "$amount" },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  currency: "$_id",
+                  totalAmount: 1,
+                },
+              },
+            ],
+            as: "paymentInfo",
+          },
+        },
+        {
+          $lookup: {
+            from: "therapists",
+            localField: "_id",
+            foreignField: "_id",
+            as: "therapistInfo",
+          },
+        },
+        { $unwind: "$therapistInfo" },
+        {
+          $project: {
+            therapistId: "$therapistInfo.therapistId",
+            name: {
+              $concat: [
+                "$therapistInfo.firstName",
+                " ",
+                "$therapistInfo.lastName",
+              ],
+            },
+            totalAppointments: 1,
+            appointmentStatusCounts: {
+              $arrayToObject: {
+                $map: {
+                  input: [
+                    "Pending",
+                    "Accepted",
+                    "Declined",
+                    "Completed",
+                    "Cancelled",
+                    "Rescheduled",
+                    "Waiting for Payment",
+                  ],
+                  as: "status",
+                  in: {
+                    k: "$$status",
+                    v: {
+                      $size: {
+                        $filter: {
+                          input: "$appointmentStatusCounts",
+                          cond: { $eq: ["$$this", "$$status"] },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            paymentInfo: {
+              $cond: {
+                if: { $eq: [{ $size: "$paymentInfo" }, 0] },
+                then: [{ currency: "N/A", totalAmount: 0 }],
+                else: "$paymentInfo",
+              },
+            },
+            averageRating: { $ifNull: [{ $avg: "$therapistInfo.ratings" }, 0] },
+            completionRate: {
+              $cond: [
+                { $eq: ["$totalAppointments", 0] },
+                0,
+                {
+                  $divide: [
+                    {
+                      $size: {
+                        $filter: {
+                          input: "$appointmentStatusCounts",
+                          cond: { $eq: ["$$this", "Completed"] },
+                        },
+                      },
+                    },
+                    "$totalAppointments",
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      ]);
+
+      if (therapistStats.length === 0) {
+        return {
+          therapistId: therapistObjectId,
+          name: "Unknown",
+          totalAppointments: 0,
+          appointmentStatusCounts: {
+            Pending: 0,
+            Accepted: 0,
+            Declined: 0,
+            Completed: 0,
+            Cancelled: 0,
+            Rescheduled: 0,
+            "Waiting for Payment": 0,
+          },
+          paymentInfo: [{ currency: "N/A", totalAmount: 0 }],
+          averageRating: 0,
+          completionRate: 0,
+        };
+      }
+
+      return therapistStats[0];
+    } catch (error) {
+      console.log("Error in AdminService.getTherapistStatistics", error);
+      throw error;
+    }
+  }
+
+  // get therapist appointment
+  static async getTherapistAppointments(adminId, therapistId, page, limit) {
+    try {
+      const admin = await Admin.findById(adminId);
+      if (!admin || (admin.role !== "super-admin" && admin.role !== "admin")) {
+        throw new Error(
+          "Unauthorized: Only super-admin or admin can access this resource"
+        );
+      }
+
+      const therapistObjectId = new mongoose.Types.ObjectId(therapistId);
+
+      // Ensure page and limit are valid integers
+      const pageNum = Math.max(1, parseInt(page) || 1);
+      const limitNum = Math.max(1, Math.min(100, parseInt(limit) || 10));
+
+      const skip = (pageNum - 1) * limitNum;
+
+      const statusOptions = [
+        "Pending",
+        "Accepted",
+        "Declined",
+        "Completed",
+        "Cancelled",
+        "Rescheduled",
+        "Waiting for Payment",
+      ];
+
+      const [result] = await Appointment.aggregate([
+        { $match: { therapist: therapistObjectId } },
+        {
+          $facet: {
+            stats: [
+              {
+                $group: {
+                  _id: null,
+                  totalAppointments: { $sum: 1 },
+                  statusCounts: {
+                    $push: "$status",
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  totalAppointments: 1,
+                  statusCounts: {
+                    $arrayToObject: {
+                      $map: {
+                        input: statusOptions,
+                        as: "status",
+                        in: {
+                          k: "$$status",
+                          v: {
+                            $size: {
+                              $filter: {
+                                input: "$statusCounts",
+                                cond: { $eq: ["$$this", "$$status"] },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+            appointments: [
+              {
+                $lookup: {
+                  from: "patients",
+                  localField: "patient",
+                  foreignField: "_id",
+                  as: "patientInfo",
+                },
+              },
+              { $unwind: "$patientInfo" },
+              {
+                $project: {
+                  _id: 1,
+                  date: 1,
+                  time: 1,
+                  status: 1,
+                  patientInfo: {
+                    fullName: {
+                      $concat: [
+                        "$patientInfo.firstName",
+                        " ",
+                        "$patientInfo.lastName",
+                      ],
+                    },
+                    email: "$patientInfo.email",
+                  },
+                },
+              },
+              { $sort: { date: -1, time: -1 } },
+              { $skip: skip },
+              { $limit: limitNum },
+            ],
+          },
+        },
+      ]);
+
+      const totalAppointments = result.stats[0]?.totalAppointments || 0;
+      const totalPages = Math.ceil(totalAppointments / limitNum);
+
+      return {
+        appointments: result.appointments,
+        stats: result.stats[0] || { totalAppointments: 0, statusCounts: {} },
+        pagination: {
+          currentPage: pageNum,
+          totalPages,
+          totalItems: totalAppointments,
+          itemsPerPage: limitNum,
+        },
+      };
+    } catch (error) {
+      console.log("Error in AdminService.getTherapistAppointments", error);
+      throw error;
+    }
+  }
+
+  // Pay a therapist
 }
 
 export default AdminService;

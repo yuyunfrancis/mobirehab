@@ -4,15 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        greenPrimary: "#216f62",
-        hoverColor: "#278575",
-        blueColor: "#16B1DF",
-        blueHover: "#23c1ed",
+        greenPrimary: "#06a9b1",
+        hoverColor: "#008b95",
+        blueColor: "#f29623",
+        blueHover: "#f29635",
       },
-       lineClamp: {
-        3: '3',
+      lineClamp: {
+        3: "3",
       },
     },
   },
-  plugins: [require('@tailwindcss/line-clamp')],
+  plugins: [require("@tailwindcss/line-clamp")],
 };

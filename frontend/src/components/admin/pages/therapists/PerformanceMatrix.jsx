@@ -1,13 +1,64 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { UserContext } from "../../../../context/UserContext";
+import Loading from "../../../utilities/Loading";
+import axios from "axios";
+import { adminBaseURL } from "../../../../utils/adminApi";
 
 const PerformanceMetrics = ({ therapistId }) => {
   // Mock data (replace with actual data fetching logic)
+  const [therapist, setTherapist] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { currentUser } = useContext(UserContext);
+
+  const getTherapistStats = async () => {
+    try {
+      const response = await axios.get(
+        `${adminBaseURL}/therapists/${therapistId}/stats`,
+        {
+          headers: {
+            Authorization: `Bearer ${currentUser.token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setTherapist(response?.data?.data);
+        setLoading(false);
+      } else {
+        console.error(
+          "Failed to fetch therapist: Unexpected response status",
+          response.status
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching therapist:",
+        error.response?.data || error.message
+      );
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser && currentUser.token) {
+      getTherapistStats();
+    }
+  }, [currentUser.token]);
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  console.log(therapist);
+
   const metrics = {
-    totalAppointments: 150,
-    totalIncome: 5000.0,
-    averageRating: 4.8,
-    completionRate: 0.95,
+    totalAppointments: therapist?.totalAppointments,
+    totalIncome: therapist?.paymentInfo[0]?.totalAmount,
+    currency: therapist?.paymentInfo[0]?.currency,
+    averageRating: therapist?.averageRating,
+    completionRate: therapist?.completionRate,
   };
 
   const containerVariants = {
@@ -35,7 +86,7 @@ const PerformanceMetrics = ({ therapistId }) => {
       />
       <MetricCard
         title="Total Income"
-        value={`$${metrics.totalIncome.toFixed(2)}`}
+        value={`${metrics.currency}${metrics.totalIncome.toFixed(2)}`}
         icon="fa-dollar-sign"
         color="bg-green-500"
       />

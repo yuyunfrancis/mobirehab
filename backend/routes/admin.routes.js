@@ -7,7 +7,9 @@ import {
   createSuperAdmin,
   disapproveTherapist,
   getAllTherapists,
+  getTherapistAppointments,
   getTherapistById,
+  getTherapistStats,
   loginAdmin,
   logoutAdmin,
 } from "../controllers/admin/admin.controller.js";
@@ -35,8 +37,10 @@ router.use(validateToken);
 router.route("/create").post(checkPasswordStrength, createAdmin);
 router.route("/therapists").get(getAllTherapists);
 router.route("/therapists/:id").get(getTherapistById);
+router.route("/therapists/:id/stats").get(getTherapistStats);
 router.route("/therapists/approve/:id").patch(approveTherapist);
 router.route("/therapists/disapprove/:id").patch(disapproveTherapist);
+router.route("/therapists/:id/appointments").get(getTherapistAppointments);
 
 router.post("/logout", logoutAdmin);
 

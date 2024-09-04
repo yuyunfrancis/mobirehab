@@ -250,3 +250,59 @@ export const disapproveTherapist = asyncHandler(async (req, res) => {
     });
   }
 });
+
+// get a therapist stats
+export const getTherapistStats = asyncHandler(async (req, res) => {
+  try {
+    const adminId = req.user._id;
+    const therapistId = req.params.id;
+
+    const stats = await AdminService.getTherapistStatistics(
+      adminId,
+      therapistId
+    );
+
+    res.status(200).json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    console.error(`Error in getTherapistStats: ${error.message}`);
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+export const getTherapistAppointments = asyncHandler(async (req, res) => {
+  try {
+    const { therapistId } = req.params;
+    let { page, limit } = req.query;
+
+    // Ensure page and limit are valid numbers
+    page = Math.max(1, parseInt(page) || 1);
+    limit = Math.max(1, Math.min(100, parseInt(limit) || 10));
+
+    const adminId = req.user._id;
+
+    const result = await AdminService.getTherapistAppointments(
+      adminId,
+      therapistId,
+      page,
+      limit
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Therapist appointments retrieved successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error in getTherapistAppointments controller:", error);
+    res.status(error.status || 500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
+  }
+});
