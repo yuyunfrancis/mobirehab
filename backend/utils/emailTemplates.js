@@ -284,10 +284,10 @@ export const therapistAccountStatusChangeTemplate = ({ template_data }) => {
                         <li>Set your availability for appointments</li>
                         <li>Familiarize yourself with the platform's features</li>
                     </ul>
-                    <a href="${template_data.link}" class="button">Go to Dashboard</a>
+                    <a href="${template_data?.link}" class="button">Go to Dashboard</a>
                 `
                     : `
-                    <p>We regret to inform you that your Mobirehab therapist account verification was unsuccessful at this time.</p>
+                    <p>We regret to inform you that your Mobirehab therapist account has been deactivated or not verified at this time.</p>
                     <p>This decision was made after careful review of the information provided. We understand this may be disappointing, but we want to ensure the highest standards for our platform and patients.</p>
                     <p>For more information about the specific reasons for this decision or to discuss how you can improve your application, please contact our admin team.</p>
                     <a href="mailto:admin@mobirehab.com" class="button">Contact Admin</a>

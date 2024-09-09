@@ -4,6 +4,7 @@ import Therapist from "../models/therapist.model.js";
 import Appointment from "../models/appointment.model.js";
 import generateToken from "../utils/generateToken.js";
 import { sendEmail } from "../utils/sendGridEmail.js";
+import { therapistAccountStatusChangeTemplate } from "../utils/emailTemplates.js";
 
 class AdminService {
   static async createSuperAdmin(email, password, res) {
@@ -193,10 +194,16 @@ class AdminService {
       const accountApprovalEmailData = {
         recipientEmail: therapistDetails.email,
         subject: "Account Approval",
+        htmlContent: therapistAccountStatusChangeTemplate({
+          template_data: {
+            isVerified: therapistDetails.isVerified,
+            name: therapistDetails.firstName,
+            link: link,
+          },
+        }),
         template_data: {
           isVerified: therapistDetails.isVerified,
           name: therapistDetails.firstName,
-          link: link,
         },
       };
 
@@ -243,13 +250,17 @@ class AdminService {
 
       const accountApprovalEmailData = {
         recipientEmail: therapistDetails.email,
-        subject: "Account Status Update",
+        subject: "Account Updates",
+        htmlContent: therapistAccountStatusChangeTemplate({
+          template_data: {
+            isVerified: therapistDetails.isVerified,
+            name: therapistDetails.firstName,
+          },
+        }),
         template_data: {
           isVerified: therapistDetails.isVerified,
           name: therapistDetails.firstName,
         },
-        emailType: "therapist_account_update",
-        req,
       };
 
       const emailResponse = await sendEmail(accountApprovalEmailData);
