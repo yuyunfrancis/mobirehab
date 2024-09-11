@@ -2,6 +2,7 @@ import express from "express";
 import validateToken from "../middleware/validateToken.js";
 import {
   getPatientDetails,
+  getTherapistStatistics,
   loginTherapist,
   signupTherapist,
   updateTherapistProfile,
@@ -26,6 +27,7 @@ import {
   updateMyAvailability,
 } from "../controllers/therapist/availability.controller.js";
 import { getTherapistProfileWithRatings } from "../controllers/therapist/common.controller.js";
+import { addAppointmentNotes } from "../controllers/patient/appointment.controller.js";
 
 const dir = "/tmp/my-uploads";
 
@@ -66,6 +68,9 @@ router
   .get(getAppointmentDetails)
   .patch(updateAppointmentStatus)
   .delete(deleteAppointment);
+
+router.route("/appointments/:id/notes").post(addAppointmentNotes);
+
 router
   .route("/availability")
   .get(getAvailabilityController)
@@ -81,6 +86,8 @@ router
   .patch(updateMyAvailability)
   .delete(deleteAvailability);
 router.put("/my-availability/:availabilityId/activate", setAvailabilityActive);
+
+router.route("/my-statistics").get(getTherapistStatistics);
 
 router
   .route("/profile")

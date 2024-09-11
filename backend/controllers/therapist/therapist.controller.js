@@ -6,6 +6,10 @@ import { sendEmail } from "../../utils/sendGridEmail.js";
 import Patient from "../../models/patient.model.js";
 import { asyncHandler } from "../../middleware/asyncHandler.js";
 import { signUpTemplate } from "../../utils/emailTemplates.js";
+import TherapistRating from "../../models/therapistRating.model.js";
+import Appointment from "../../models/appointment.model.js";
+import Payment from "../../models/payment.model.js";
+import mongoose from "mongoose";
 
 const createSendToken = (user, statusCode, res) => {
   const token = generateToken(user._id, user.userType, res);
@@ -113,7 +117,7 @@ export const signupTherapist = async (req, res) => {
 
     const verifyLink = `${baseURL}/api/v1/therapist/verify-email?otp=${otp}`;
 
-    console.log("Verify link:", verifyLink);
+    // console.log("Verify link:", verifyLink);
 
     // Send OTP to therapist
     await sendEmail({
@@ -302,4 +306,85 @@ export const updateTherapistProfile = asyncHandler(async (req, res) => {
       cv: updatedTherapist.cv,
     },
   });
+});
+
+export const getTherapistStatistics = asyncHandler(async (req, res) => {
+  console.log("getTherapistStatistics function called");
+  console.log("Request user:", req.user);
+
+  try {
+    const therapistId = req.user._id;
+    // console.log("Therapist ID from user object:", therapistId);
+
+    // Check if therapistId is "lstatistics"
+    if (therapistId === "lstatistics") {
+      console.log("'lstatistics' detected as therapist ID");
+      return res
+        .status(400)
+        .json({ message: "Invalid therapist ID: lstatistics" });
+    }
+
+    // Check if therapistId is a valid ObjectId
+    // if (!mongoose.Types.ObjectId.isValid(therapistId)) {
+    //   console.log("Invalid ObjectId:", therapistId);
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Invalid therapist ID", providedId: therapistId });
+    // }
+
+    const therapist = await Therapist.findById(therapistId);
+    if (!therapist) {
+      console.log("Therapist not found for ID:", therapistId);
+      return res.status(404).json({ message: "Therapist not found" });
+    }
+
+    // console.log("Fetching statistics for therapist:", therapist._id);
+
+    const totalPatients = await Patient.countDocuments({
+      therapist: therapistId,
+    });
+    const totalAppointments = await Appointment.countDocuments({
+      therapist: therapistId,
+    });
+
+    const totalIncome = await Payment.aggregate([
+      { $match: { therapist: new mongoose.Types.ObjectId(therapistId) } },
+      {
+        $group: {
+          _id: null,
+          totalIncome: { $sum: { $multiply: ["$amount", 0.65] } },
+        },
+      },
+    ]);
+
+    const ratings = await TherapistRating.aggregate([
+      { $match: { therapist: new mongoose.Types.ObjectId(therapistId) } },
+      {
+        $group: {
+          _id: "$therapist",
+          averageRating: { $avg: "$rating" },
+        },
+      },
+    ]);
+
+    const overallRating = ratings.length > 0 ? ratings[0].averageRating : 0;
+
+    const statistics = {
+      totalPatients,
+      totalAppointments,
+      totalIncome: totalIncome[0] ? totalIncome[0].totalIncome : 0,
+      overallRating,
+    };
+
+    console.log("Statistics calculated:", statistics);
+
+    res.json(statistics);
+  } catch (error) {
+    console.error("Error fetching therapist statistics:", error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+      stack: error.stack,
+    });
+  }
 });

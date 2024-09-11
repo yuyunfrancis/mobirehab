@@ -13,7 +13,7 @@ import api from "../../../../utils/api";
 import useDataFetching from "../../../../hooks/useFech";
 
 const ProfilePage = () => {
-  const [therapist, setTherapist] = useState(initialTherapistData);
+  const [therapist, setTherapist] = useState([]);
   const [activeTab, setActiveTab] = useState("personal");
   const [isLoading, setIsLoading] = useState(false);
   const { currentUser } = useContext(UserContext);
@@ -194,7 +194,7 @@ const ProfilePage = () => {
             <ProfileSidebar
               activeTab={activeTab}
               setActiveTab={setActiveTab}
-              therapist={therapist}
+              therapist={formData}
             />
           </div>
           <div className="md:w-3/4">

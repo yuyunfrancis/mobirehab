@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FaCalendar, FaUsers, FaDollarSign, FaStar } from "react-icons/fa";
+import useDataFetching from "../../../../hooks/useFech";
+import StatsLoader from "./StatsLoader";
 
-const StatCard = ({ title, value, icon, darkMode }) => {
+const StatCard = ({ title, value, icon, darkMode, loading }) => {
   const formatNumber = (num) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
@@ -23,6 +25,12 @@ const StatCard = ({ title, value, icon, darkMode }) => {
         return null;
     }
   };
+
+  if (loading) return <StatsLoader darkMode={darkMode} />;
+
+  // if (error) return <div>Error fetching data</div>;
+
+  // console.log("statistics data:", data);
 
   return (
     <div

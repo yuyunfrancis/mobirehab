@@ -1,94 +1,12 @@
-// import React, { useState } from "react";
-// import FormAction from "../../common/forms/FormAction";
-// import { logout } from "../../../services/AuthServices";
-// import { useNavigate } from "react-router-dom";
-// import toast from "react-hot-toast";
-
-// const Dashboard = () => {
-//   const [loading, setLoading] = useState(false);
-//   const navigate = useNavigate();
-
-//   const handleLogout = async () => {
-//     try {
-//       setLoading(true);
-//       const END_POINT = "patient/logout";
-//       await logout(END_POINT);
-//       setLoading(false);
-//       toast.success("Logged out successfully");
-//       navigate("/patient/login", { replace: true }); // Use absolute path
-//     } catch (err) {
-//       console.error(err);
-//       setLoading(false); // Ensure loading state is reset on error
-//       toast.error("Logout failed. Please try again.");
-//     }
-//   };
-
-//   return (
-//     <div>
-//       Dashboard
-//       <div className="flex flex-grow flex-col justify-center">
-//         <h1>Dashboard</h1>
-//         <p>Welcome to your dashboard</p>
-//         <button onClick={handleLogout}>
-//           {loading ? "Logging out..." : "Logout"}
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Dashboard;
-
-// import React, { useState } from "react";
-// import FormAction from "../../common/forms/FormAction";
-// import { logout } from "../../../services/AuthServices";
-// import { useNavigate } from "react-router-dom";
-// import toast from "react-hot-toast";
-
-// const Dashboard = () => {
-//   const [loading, setLoading] = useState(false);
-//   const navigate = useNavigate();
-
-//   const handleLogout = async () => {
-//     try {
-//       setLoading(true);
-//       const END_POINT = "patient/logout";
-//       await logout(END_POINT);
-//       setLoading(false);
-//       toast.success("Logged out successfully");
-//       navigate("/patient/login", { replace: true });
-//     } catch (err) {
-//       setLoading(false);
-//       toast.error("Logout failed. Please try again.");
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <div className="flex flex-grow flex-col justify-center">
-//         <h1>Dashboard</h1>
-//         <p>Welcome to your dashboard</p>
-//         <button onClick={handleLogout}>
-//           {loading ? "Logging out..." : "Logout"}
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Dashboard;
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import TherapistProfile from "./TherapistProfile";
 import UpcomingAppointments from "./UpcomingAppointments";
 import StatCard from "./StatCard";
 import Chart from "./Chart";
+import useDataFetching from "../../../../hooks/useFech";
+import api from "../../../../utils/api";
+import { UserContext } from "../../../../context/UserContext";
 // Mock data
-const stats = [
-  { title: "Appointments", value: 150, icon: "calendar" },
-  { title: "Patients", value: 75, icon: "users" },
-  { title: "Income", value: "15,000", icon: "dollar-sign" },
-  { title: "Rating", value: "4.8", icon: "star" },
-];
 
 const patients = [
   { id: 1, name: "John Doe", age: 35, lastVisit: "2024-07-15" },
@@ -105,6 +23,46 @@ const chartData = [
 
 const Dashboard = () => {
   const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState(null);
+  const { currentUser } = useContext(UserContext);
+
+  const getTherapistStats = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("therapist/my-statistics", {});
+      if (response.status === 200) {
+        setData(response?.data);
+      } else {
+        console.error(
+          "Failed to fetch therapists: Unexpected response status",
+          response.status
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching therapists:",
+        error.response?.data || error.message
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser && currentUser.token) {
+      getTherapistStats();
+    }
+  }, [currentUser.token]);
+
+  console.log("data:", data);
+
+  const stats = [
+    { title: "Appointments", value: data?.totalAppointments, icon: "calendar" },
+    { title: "Patients", value: data?.totalPatients, icon: "users" },
+    { title: "Income", value: `${data?.totalIncome}`, icon: "dollar-sign" },
+    { title: "Rating", value: `${data?.overallRating}`, icon: "star" },
+  ];
 
   return (
     <div
@@ -132,7 +90,12 @@ const Dashboard = () => {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {stats.map((stat, index) => (
-                <StatCard key={index} {...stat} darkMode={darkMode} />
+                <StatCard
+                  key={index}
+                  {...stat}
+                  loading={loading}
+                  darkMode={darkMode}
+                />
               ))}
             </div>
 

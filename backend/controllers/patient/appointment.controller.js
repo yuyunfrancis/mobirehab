@@ -299,3 +299,35 @@ export const rescheduleAppointment = asyncHandler(async (req, res) => {
     }
   }
 });
+
+export const addAppointmentNotes = asyncHandler(async (req, res) => {
+  try {
+    const { notes } = req.body;
+    const appointmentId = req.params.id;
+    const appointment = await AppointmentService.addAppointmentNotes(
+      appointmentId,
+      notes
+    );
+    res.status(200).json({
+      success: true,
+      data: appointment,
+    });
+  } catch (error) {
+    console.error("Error in addAppointmentNotes controller:", error);
+    if (error.name === "ValidationError") {
+      res.status(400).json({
+        success: false,
+        message: "Invalid data provided for adding notes",
+        error: error.message,
+      });
+    } else if (error.message === "Appointment not found") {
+      res.status(404).json({ success: false, message: error.message });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: "Failed to add appointment notes",
+        error: error.message,
+      });
+    }
+  }
+});

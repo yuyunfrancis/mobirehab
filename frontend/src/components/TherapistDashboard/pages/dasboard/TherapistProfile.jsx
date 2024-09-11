@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../../../context/UserContext";
 import api from "../../../../utils/api";
 import Button from "../../../common/Button";
+import { Link } from "react-router-dom";
 
 const TherapistProfile = ({ darkMode }) => {
   const { currentUser } = useContext(UserContext);
@@ -124,7 +125,9 @@ const TherapistProfile = ({ darkMode }) => {
         {profile?.therapist?.bio}
       </p>
 
-      <Button label={"Edit Profile"} variant="filled" />
+      <Link to="/therapist/profile">
+        <Button label={"Edit Profile"} variant="filled" />
+      </Link>
     </div>
   );
 };

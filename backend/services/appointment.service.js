@@ -2,8 +2,9 @@
 import Appointment from "../models/appointment.model.js";
 import Therapist from "../models/therapist.model.js";
 import Patient from "../models/patient.model.js";
-import {sendEmail} from "../utils/sendGridEmail.js";
+import { sendEmail } from "../utils/sendGridEmail.js";
 import { NotFoundError } from "../utils/error.js";
+import SessionNote from "../models/sessionNotes.model.js";
 
 class AppointmentService {
   // Create a new appointment
@@ -130,11 +131,11 @@ class AppointmentService {
   // Fetch appointment by ID
   static async getAppointmentById(appointmentId) {
     const appointment = await Appointment.findById(appointmentId);
-  
+
     if (!appointment) {
       throw new NotFoundError("Appointment not found");
     }
-    
+
     return appointment;
   }
 
@@ -181,53 +182,58 @@ class AppointmentService {
 
   //   return { appointment, patientEmailResponse };
 
-
   // }
 
-static async updateAppointmentStatus(appointmentId, status, req) {
-  const appointment = await Appointment.findById(appointmentId);
-  if (!appointment) {
-    throw new NotFoundError("Appointment not found");
+  static async updateAppointmentStatus(appointmentId, status, req) {
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found");
+    }
+
+    const validStatuses = [
+      "Pending",
+      "Accepted",
+      "Declined",
+      "Done",
+      "Cancelled",
+    ];
+    if (!validStatuses.includes(status)) {
+      throw new Error("Invalid status");
+    }
+
+    appointment.status = status;
+    await appointment.save();
+
+    // Only send email for Accepted or Declined statuses
+    if (status === "Accepted" || status === "Declined") {
+      const patientDetails = await Patient.findById(appointment.patient);
+      const therapistDetails = await Therapist.findById(appointment.therapist);
+
+      const patientEmailData = {
+        recipientEmail: patientDetails.email,
+        subject: `Appointment ${status}: ${therapistDetails.firstName} ${therapistDetails.lastName}`,
+        template_data: {
+          name: `${patientDetails.firstName} ${patientDetails.lastName}`,
+          therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+          date: appointment.date.toDateString(),
+          time: appointment.time,
+          status: status,
+          appointmentId: appointment._id,
+          message:
+            status === "Accepted"
+              ? "Your appointment has been accepted by the therapist."
+              : "Unfortunately, your appointment has been declined by the therapist.",
+        },
+        emailType: "appointment_status_update",
+        req,
+      };
+
+      const patientEmailResponse = await sendEmail(patientEmailData);
+      return { appointment, patientEmailResponse };
+    }
+
+    return { appointment };
   }
-
-  const validStatuses = ["Pending", "Accepted", "Declined", "Done", "Cancelled"];
-  if (!validStatuses.includes(status)) {
-    throw new Error("Invalid status");
-  }
-
-  appointment.status = status;
-  await appointment.save();
-
-  // Only send email for Accepted or Declined statuses
-  if (status === "Accepted" || status === "Declined") {
-    const patientDetails = await Patient.findById(appointment.patient);
-    const therapistDetails = await Therapist.findById(appointment.therapist);
-
-    const patientEmailData = {
-      recipientEmail: patientDetails.email,
-      subject: `Appointment ${status}: ${therapistDetails.firstName} ${therapistDetails.lastName}`,
-      template_data: {
-        name: `${patientDetails.firstName} ${patientDetails.lastName}`,
-        therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
-        date: appointment.date.toDateString(),
-        time: appointment.time,
-        status: status,
-        appointmentId: appointment._id,
-        message: status === "Accepted" 
-          ? "Your appointment has been accepted by the therapist."
-          : "Unfortunately, your appointment has been declined by the therapist.",
-      },
-      emailType: "appointment_status_update",
-      req,
-    };
-
-    const patientEmailResponse = await sendEmail(patientEmailData);
-    return { appointment, patientEmailResponse };
-  }
-
-  return { appointment };
-}
-
 
   // Delete appointment
   static async deleteAppointment(appointmentId) {
@@ -238,55 +244,74 @@ static async updateAppointmentStatus(appointmentId, status, req) {
     return appointment;
   }
 
+  // Patient rescheduling an appointment with a therapist. This function is to allow patient to reschedule an appointment with a therapist by updating the appointment details.
+  // This is valid on for 48 hours after appointment have been booked...after 48 hours appointment can't be rescheduled.
+  static async rescheduleAppointment(appointmentId, newDate, newTime) {
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found");
+    }
 
-// Patient rescheduling an appointment with a therapist. This function is to allow patient to reschedule an appointment with a therapist by updating the appointment details.
-// This is valid on for 48 hours after appointment have been booked...after 48 hours appointment can't be rescheduled.
-static async rescheduleAppointment(appointmentId, newDate, newTime) {
-  const appointment = await Appointment.findById(appointmentId);
-  if (!appointment) {
-    throw new NotFoundError("Appointment not found");
+    const currentDate = new Date();
+    const appointmentDate = new Date(appointment.date);
+    const timeDifference = currentDate - appointmentDate;
+    const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+    if (hoursDifference > 48) {
+      throw new Error("Appointment cannot be rescheduled after 48 hours");
+    }
+
+    appointment.date = newDate;
+    appointment.time = newTime;
+    appointment.status = "Pending";
+
+    try {
+      await appointment.save();
+      return appointment;
+    } catch (error) {
+      console.error("Error saving appointment:", error);
+      throw new Error("Failed to save rescheduled appointment");
+    }
   }
-
-  const currentDate = new Date();
-  const appointmentDate = new Date(appointment.date);
-  const timeDifference = currentDate - appointmentDate;
-  const hoursDifference = timeDifference / (1000 * 60 * 60);
-
-  if (hoursDifference > 48) {
-    throw new Error("Appointment cannot be rescheduled after 48 hours");
-  }
-
-  appointment.date = newDate;
-  appointment.time = newTime;  
-  appointment.status = "Pending";
-
-  try {
-    await appointment.save();
-    return appointment;
-  } catch (error) {
-    console.error("Error saving appointment:", error);
-    throw new Error("Failed to save rescheduled appointment");
-  }
-}
-
-
 
   // Cancel an appointment. An apppointment can either be cancelled by patient or therapist.
 
   // Getting upcoming appointments for a therapist || patient
-static async upcomingAppointments(userId, userType) {
-    const query = userType === "patient" ? { patient: userId } : { therapist: userId };
+  static async upcomingAppointments(userId, userType) {
+    const query =
+      userType === "patient" ? { patient: userId } : { therapist: userId };
     const appointments = await Appointment.find({
       ...query,
       date: { $gte: new Date() },
-      status: "Accepted"
+      status: "Accepted",
     })
-    .sort({ date: 1 })
-    .populate('patient', 'firstName lastName')
-    .populate('therapist', 'firstName lastName specialization');
+      .sort({ date: 1 })
+      .populate("patient", "firstName lastName")
+      .populate("therapist", "firstName lastName specialization");
 
     return appointments;
-}
+  }
+
+  // Add appointment notes during an appointment. This function is to allow therapist to add notes during an appointment with a patient.
+  static async addAppointmentNotes(appointmentId, notes) {
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found");
+    }
+
+    const sessionNotes = new SessionNote({
+      appointment: appointmentId,
+      reason: notes.reason,
+      note: notes.note,
+    });
+
+    await sessionNotes.save();
+
+    appointment.sessionNotes.push(sessionNotes._id);
+
+    await appointment.save();
+    return appointment;
+  }
 }
 
 export default AppointmentService;
