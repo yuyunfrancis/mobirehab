@@ -11,6 +11,7 @@ import {
 import fs from "fs";
 import multer from "multer";
 import {
+  addAppointmentNotes,
   deleteAppointment,
   getAppointmentDetails,
   getAppointments,
@@ -27,7 +28,6 @@ import {
   updateMyAvailability,
 } from "../controllers/therapist/availability.controller.js";
 import { getTherapistProfileWithRatings } from "../controllers/therapist/common.controller.js";
-import { addAppointmentNotes } from "../controllers/patient/appointment.controller.js";
 
 const dir = "/tmp/my-uploads";
 

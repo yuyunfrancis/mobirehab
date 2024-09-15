@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
+import { FaRegCalendarTimes } from "react-icons/fa";
 import AvailabilityDayPicker from "../../../common/widgets/Calender";
 import useDataFetching from "../../../../hooks/useFech";
 import Loading from "../../../utilities/Loading";
@@ -10,6 +11,7 @@ import Input from "../../../common/forms/Input";
 import TherapistCard from "../../../features/cards/SmallCard";
 import toast from "react-hot-toast";
 import api from "../../../../utils/api";
+import Button from "../../../common/Button";
 
 const BookAppointment = () => {
   const location = useLocation();
@@ -31,6 +33,8 @@ const BookAppointment = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  console.log("data", data);
 
   useEffect(() => {
     if (data && data.status === "success" && data.activeAvailability) {
@@ -195,9 +199,29 @@ const BookAppointment = () => {
   };
 
   if (loading) return <Loading />;
-  if (error)
-    return <div className="text-center text-red-500">Error: {error}</div>;
+  // if (error)
+  //   return <div className="text-center text-red-500">Error: {error}</div>;
 
+  if (
+    !formattedData ||
+    !formattedData?.availabilities ||
+    formattedData?.availabilities.length === 0 ||
+    data?.activeAvailability?.availabilities.length === 0
+  )
+    return (
+      <div className="max-w-sm mx-auto text-center p-8 bg-white rounded-lg shadow-md">
+        <FaRegCalendarTimes className="w-16 h-16 text-blueColor mx-auto mb-4" />
+        <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+          No Availabilities
+        </h2>
+        <p className="text-gray-600 mb-6">
+          We couldn't find any open slots at the moment.
+        </p>
+        <Link to="/patient/therapist-list">
+          <Button label={"  Back to Therapist Page"} variant="filled" />
+        </Link>
+      </div>
+    );
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start mb-6">

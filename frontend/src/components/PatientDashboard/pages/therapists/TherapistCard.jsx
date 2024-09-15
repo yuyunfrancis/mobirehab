@@ -48,11 +48,11 @@ const TherapistCard = ({
         <p className="text-gray-700 mb-6 line-clamp-3">{therapist.bio}</p>
         {showButtons && (
           <div className="flex justify-center space-x-4">
-            <Button
+            {/* <Button
               label={viewProfileLabel}
               variant="outlined"
               onClick={onViewProfile}
-            />
+            /> */}
             <Button
               label={bookAppointmentLabel}
               variant="filled"

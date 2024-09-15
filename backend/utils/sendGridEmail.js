@@ -457,14 +457,14 @@ const sendEmail = async ({
   recipientEmail,
   subject,
   htmlContent,
-  template_data,
+  // template_data,
 }) => {
   const msg = {
     to: recipientEmail,
     from: process.env.SENDGRID_VERIFIED_SENDER || "falconinnovcm@gmail.com",
     subject: subject,
     html: htmlContent,
-    template_data,
+    // template_data,
   };
 
   try {

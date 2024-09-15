@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import Patient from "../../models/patient.model.js";
 import generateToken from "../../utils/generateToken.js";
 import Therapist from "../../models/therapist.model.js";
+import { asyncHandler } from "../../middleware/asyncHandler.js";
 import { sendPasswordResetEmail } from "../../utils/sendGridEmail.js";
 
 const createSendToken = (user, statusCode, res) => {
@@ -179,6 +180,8 @@ export const editPatientProfile = async (req, res) => {
   }
 };
 
+// Add medications my patient profile logged in patient
+
 // send password reset link to a patient
 export const sendPasswordResetLink = async (req, res) => {
   try {
@@ -281,3 +284,73 @@ export const changePassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// Patients medical information
+export const addMedicalHistory = asyncHandler(async (req, res) => {
+  try {
+    const { condition, diagnosedDate } = req.body;
+    const patientId = req.user._id;
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    patient.medicalHistory.push({ condition, diagnosedDate });
+    await patient.save();
+    res
+      .status(201)
+      .json({ message: "Medical history added successfully", patient });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: e ? e.message : "Internal server error" });
+  }
+});
+
+export const updateMedicalHistory = asyncHandler(async (req, res) => {
+  try {
+    const { historyId, condition, diagnosedDate } = req.body;
+    const patientId = req.user._id;
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    const history = patient.medicalHistory.id(historyId);
+    if (!history) {
+      return res.status(404).json({ message: "Medical history not found" });
+    }
+
+    history.condition = condition;
+    history.diagnosedDate = diagnosedDate;
+    await patient.save();
+    res
+      .status(200)
+      .json({ message: "Medical history updated successfully", patient });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: e ? e.message : "Internal server error" });
+  }
+});
+
+export const deleteMedicalHistory = asyncHandler(async (req, res) => {
+  try {
+    const { historyId } = req.body;
+    const patientId = req.user._id;
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    patient.medicalHistory.id(historyId).remove();
+    await patient.save();
+    res
+      .status(200)
+      .json({ message: "Medical history deleted successfully", patient });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: e ? e.message : "Internal server error" });
+  }
+});

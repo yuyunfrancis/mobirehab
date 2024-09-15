@@ -90,18 +90,19 @@ export const appointmentConfirmationTemplate = ({ appointment }) => {
             </div>
             <div class="content">
               <p>Hello ${appointment.name},</p>
-              <p>Your appointment with ${appointment.therapistName} is confirmed for the following details:</p>
+              <p>Your appointment with ${appointment.therapistName} has been sent with the following details:</p>
               <ul>
                 <li><strong>Date:</strong> ${appointment.date}</li>
                 <li><strong>Time:</strong> ${appointment.time}</li>
                 <li><strong>Therapist:</strong> ${appointment.therapistName}</li>
                 <li><strong>Status:</strong> ${appointment.status}</li>
               </ul>
-              <div class="button">
-                <a href=${appointment.link}>View Appointment</a>
-              </div>
-              <p>Please make sure to arrive 10 minutes early.</p>
-            </div>
+             <div class="button">
+                 <a href="${appointment.link}">View Appointment</a>
+               </div>
+               <p>Please this is just to confirm that your application have been sent to tthe therapist for confirmation and approval.</p>
+               </div>
+            
             <div class="footer">
               <p>&copy; MOBIREHAB Team</p>
             </div>
@@ -301,4 +302,105 @@ export const therapistAccountStatusChangeTemplate = ({ template_data }) => {
         </div>
     </body>
     </html> `;
+};
+
+export const appointmentStatusUpdate = ({ template_data }) => {
+  return `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${template_data.subject}</title>
+            <style>
+              body, h1, h2, h3, h4, h5, h6, p, ul, li {
+                margin: 0;
+                padding: 0;
+              }
+              body {
+                font-family: Arial, sans-serif;
+                background-color: #f5f5f5;
+                color: #333;
+              }
+              .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+              }
+              .header {
+                text-align: center;
+                margin-bottom: 20px;
+              }
+              .header h1 {
+                font-size: 24px;
+                color: #4CAF50;
+              }
+              .content p {
+                margin-bottom: 10px;
+              }
+              .content ul {
+                list-style-type: none;
+                margin-bottom: 20px;
+              }
+              .content ul li {
+                margin-bottom: 5px;
+              }
+              .button {
+                text-align: center;
+                margin: 20px 0;
+              }
+              .button a {
+                background-color: #4CAF50;
+                color: #fff;
+                text-decoration: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+              }
+              .footer {
+                text-align: center;
+                margin-top: 20px;
+                color: #888;
+              }
+              @media (max-width: 480px) {
+                .container {
+                  padding: 10px;
+                }
+                .header h1 {
+                  font-size: 20px;
+                }
+              }
+            </style>
+          </head>
+                  <body>
+      <div class="container">
+        <div class="header">
+          <h1>Appointment ${template_data.status}</h1>
+        </div>
+        <div class="content">
+          <p>Hello ${template_data.name},</p>
+          <p>${template_data.message}</p>
+          <p>Your appointment with ${template_data.therapistName} has been updated:</p>
+          <ul>
+            <li><strong>Date:</strong> ${template_data.date}</li>
+            <li><strong>Time:</strong> ${template_data.time}</li>
+            <li><strong>Therapist:</strong> ${template_data.therapistName}</li>
+            <li><strong>Status:</strong> ${template_data.status}</li>
+          </ul>
+          <div class="button">
+            <a href="${template_data.link}">View Appointment</a>
+          </div>
+          
+            <p>${template_data.message}</p>
+
+        </div>
+        <div class="footer">
+          <p>&copy; MOBIREHAB Team</p>
+        </div>
+      </div>
+    </body>
+          </html>
+        `;
 };

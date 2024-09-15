@@ -5,6 +5,10 @@ import Patient from "../models/patient.model.js";
 import { sendEmail } from "../utils/sendGridEmail.js";
 import { NotFoundError } from "../utils/error.js";
 import SessionNote from "../models/sessionNotes.model.js";
+import {
+  appointmentConfirmationTemplate,
+  appointmentStatusUpdate,
+} from "../utils/emailTemplates.js";
 
 class AppointmentService {
   // Create a new appointment
@@ -62,14 +66,15 @@ class AppointmentService {
     return {
       recipientEmail: patientDetails.email,
       subject: "Appointment Confirmation",
-      template_data: {
-        name: `${patientDetails.firstName} ${patientDetails.lastName}`,
-        therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
-        date: appointment.date.toDateString(),
-        time: appointment.time,
-        status: appointment.status,
-      },
-      emailType: "appointment_patient",
+      htmlContent: appointmentConfirmationTemplate({
+        appointment: {
+          name: `${patientDetails.firstName}`,
+          therapistName: `Dr. ${therapistDetails.firstName}`,
+          date: appointment.date.toDateString(),
+          time: appointment.time,
+          status: appointment.status,
+        },
+      }),
     };
   }
 
@@ -204,6 +209,9 @@ class AppointmentService {
     appointment.status = status;
     await appointment.save();
 
+    const baseURL = `${req.protocol}://${req.get("host")}`;
+    const appointmentLinkPatient = `${baseURL}/patient/appointments/${appointment._id}`;
+
     // Only send email for Accepted or Declined statuses
     if (status === "Accepted" || status === "Declined") {
       const patientDetails = await Patient.findById(appointment.patient);
@@ -211,20 +219,22 @@ class AppointmentService {
 
       const patientEmailData = {
         recipientEmail: patientDetails.email,
-        subject: `Appointment ${status}: ${therapistDetails.firstName} ${therapistDetails.lastName}`,
-        template_data: {
-          name: `${patientDetails.firstName} ${patientDetails.lastName}`,
-          therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
-          date: appointment.date.toDateString(),
-          time: appointment.time,
-          status: status,
-          appointmentId: appointment._id,
-          message:
-            status === "Accepted"
-              ? "Your appointment has been accepted by the therapist."
-              : "Unfortunately, your appointment has been declined by the therapist.",
-        },
-        emailType: "appointment_status_update",
+        subject: `Appointment ${status} by: ${therapistDetails.firstName} ${therapistDetails.lastName}`,
+        htmlContent: appointmentStatusUpdate({
+          template_data: {
+            subject: `Appointment ${status}: ${therapistDetails.firstName} ${therapistDetails.lastName}`,
+            name: `${patientDetails.firstName} ${patientDetails.lastName}`,
+            therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+            date: appointment.date.toDateString(),
+            time: appointment.time,
+            status: status,
+            link: appointmentLinkPatient,
+            message:
+              status === "Accepted"
+                ? "Your appointment has been accepted by the therapist."
+                : "Unfortunately, your appointment has been declined by the therapist.",
+          },
+        }),
         req,
       };
 
@@ -263,7 +273,7 @@ class AppointmentService {
 
     appointment.date = newDate;
     appointment.time = newTime;
-    appointment.status = "Pending";
+    appointment.status = "Rescheduled";
 
     try {
       await appointment.save();
@@ -311,6 +321,76 @@ class AppointmentService {
 
     await appointment.save();
     return appointment;
+  }
+
+  // Patients and therapist cancel an appointment. This can be possible if a patient wants to cancel an appointment with a therapist only if the appointments is still pending and if its not 48 hours to the appointment date.
+  static async cancelAppointment(appointmentId, req) {
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found");
+    }
+
+    const currentDate = new Date();
+    const appointmentDate = new Date(appointment.date);
+    const timeDifference = currentDate - appointmentDate;
+    const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+    if (appointment.status !== "Pending" || hoursDifference <= 48) {
+      throw new Error(
+        "You can only cancel an appointment that is pending and not within 48 hours of the appointment date."
+      );
+    }
+
+    appointment.status = "Cancelled";
+
+    try {
+      await appointment.save();
+      const baseURL = `${req.protocol}://${req.get("host")}`;
+      const appointmentLinkPatient = `${baseURL}/patient/appointments/${appointment._id}`;
+
+      const patientDetails = await Patient.findById(appointment.patient);
+      const therapistDetails = await Therapist.findById(appointment.therapist);
+      const patientEmailData = {
+        recipientEmail: patientDetails.email,
+        subject: `Appointment Cancelled: ${therapistDetails.firstName} ${therapistDetails.lastName}`,
+        htmlContent: appointmentStatusUpdate({
+          template_data: {
+            name: `${patientDetails.firstName} ${patientDetails.lastName}`,
+            therapistName: `${therapistDetails.firstName} ${therapistDetails.lastName}`,
+            date: appointment.date.toDateString(),
+            time: appointment.time,
+            status: appointment.status,
+            link: appointmentLinkPatient,
+            message: "Your appointment has been cancelled by the therapist.",
+          },
+        }),
+        req,
+      };
+
+      const therapistEmailData = {
+        recipientEmail: therapistDetails.email,
+        subject: `Appointment Cancelled: ${patientDetails.firstName} ${patientDetails.lastName}`,
+        htmlContent: appointmentStatusUpdate({
+          template_data: {
+            name: therapistDetails.firstName,
+            therapistName: therapistDetails.firstName,
+            date: appointment.date.toDateString(),
+            time: appointment.time,
+            status: appointment.status,
+            link: appointmentLinkPatient,
+            message: "An appointment has been cancelled by the patient.",
+          },
+        }),
+        req,
+      };
+
+      const patientEmailResponse = await sendEmail(patientEmailData);
+      const therapistEmailResponse = await sendEmail(therapistEmailData);
+      return { appointment, patientEmailResponse, therapistEmailResponse };
+    } catch (error) {
+      console.error("Error saving appointment:", error);
+      throw new Error("Failed to cancel appointment");
+    }
   }
 }
 

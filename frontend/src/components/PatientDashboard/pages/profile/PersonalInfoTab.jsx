@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   FaUser,
   FaCalendarAlt,
@@ -15,9 +15,33 @@ import {
   FaIdCard,
 } from "react-icons/fa";
 import Input from "../../../common/forms/Input";
+import { UserContext } from "../../../../context/UserContext";
+import api from "../../../../utils/api";
+import Loading from "../../../utilities/Loading";
 
 const PersonalInfoTab = ({ patient, setPatient }) => {
   const [imagePreview, setImagePreview] = useState(patient.profilePicture);
+  const [patientData, setPatientData] = useState(null);
+  const { currentUser } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
+
+  const getPatientData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/patient/profile`);
+      setPatientData(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching patient data:", error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getPatientData();
+  }, []);
+
+  console.log("Patient Data:", patientData);
 
   const handleChange = (e) => {
     setPatient({ ...patient, [e.target.name]: e.target.value });
@@ -38,6 +62,10 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
   const getInitial = () => {
     return patient.firstName ? patient.firstName[0].toUpperCase() : "?";
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto">

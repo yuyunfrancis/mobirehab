@@ -139,9 +139,9 @@ const TherapistList = () => {
                 >
                   <TherapistCard
                     therapist={therapist}
-                    onViewProfile={() =>
-                      console.log(`View profile of ${therapist.fullName}`)
-                    }
+                    // onViewProfile={() =>
+                    //   console.log(`View profile of ${therapist.fullName}`)
+                    // }
                     onBookAppointment={() => handleBookAppointment(therapist)}
                   />
                 </motion.div>

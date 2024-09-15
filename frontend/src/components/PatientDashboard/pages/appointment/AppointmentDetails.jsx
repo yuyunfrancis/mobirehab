@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   FiCalendar,
   FiClock,
@@ -34,23 +34,6 @@ const AppointmentDetails = () => {
   if (appointmentLoading || loading) {
     return <Loading />;
   }
-
-  // Mock data (replace with actual data when API integration is complete)
-  const appointments = {
-    id: "123456",
-    status: "Confirmed",
-    date: "2024-08-15",
-    time: "14:00",
-    service: "Individual Therapy",
-    reason: "Anxiety management and stress reduction",
-    therapist: {
-      id: "789",
-      name: "Dr. Jane Smith",
-      specialization: "Cognitive Behavioral Therapy",
-      profilePicture: "https://randomuser.me/api/portraits/women/76.jpg",
-      location: "123 Therapy St, New York, NY 10001",
-    },
-  };
 
   const handleCancel = () => {
     // Implement cancel logic
@@ -161,28 +144,44 @@ const AppointmentDetails = () => {
               </div>
             </div>
           </div>
-
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <Button
-              onClick={() => setIsRescheduleModalOpen(true)}
-              label={"Reschedule"}
-              variant="filled"
-              color="yellow-500"
-            />
+            {appointment?.data?.status === "Declined" ? (
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <p className="text-sm text-gray-600 mb-1 sm:mb-0">
+                  Your appointment has been declined. Please book a new
+                  appointment.
+                </p>
+                <Link
+                  to="/patient/therapist-list"
+                  className="bg-greenPrimary hover:bg-hoverColor text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out"
+                >
+                  Book Appointment
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  onClick={() => setIsRescheduleModalOpen(true)}
+                  label={"Reschedule"}
+                  variant="filled"
+                  color="yellow-500"
+                />
 
-            <RescheduleAppointment
-              isOpen={isRescheduleModalOpen}
-              onClose={() => setIsRescheduleModalOpen(false)}
-              appointment={appointment?.data}
-              therapistId={appointment?.data?.therapist}
-            />
+                <RescheduleAppointment
+                  isOpen={isRescheduleModalOpen}
+                  onClose={() => setIsRescheduleModalOpen(false)}
+                  appointment={appointment?.data}
+                  therapistId={appointment?.data?.therapist}
+                />
 
-            <Button
-              onClick={handleCancel}
-              label={"Cancel Appointment"}
-              variant="filled"
-              color="red-500"
-            />
+                <Button
+                  onClick={handleCancel}
+                  label={"Cancel Appointment"}
+                  variant="filled"
+                  color="red-500"
+                />
+              </div>
+            )}
           </div>
 
           {appointment?.data?.status === "Accepted" && (
