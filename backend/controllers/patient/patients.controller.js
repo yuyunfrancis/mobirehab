@@ -142,7 +142,25 @@ export const getAllVerifiedTherapists = async (req, res) => {
   }
 };
 
-// edit profile details of a patient
+// Get a patient's profile
+export const getPatientProfile = asyncHandler(async (req, res) => {
+  const patientId = req.user._id;
+
+  const patient = await Patient.findById(patientId).select(
+    "firstName lastName email gender dateOfBirth age profilePicture phoneNumber guardianPhoneNumber address medicalHistory vitals medications emergencyContact"
+  );
+
+  if (!patient) {
+    return res.status(404).json({ message: "Patient not found" });
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: patient,
+  });
+});
+
+// Edit profile details of a patient
 export const editPatientProfile = async (req, res) => {
   try {
     const patientId = req.user._id;
@@ -152,8 +170,14 @@ export const editPatientProfile = async (req, res) => {
       return res.status(404).json({ message: "Patient not found" });
     }
 
-    const { firstName, lastName, email, phoneNumber, guardianPhoneNumber } =
-      req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      guardianPhoneNumber,
+      address,
+    } = req.body;
 
     // Update the patient's profile information (except password)
     patient.firstName = firstName || patient.firstName;
@@ -162,6 +186,14 @@ export const editPatientProfile = async (req, res) => {
     patient.phoneNumber = phoneNumber || patient.phoneNumber;
     patient.guardianPhoneNumber =
       guardianPhoneNumber || patient.guardianPhoneNumber;
+
+    // Update address if provided
+    if (address) {
+      patient.address.country = address.country || patient.address.country;
+      patient.address.city = address.city || patient.address.city;
+      patient.address.district = address.district || patient.address.district;
+      patient.address.street = address.street || patient.address.street;
+    }
 
     // Save the updated patient profile
     await patient.save();
@@ -179,8 +211,6 @@ export const editPatientProfile = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-// Add medications my patient profile logged in patient
 
 // send password reset link to a patient
 export const sendPasswordResetLink = async (req, res) => {
@@ -287,24 +317,26 @@ export const changePassword = async (req, res) => {
 
 // Patients medical information
 export const addMedicalHistory = asyncHandler(async (req, res) => {
-  try {
-    const { condition, diagnosedDate } = req.body;
-    const patientId = req.user._id;
+  const { condition, diagnosedDate } = req.body;
+  const patientId = req.user._id;
 
-    const patient = await Patient.findById(patientId);
-    if (!patient) {
-      return res.status(404).json({ message: "Patient not found" });
-    }
-
-    patient.medicalHistory.push({ condition, diagnosedDate });
-    await patient.save();
-    res
-      .status(201)
-      .json({ message: "Medical history added successfully", patient });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ message: e ? e.message : "Internal server error" });
+  // Validate diagnosedDate
+  const validDate = new Date(diagnosedDate);
+  if (isNaN(validDate.getTime())) {
+    return res.status(400).json({ message: "Invalid date format" });
   }
+
+  const patient = await Patient.findById(patientId);
+  if (!patient) {
+    return res.status(404).json({ message: "Patient not found" });
+  }
+
+  patient.medicalHistory.push({ condition, diagnosedDate: validDate });
+  await patient.save();
+
+  res
+    .status(200)
+    .json({ message: "Medical history added successfully", patient });
 });
 
 export const updateMedicalHistory = asyncHandler(async (req, res) => {

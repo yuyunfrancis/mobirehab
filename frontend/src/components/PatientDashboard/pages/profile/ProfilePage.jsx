@@ -34,8 +34,8 @@ const PatientProfilePage = () => {
   });
 
   const tabContent = {
-    personal: <PersonalInfoTab patient={patient} setPatient={setPatient} />,
-    medical: <MedicalInfoTab patient={patient} setPatient={setPatient} />,
+    personal: <PersonalInfoTab />,
+    medical: <MedicalInfoTab />,
     security: <SecurityTab />,
   };
 
@@ -90,16 +90,6 @@ const PatientProfilePage = () => {
               {tabContent[activeTab]}
             </motion.div>
           </AnimatePresence>
-        </div>
-        <div className="px-6 py-4 bg-gray-50 border-t">
-          <Button
-            label="Save Changes"
-            onClick={() => {
-              /* Save changes logic */
-            }}
-            icon={<FaUser className="mr-2" />}
-            className="text-lg font-semibold"
-          />
         </div>
       </motion.div>
     </div>

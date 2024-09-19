@@ -1,11 +1,15 @@
 import express from "express";
 import {
+  addMedicalHistory,
+  deleteMedicalHistory,
+  editPatientProfile,
   getAllVerifiedTherapists,
   loginPatient,
   logoutPatient,
   resetPassword,
   sendPasswordResetLink,
   signupPatient,
+  updateMedicalHistory,
 } from "../controllers/patient/patients.controller.js";
 import validateToken from "../middleware/validateToken.js";
 import {
@@ -47,7 +51,15 @@ router.route("/therapists").get(getAllVerifiedTherapists);
 router.get("/profile", (req, res) => {
   res.json(req.user);
 });
+router.route("/profile").patch(editPatientProfile);
 
 router.post("/logout", logoutPatient);
+
+// add medicals
+router
+  .route("/medical/history")
+  .post(addMedicalHistory)
+  .patch(updateMedicalHistory)
+  .delete(deleteMedicalHistory);
 
 export default router;

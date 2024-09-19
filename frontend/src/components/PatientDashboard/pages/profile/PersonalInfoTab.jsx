@@ -18,18 +18,22 @@ import Input from "../../../common/forms/Input";
 import { UserContext } from "../../../../context/UserContext";
 import api from "../../../../utils/api";
 import Loading from "../../../utilities/Loading";
+import Button from "../../../common/Button";
+import { formatDate } from "../../../../utils/dateFormater";
+import toast from "react-hot-toast";
 
-const PersonalInfoTab = ({ patient, setPatient }) => {
-  const [imagePreview, setImagePreview] = useState(patient.profilePicture);
-  const [patientData, setPatientData] = useState(null);
+const PersonalInfoTab = () => {
+  const [patient, setPatient] = useState([]);
   const { currentUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(patient.profilePicture);
+  const [onUpdate, setOnUpdate] = useState(false);
 
   const getPatientData = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/patient/profile`);
-      setPatientData(response.data);
+      setPatient(response.data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching patient data:", error);
@@ -41,7 +45,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
     getPatientData();
   }, []);
 
-  console.log("Patient Data:", patientData);
+  console.log("Patient Data:", patient);
 
   const handleChange = (e) => {
     setPatient({ ...patient, [e.target.name]: e.target.value });
@@ -56,6 +60,43 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
         setPatient({ ...patient, profilePicture: file });
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const updatePatientProfile = async () => {
+    try {
+      setOnUpdate(true);
+      const formData = new FormData();
+      for (const key in patient) {
+        if (key === "profilePicture") {
+          formData.append("profilePicture", patient.profilePicture);
+        } else if (key === "address") {
+          for (const addressKey in patient.address) {
+            formData.append(
+              `address.${addressKey}`,
+              patient.address[addressKey]
+            );
+          }
+        } else {
+          formData.append(key, patient[key]);
+        }
+      }
+
+      // console.log("Form Data:", formData);
+
+      const response = await api.patch("/patient/profile", formData);
+      toast.success("Profile updated successfully");
+      // refetch the patient data after updating
+      getPatientData();
+      setOnUpdate(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error(error.response?.data?.message || "Error updating profile");
+      toast.error(
+        "Error updating profile: " +
+          (error.response?.data?.message || "Unknown error")
+      );
+      setOnUpdate(false);
     }
   };
 
@@ -85,7 +126,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           )}
           <label
             htmlFor="profilePicture"
-            className="absolute bottom-2 right-2 bg-greenPrimary text-white p-3 rounded-full cursor-pointer hover:bg-green-600 transition duration-300 shadow-md"
+            className="absolute bottom-2 right-2 bg-white text-greenPrimary p-3 rounded-full cursor-pointer hover:bg-blueHover hover:text-white transition duration-300 shadow-md"
           >
             <FaCamera className="text-xl" />
             <input
@@ -100,11 +141,16 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
         </div>
         <div className="md:flex-1 text-center md:text-left">
           <h2 className="text-5xl font-bold text-greenPrimary mb-4">
-            {`${patient.firstName} ${patient.lastName}`}
+            {`${patient?.firstName} ${patient?.lastName}`}
           </h2>
           <div className="flex items-center justify-center md:justify-start text-xl text-gray-600 mb-4">
             <FaIdCard className="mr-2 text-greenPrimary" />
-            <span>Patient ID: {patient.id}</span>
+            <span>
+              Patient ID:{" "}
+              <span className="text-blueColor font-semibold">
+                {patient?.patientId}
+              </span>
+            </span>
           </div>
         </div>
       </div>
@@ -118,7 +164,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           </h3>
           <Input
             handleChange={handleChange}
-            value={patient.firstName}
+            value={patient?.firstName}
             labelText="First Name"
             labelFor="firstName"
             id="firstName"
@@ -129,7 +175,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.lastName}
+            value={patient?.lastName}
             labelText="Last Name"
             labelFor="lastName"
             id="lastName"
@@ -140,7 +186,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.email}
+            value={patient?.email}
             labelText="Email"
             labelFor="email"
             id="email"
@@ -151,7 +197,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.phoneNumber}
+            value={patient?.phoneNumber}
             labelText="Phone Number"
             labelFor="phoneNumber"
             id="phoneNumber"
@@ -169,7 +215,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           </h3>
           <Input
             handleChange={handleChange}
-            value={patient.dateOfBirth}
+            value={formatDate(patient?.dateOfBirth)}
             labelText="Date of Birth"
             labelFor="dateOfBirth"
             id="dateOfBirth"
@@ -179,7 +225,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.gender}
+            value={patient?.gender}
             labelText="Gender"
             labelFor="gender"
             id="gender"
@@ -190,7 +236,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.nationality}
+            value={patient?.nationality}
             labelText="Nationality"
             labelFor="nationality"
             id="nationality"
@@ -201,7 +247,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.emergencyContact}
+            value={patient?.guardianPhoneNumber}
             labelText="Emergency Contact"
             labelFor="emergencyContact"
             id="emergencyContact"
@@ -221,7 +267,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <Input
             handleChange={handleChange}
-            value={patient.country}
+            value={patient?.address?.country}
             labelText="Country"
             labelFor="country"
             id="country"
@@ -232,7 +278,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.city}
+            value={patient?.address?.city}
             labelText="City"
             labelFor="city"
             id="city"
@@ -243,7 +289,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.district}
+            value={patient?.address?.district}
             labelText="District"
             labelFor="district"
             id="district"
@@ -254,7 +300,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.street}
+            value={patient?.address?.street}
             labelText="Street"
             labelFor="street"
             id="street"
@@ -265,7 +311,7 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
           />
           <Input
             handleChange={handleChange}
-            value={patient.buildingNumber}
+            value={patient?.buildingNumber}
             labelText="Building Number"
             labelFor="buildingNumber"
             id="buildingNumber"
@@ -286,6 +332,17 @@ const PersonalInfoTab = ({ patient, setPatient }) => {
             icon={<FaMapMarkerAlt className="text-greenPrimary text-xl" />}
           />
         </div>
+      </div>
+      <div className="px-6 py-4 bg-gray-50 border-t">
+        <Button
+          label={onUpdate ? "Updating..." : "Update Profile"}
+          disabled={onUpdate}
+          onClick={() => {
+            updatePatientProfile();
+          }}
+          icon={<FaUser className="mr-2" />}
+          className="text-lg font-semibold"
+        />
       </div>
     </div>
   );
