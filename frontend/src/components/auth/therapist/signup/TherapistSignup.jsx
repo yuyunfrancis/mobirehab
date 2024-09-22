@@ -5,8 +5,8 @@ import SignupFormTherapist from "./SignupFormTherapist";
 const TherapistSignup = ({ END_POINT }) => {
   return (
     <div className="w-screen h-screen flex overflow-hidden">
-      <div className="flex w-full h-full">
-        <div className="hidden md:flex w-2/5 h-full bg-hoverColor flex-col justify-center items-center p-4">
+      <div className="flex flex-col md:flex-row w-full h-full overflow-y-auto">
+        <div className="w-full md:w-2/5 h-full bg-hoverColor md:flex hidden flex-col justify-center items-center p-4">
           <div className="w-1/2 h-1/2 flex justify-center items-center">
             <img
               src="https://res.cloudinary.com/da0fkowyd/image/upload/v1716320301/Gynecology_consultation-rafiki_d37prc.png"
@@ -20,8 +20,8 @@ const TherapistSignup = ({ END_POINT }) => {
             serve Kigali, and we plan to launch in other parts of Rwanda soon.
           </p>
         </div>
-        <div className="w-full md:w-3/5 h-full bg-white flex flex-col items-center md:items-center justify-center overflow-auto">
-          <div className="flex-wrap lg:w-3/4 w-full px-8 mt-6 lg:mt-0 lg:px-0 py-6 lg:py-0 overflow-y-auto lg:overflow-hidden">
+        <div className="w-full md:w-3/5 h-full bg-white flex pt-60 lg:pt-0 items-center justify-center overflow-y-auto">
+          <div className="w-3/4 mt-96 lg:mt-0">
             <Header
               heading="Therapist Registration"
               paragraph="Already have an account? "

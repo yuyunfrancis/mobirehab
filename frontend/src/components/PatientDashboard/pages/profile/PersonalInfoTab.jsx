@@ -4,10 +4,7 @@ import {
   FaCalendarAlt,
   FaPhone,
   FaMapMarkerAlt,
-  FaVenusMars,
-  FaAmbulance,
   FaEnvelope,
-  FaGlobe,
   FaCity,
   FaRoad,
   FaBuilding,
@@ -21,6 +18,9 @@ import Loading from "../../../utilities/Loading";
 import Button from "../../../common/Button";
 import { formatDate } from "../../../../utils/dateFormater";
 import toast from "react-hot-toast";
+import CustomPhoneInput from "../../../common/forms/PhoneInput";
+import CustomDropdown from "../../../common/forms/CustomDropdown";
+import CustomCountryDropdown from "../../../common/forms/CustomCountryDropdown";
 
 const PersonalInfoTab = () => {
   const [patient, setPatient] = useState([]);
@@ -48,7 +48,26 @@ const PersonalInfoTab = () => {
   console.log("Patient Data:", patient);
 
   const handleChange = (e) => {
-    setPatient({ ...patient, [e.target.name]: e.target.value });
+    const { name, value, type, files } = e.target;
+    if (
+      name === "country" ||
+      name === "city" ||
+      name === "district" ||
+      name === "street"
+    ) {
+      setPatient((prevPatient) => ({
+        ...prevPatient,
+        address: {
+          ...prevPatient.address,
+          [name]: value,
+        },
+      }));
+    } else {
+      setPatient((prevPatient) => ({
+        ...prevPatient,
+        [name]: type === "file" ? files[0] : value,
+      }));
+    }
   };
 
   const handleImageChange = (e) => {
@@ -57,7 +76,10 @@ const PersonalInfoTab = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
-        setPatient({ ...patient, profilePicture: file });
+        setPatient((prevPatient) => ({
+          ...prevPatient,
+          profilePicture: file,
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -82,20 +104,17 @@ const PersonalInfoTab = () => {
         }
       }
 
-      // console.log("Form Data:", formData);
-
-      const response = await api.patch("/patient/profile", formData);
+      const response = await api.patch("/patient/profile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       toast.success("Profile updated successfully");
-      // refetch the patient data after updating
       getPatientData();
       setOnUpdate(false);
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error(error.response?.data?.message || "Error updating profile");
-      toast.error(
-        "Error updating profile: " +
-          (error.response?.data?.message || "Unknown error")
-      );
       setOnUpdate(false);
     }
   };
@@ -113,9 +132,9 @@ const PersonalInfoTab = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row items-center gap-12 mb-16">
         <div className="relative">
-          {imagePreview ? (
+          {imagePreview || patient?.profilePicture ? (
             <img
-              src={imagePreview}
+              src={imagePreview ? imagePreview : patient.profilePicture}
               alt="Profile"
               className="w-48 h-48 rounded-full object-cover border-4 border-greenPrimary shadow-lg transition-transform duration-300 hover:scale-105"
             />
@@ -223,38 +242,41 @@ const PersonalInfoTab = () => {
             type="date"
             icon={<FaCalendarAlt className="text-greenPrimary text-xl" />}
           />
-          <Input
+          <CustomDropdown
             handleChange={handleChange}
             value={patient?.gender}
             labelText="Gender"
             labelFor="gender"
             id="gender"
             name="gender"
-            type="text"
-            placeholder="Enter your gender"
-            icon={<FaVenusMars className="text-greenPrimary text-xl" />}
+            isRequired={true}
+            options={["Male", "Female"]}
+            placeholder="Gender"
           />
-          <Input
-            handleChange={handleChange}
-            value={patient?.nationality}
-            labelText="Nationality"
-            labelFor="nationality"
-            id="nationality"
-            name="nationality"
-            type="text"
-            placeholder="Enter your nationality"
-            icon={<FaGlobe className="text-greenPrimary text-xl" />}
+          <CustomPhoneInput
+            country={"rw"}
+            labelText={"Phone Number"}
+            labelFor="phoneNumber"
+            value={patient?.phoneNumber}
+            onChange={(phone) =>
+              handleChange({
+                target: { name: "phoneNumber", value: phone },
+              })
+            }
+            placeholder="Phone Number"
           />
-          <Input
-            handleChange={handleChange}
-            value={patient?.guardianPhoneNumber}
+
+          <CustomPhoneInput
+            country={"rw"}
             labelText="Emergency Contact"
             labelFor="emergencyContact"
-            id="emergencyContact"
-            name="emergencyContact"
-            type="text"
-            placeholder="Name: Relationship: Phone"
-            icon={<FaAmbulance className="text-greenPrimary text-xl" />}
+            value={patient?.guardianPhoneNumber}
+            onChange={(phone) =>
+              handleChange({
+                target: { name: "guardianPhoneNumber", value: phone },
+              })
+            }
+            placeholder="Phone Number"
           />
         </div>
       </div>
@@ -265,27 +287,29 @@ const PersonalInfoTab = () => {
           Address Information
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <Input
-            handleChange={handleChange}
+          <CustomCountryDropdown
             value={patient?.address?.country}
-            labelText="Country"
-            labelFor="country"
-            id="country"
+            handleChange={(country) =>
+              handleChange({
+                target: { name: "country", value: country },
+              })
+            }
             name="country"
-            type="text"
-            placeholder="Enter your country"
-            icon={<FaGlobe className="text-greenPrimary text-xl" />}
+            labelFor="country"
+            labelText="Country"
           />
-          <Input
-            handleChange={handleChange}
+          <CustomCountryDropdown
+            country={patient?.address?.country}
             value={patient?.address?.city}
-            labelText="City"
-            labelFor="city"
-            id="city"
+            handleChange={(city) =>
+              handleChange({
+                target: { name: "city", value: city },
+              })
+            }
             name="city"
-            type="text"
-            placeholder="Enter your city"
-            icon={<FaCity className="text-greenPrimary text-xl" />}
+            labelFor="city"
+            labelText="Region/City"
+            dropdownType="region"
           />
           <Input
             handleChange={handleChange}

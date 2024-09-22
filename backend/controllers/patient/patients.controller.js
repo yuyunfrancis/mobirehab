@@ -5,6 +5,7 @@ import generateToken from "../../utils/generateToken.js";
 import Therapist from "../../models/therapist.model.js";
 import { asyncHandler } from "../../middleware/asyncHandler.js";
 import { sendPasswordResetEmail } from "../../utils/sendGridEmail.js";
+import { uploadFilesToCloudinary } from "../../utils/cloudinary.js";
 
 const createSendToken = (user, statusCode, res) => {
   const token = generateToken(user._id, user.userType, res);
@@ -160,7 +161,6 @@ export const getPatientProfile = asyncHandler(async (req, res) => {
   });
 });
 
-// Edit profile details of a patient
 export const editPatientProfile = async (req, res) => {
   try {
     const patientId = req.user._id;
@@ -177,6 +177,8 @@ export const editPatientProfile = async (req, res) => {
       phoneNumber,
       guardianPhoneNumber,
       address,
+      gender,
+      dateOfBirth,
     } = req.body;
 
     // Update the patient's profile information (except password)
@@ -184,8 +186,26 @@ export const editPatientProfile = async (req, res) => {
     patient.lastName = lastName || patient.lastName;
     patient.email = email || patient.email;
     patient.phoneNumber = phoneNumber || patient.phoneNumber;
+    patient.gender = gender || patient.gender;
     patient.guardianPhoneNumber =
       guardianPhoneNumber || patient.guardianPhoneNumber;
+
+    patient.dateOfBirth = dateOfBirth || patient.dateOfBirth;
+
+    // Update profile picture if provided
+    if (req.files && req.files.profilePicture) {
+      const profilePicturePath = req.files.profilePicture[0].path;
+
+      const file = [
+        { filePath: profilePicturePath, folderName: "profilePicture" },
+      ];
+
+      // Upload to Cloudinary
+      const uploadPicture = await uploadFilesToCloudinary(file);
+      if (uploadPicture) {
+        patient.profilePicture = uploadPicture[0].secure_url;
+      }
+    }
 
     // Update address if provided
     if (address) {
