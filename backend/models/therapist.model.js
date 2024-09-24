@@ -166,7 +166,7 @@ function generateTherapistId() {
 therapistSchema.methods.createOTP = function () {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   this.otp = otp;
-  this.otpExpires = Date.now() + 10 * 60 * 1000;
+  this.otpExpires = Date.now() + 10 * 60 * 1000; // Increase time
   return otp;
 };
 
